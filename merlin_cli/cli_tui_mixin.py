@@ -469,15 +469,21 @@ class CLITuiMixin:
         c_good  = skin.get_color("ui_ok",        "#859900") if skin else "#859900"
 
         model = getattr(self, "model", "") or "unconfigured"
+        try:
+            from cli import get_skill_bundles
+            skill_count = f"{len(get_skill_bundles())} active skills"
+        except Exception:
+            skill_count = "ready skills"   # count is cosmetic; never break the TUI over it
+        if skill_count == "0 active skills":
+            # Bundles lazy-load on first use; don't show an empty count at boot.
+            skill_count = "grimoire loaded"
 
         def status_text():
             return [
                 ("fg:" + c_title, "✧━ ⟨ SPELLBOOK STATUS ⟩ ━✧"),
                 ("fg:" + c_dim, "\nᛟ Incantation : "), ("fg:" + c_text, str(model)),
                 ("fg:" + c_dim, "  (Arcane Intelligence)"),
-                ("fg:" + c_dim, "\nᛞ Runes Loaded: "), ("fg:" + c_text, "55 active skills"),
-                ("fg:" + c_dim, "\nᚨ Mana        : "),
-                ("fg:" + c_good, "live in the status bar below"),
+                ("fg:" + c_dim, "\nᛞ Runes Loaded: "), ("fg:" + c_text, skill_count),
                 ("fg:" + c_dim, "\nᛝ Response    : "), ("fg:" + c_dim, "casting..."),
             ]
 
@@ -490,7 +496,7 @@ class CLITuiMixin:
             return frag
 
         return [
-            Window(FormattedTextControl(status_text), height=6, dont_extend_height=True),
+            Window(FormattedTextControl(status_text), height=4, dont_extend_height=True),
             Window(FormattedTextControl(slots_text), height=3, dont_extend_height=True),
         ]
 
