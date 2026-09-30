@@ -88,8 +88,8 @@ async function stampExeIdentity(
     'version-string': {
       ProductName: 'Merlin',
       FileDescription: 'Merlin',
-      CompanyName: 'Arthov Labs',
-      LegalCopyright: 'Copyright (c) 2026 Arthov Labs'
+      CompanyName: 'Epinoia Horizon',
+      LegalCopyright: 'Copyright (c) 2026 Epinoia Horizon'
     }
   }
 

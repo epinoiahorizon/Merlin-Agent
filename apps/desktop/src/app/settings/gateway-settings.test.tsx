@@ -360,7 +360,7 @@ describe('GatewaySettings', () => {
 
     const oauthProbe = {
       authMode: 'oauth',
-      providers: [{ displayName: 'Arthov Labs', name: 'atlas', supportsPassword: false }],
+      providers: [{ displayName: 'Epinoia Horizon', name: 'atlas', supportsPassword: false }],
       reachable: true
     }
 
@@ -379,7 +379,7 @@ describe('GatewaySettings', () => {
       // The env override still owns the URL: the editor stays read-only.
       expect(((await screen.findByDisplayValue(envUrl)) as HTMLInputElement).disabled).toBe(true)
 
-      fireEvent.click(await screen.findByRole('button', { name: 'Sign in with Arthov Labs' }))
+      fireEvent.click(await screen.findByRole('button', { name: 'Sign in with Epinoia Horizon' }))
 
       await waitFor(() => expect(oauthLoginConnectionConfig).toHaveBeenCalledWith(envUrl))
     })
@@ -396,7 +396,7 @@ describe('GatewaySettings', () => {
       render(<GatewaySettings embedded />)
 
       expect(((await screen.findByDisplayValue(envUrl)) as HTMLInputElement).disabled).toBe(false)
-      expect(await screen.findByRole('button', { name: 'Sign in with Arthov Labs' })).toBeTruthy()
+      expect(await screen.findByRole('button', { name: 'Sign in with Epinoia Horizon' })).toBeTruthy()
       expect(oauthLoginConnectionConfig).not.toHaveBeenCalled()
     })
   })

@@ -56,14 +56,14 @@ test('azureConfigFromEnv composes the Azure signing config from the environment'
       AZURE_SIGN_ENDPOINT: 'https://cus.codesigning.azure.net',
       AZURE_SIGN_ACCOUNT: 'codesign2',
       AZURE_SIGN_PROFILE: 'merlinagent',
-      AZURE_SIGN_PUBLISHER: 'CN=Arthov Labs Inc.'
+      AZURE_SIGN_PUBLISHER: 'CN=Epinoia Horizon Inc.'
     }),
     {
       type: 'azure',
       endpoint: 'https://cus.codesigning.azure.net',
       codeSigningAccountName: 'codesign2',
       certificateProfileName: 'merlinagent',
-      publisherName: 'CN=Arthov Labs Inc.'
+      publisherName: 'CN=Epinoia Horizon Inc.'
     }
   )
   // Missing vars stay undefined — the manager's ctor handles that.

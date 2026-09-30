@@ -62,38 +62,60 @@ _MERLIN_BRANDING: Dict[str, str] = _branding(
 
 _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
     "default": {
-        "name": "default", "description": "Classic Merlin — gold and kawaii",
-        # Dark-authored; values match the TUI's DARK_THEME so both render the same gold.
+        "name": "default", "description": "Merlin Solarized Dark — deep teal + gold (landing-page native)",
         "colors": {
-            "banner_border": "#CD7F32", "banner_title": "#FFD700", "banner_accent": "#FFBF00",
-            "banner_dim": "#B8860B", "banner_text": "#FFF8DC", "ui_accent": "#FFBF00",
-            "ui_label": "#DAA520", "ui_ok": "#4caf50", "ui_error": "#ef5350", "ui_warn": "#ffa726",
-            "prompt": "#FFF8DC", "input_rule": "#CD7F32", "response_border": "#FFD700",
-            "status_bar_bg": "#1a1a2e", "status_bar_text": "#C0C0C0",
-            "status_bar_strong": "#FFD700", "status_bar_dim": "#8A7A4A",
-            "status_bar_good": "#8FBC8F", "status_bar_warn": "#FFD700", "status_bar_bad": "#FF8C00",
-            "status_bar_critical": "#FF6B6B", "session_label": "#DAA520",
-            "session_border": "#8B8682", "completion_menu_bg": "#1a1a2e",
-            "completion_menu_current_bg": "#333355", "selection_bg": "#3a3a55",
-            "shell_dollar": "#4dabf7", "voice_status_bg": "#1a1a2e"},
-        # Light overlay (merged onto `colors`). Goldenrod ladder: on white the vivid
-        # #FFD700/#FFBF00 read as glare and WCAG-darkened mustard (#867000) as mud; the
-        # statusbar's goldenrod family (#B8860B/#DAA520) keeps the hue, tames saturation.
-        # Hierarchy on white: ink body 8.9:1 > fade 5.2 > label 3.7 > muted 3.3 > title 2.7 >
-        # headers 2.4. Fills (*_bg) flip the dark navy surfaces to light polarity.
+            "banner_border": "#586e75", "banner_title": "#e6c04a", "banner_accent": "#b58900",
+            "banner_dim": "#657b83", "banner_text": "#fdf6e3", "ui_accent": "#b58900",
+            "ui_label": "#b58900", "ui_ok": "#859900", "ui_error": "#dc322f", "ui_warn": "#cb4b16",
+            "prompt": "#fdf6e3", "input_rule": "#586e75", "response_border": "#b58900",
+            "status_bar_bg": "#073642", "status_bar_text": "#93a1a1",
+            "status_bar_strong": "#e6c04a", "status_bar_dim": "#839496",
+            "status_bar_good": "#859900", "status_bar_warn": "#cb4b16", "status_bar_bad": "#dc322f",
+            "status_bar_critical": "#dc322f", "session_label": "#b58900",
+            "session_border": "#586e75", "completion_menu_bg": "#073642",
+            "completion_menu_current_bg": "#0d4250", "selection_bg": "#0d4250",
+            "shell_dollar": "#268bd2", "voice_status_bg": "#073642"},
         "light_colors": {
-            "banner_title": "#C8961E", "banner_accent": "#D89B04", "banner_dim": "#B8860B",
-            "banner_text": "#5C4718", "ui_accent": "#D89B04", "ui_label": "#A97E10",
-            "ui_ok": "#2E7D32", "ui_error": "#C62828", "ui_warn": "#D97706", "prompt": "#5C4718",
-            "response_border": "#C8961E", "session_label": "#A97E10", "status_bar_text": "#6F6F6F",
-            "status_bar_strong": "#C8961E", "status_bar_dim": "#9A8A5A",
-            "status_bar_good": "#2E7D32", "status_bar_warn": "#C8961E", "status_bar_bad": "#C2410C",
-            "status_bar_critical": "#B91C1C", "shell_dollar": "#1E6FC0",
-            "completion_menu_bg": "#F5F5F5", "completion_menu_current_bg": "#E0D1BF",
-            "selection_bg": "#D4E4F7", "status_bar_bg": "#F5F5F5", "voice_status_bg": "#F5F5F5"},
-        "spinner": {},  # empty = hardcoded defaults in display.py
-        "branding": _MERLIN_BRANDING,
-        "tool_prefix": "┊"},
+            "banner_title": "#8a6508", "banner_accent": "#9a740c", "banner_dim": "#839496",
+            "banner_text": "#3a4b52", "ui_accent": "#9a740c", "ui_label": "#7a5c00",
+            "ui_ok": "#5c7c00", "ui_error": "#c62828", "ui_warn": "#b53d0c", "prompt": "#3a4b52",
+            "response_border": "#8a6508", "session_label": "#7a5c00", "status_bar_text": "#4a5b62",
+            "status_bar_strong": "#8a6508", "status_bar_dim": "#93a1a1",
+            "status_bar_good": "#5c7c00", "status_bar_warn": "#b53d0c", "status_bar_bad": "#c62828",
+            "status_bar_critical": "#b71c1c", "shell_dollar": "#1a6fb0",
+            "completion_menu_bg": "#fdf6e3", "completion_menu_current_bg": "#eee8d5",
+            "selection_bg": "#d8d0bb", "status_bar_bg": "#fdf6e3", "voice_status_bg": "#fdf6e3"},
+        "spinner": {
+            "waiting_faces": ["(·)", "(✦)", "(❋)", "(✧)"],
+            "thinking_faces": ["(❋)", "(✦)", "(✧)", "(·)"],
+            "thinking_verbs": [
+                "conjuring", "scrying", "binding runes", "stirring the cauldron",
+                "reading the stars", "brewing", "tracing ley lines", "channeling"],
+            "wings": _wings("✶", "❋", ("·", "·"), "✦")},
+        "branding": {
+            "agent_name": "Merlin Agent",
+            "welcome": "Welcome to Merlin Agent! Type your message or /help for commands.",
+            "goodbye": "The session closes — memory persists. ☤",
+            "response_label": " ☤ Merlin ",
+            "prompt_symbol": "❯",
+            "help_header": "☙ Merlin Agent — Available Commands"},
+        "tool_prefix": "☙",
+        "banner_hero": """[#657b83]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#657b83]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠜⠣⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#b58900]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠊⠁⠀⡀⠈⠑⢄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#b58900]⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠊⠀⠀⠀⠪⡪⠂⠀⠀⠑⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#e6c04a]⠀⠀⠀⠀⠀⠤⠤⠴⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠬⠦⠤⠤⠄⠀⠀⠀⠀[/]
+[#e6c04a]⠀⠀⠀⠤⠤⠤⠤⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠧⠤⠤⠤⠄⠀⠀[/]
+[#b58900]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢣⠀⠀⠀⠀⠀⠀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#b58900]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡄⠆⠀⡄⠰⢠⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#93a1a1]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠱⡠⠔⠣⢄⠎⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#93a1a1]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠀⠉⡄⢸⡇⢠⠉⠀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#e6c04a]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢣⠀⢱⢸⡇⡎⠀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#e6c04a]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢣⠸⣼⣧⠇⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#e6c04a]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢆⣿⣿⡰⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#e6c04a]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢾⡷⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#93a1a1]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]""",
+    },
     "ares": {
         "name": "ares", "description": "War-god theme — crimson and bronze",
         "colors": {

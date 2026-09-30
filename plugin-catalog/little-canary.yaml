@@ -4,7 +4,7 @@ sha: 6abccc1aa9f325305dc7f3767bc9dda71fbac56a
 subdir: integrations/merlin-agent
 version: "0.3.10"
 description: Screens user turns and blocks downstream tools on a BLOCK verdict; the original prompt still reaches the model.
-maintainer: roli-lpci (Merlin Labs; independent of Arthov Labs)
+maintainer: roli-lpci (Merlin Labs; independent of Epinoia Horizon)
 tier: community
 category: general
 requires_merlin: ">=0.21.3"

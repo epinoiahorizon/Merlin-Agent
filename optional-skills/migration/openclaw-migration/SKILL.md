@@ -2,7 +2,7 @@
 name: openclaw-migration
 description: Import an OpenClaw setup (memories, skills) into Merlin.
 version: 1.0.0
-author: Merlin Agent (Arthov Labs)
+author: Merlin Agent (Epinoia Horizon)
 license: MIT
 platforms: [linux, macos, windows]
 metadata:

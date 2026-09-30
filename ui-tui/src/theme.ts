@@ -370,26 +370,25 @@ export function buildPalette(seeds: ThemeSeeds, isLight: boolean): ThemeColors {
 }
 
 export const DARK_SEEDS: ThemeSeeds = {
-  accent: '#FFBF00',
-  // The classic Merlin navy surfaces are IDENTITY, not derivation drift —
-  // keep them as explicit fill seeds (the ladder derives them for skins
-  // that don't care).
-  activeRow: '#333355',
-  bg: '#101014',
-  border: '#CD7F32',
-  error: '#ef5350',
-  ok: '#4caf50',
-  primary: '#FFD700',
-  prompt: '#FFF8DC',
-  selection: '#3a3a55',
-  shellDollar: '#4dabf7',
-  statusBad: '#FF8C00',
-  statusCritical: '#FF6B6B',
-  statusGood: '#8FBC8F',
-  statusWarn: '#FFD700',
-  surface: '#1a1a2e',
-  text: '#FFF8DC',
-  warn: '#ffa726'
+  accent: '#b58900',
+  // Solarized Dark surfaces are IDENTITY (landing-page native) — explicit fill
+  // seeds; the ladder derives skins that don't care.
+  activeRow: '#0d4250',
+  bg: '#002b36',
+  border: '#586e75',
+  error: '#dc322f',
+  ok: '#859900',
+  primary: '#e6c04a',
+  prompt: '#fdf6e3',
+  selection: '#0d4250',
+  shellDollar: '#268bd2',
+  statusBad: '#cb4b16',
+  statusCritical: '#dc322f',
+  statusGood: '#859900',
+  statusWarn: '#b58900',
+  surface: '#073642',
+  text: '#fdf6e3',
+  warn: '#cb4b16'
 }
 
 // Light-terminal seeds: darker golds/ambers that stay legible on white.

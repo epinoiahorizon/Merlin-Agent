@@ -35,7 +35,7 @@ import merlin_cli.plugins as plugins_mod
 from tools import transcription_tools
 
 
-PROMPT = "Merlin, Teknium, Arthov Labs, kanban"
+PROMPT = "Merlin, Teknium, Epinoia Horizon, kanban"
 
 
 # ---------------------------------------------------------------------------

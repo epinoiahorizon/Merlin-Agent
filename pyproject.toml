@@ -13,7 +13,7 @@ readme = "README.md"
 # Shortly after they do, we update to our latest python.
 # See tests/compat/README.md for the updater contract this keeps.
 requires-python = ">=3.11,<3.15"
-authors = [{ name = "Arthov Labs" }]
+authors = [{ name = "Epinoia Horizon" }]
 license = "MIT"
 license-files = ["LICENSE"]
 dependencies = [

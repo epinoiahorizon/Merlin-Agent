@@ -70,7 +70,7 @@ Path: `scripts/fetch_gdelt.py`
 
 ```bash
 # Recent news mentioning an entity
-python3 SKILL_DIR/scripts/fetch_gdelt.py --query "Arthov Labs" \
+python3 SKILL_DIR/scripts/fetch_gdelt.py --query "Epinoia Horizon" \
     --timespan 6m --out data/gdelt.csv
 
 # Phrase-exact (use double quotes inside single quotes for the shell)
