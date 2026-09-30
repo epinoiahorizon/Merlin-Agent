@@ -61,7 +61,8 @@ export function sparkRows(series: number[], width: number, rows: number): string
 export function gauge(ratio: number, width: number): string {
   const filled = Math.round(Math.min(1, Math.max(0, ratio)) * width)
 
-  return '█'.repeat(filled) + '░'.repeat(Math.max(0, width - filled))
+  // Arcane Grimoire mana gauge: rune-style fill on a faint rail.
+  return '▰'.repeat(filled) + '▱'.repeat(Math.max(0, width - filled))
 }
 
 /** Horizontal bar chart: one `███▌`-style bar per value, scaled to the max,

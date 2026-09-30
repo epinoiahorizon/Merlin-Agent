@@ -150,6 +150,11 @@ class CLIStatusBarMixin:
     def _build_context_bar(self, percent_used: Optional[int], width: int = 10) -> str:
         safe_percent = max(0, min(100, percent_used or 0))
         filled = round((safe_percent / 100) * width)
+        # Arcane Grimoire mana gauge: filled runes ᛫ on a faint rail, wrapped in spell brackets.
+        from merlin_cli.skin_engine import get_active_skin
+        skin = get_active_skin()
+        if skin and skin.name in ("default", "grimoire") and skin.get_branding("response_label", "").strip().startswith("ᛟ"):
+            return f"[{('▰' * filled) + ('▱' * max(0, width - filled))}]"
         return f"[{('█' * filled) + ('░' * max(0, width - filled))}]"
 
     @staticmethod
