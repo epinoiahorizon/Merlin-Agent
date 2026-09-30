@@ -904,7 +904,7 @@ class MerlinCLI(CLIInitMixin, CLITuiRuntimeMixin, CLIProcessNotificationsMixin, 
         max_turns: int = None,
         run_budget: float = None,
         verbose: Optional[bool] = None,
-        compact: bool = False,
+        compact: bool = None,  # None → fall back to display.compact from config.yaml
         resume: str = None,
         checkpoints: bool = False,
         pass_session_id: bool = False,
@@ -1681,7 +1681,7 @@ def main(
     run_budget: float = None,
     verbose: Optional[bool] = None,
     quiet: bool = False,
-    compact: bool = False,
+    compact: bool = None,  # None → fall back to display.compact from config.yaml
     list_tools: bool = False,
     list_toolsets: bool = False,
     gateway: bool = False,
