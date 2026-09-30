@@ -70,40 +70,15 @@ def _skin_color(key: str, fallback: str) -> str:
 from merlin_cli import __release_date__ as RELEASE_DATE
 from merlin_cli.version_info import get_version_info
 
-MERLIN_AGENT_LOGO = """[#2be0e0]█   █  ████  ████   █     ███  █   █[/]
-[#2be0e0]██ ██  █     █   █  █      █   ██  █[/]
-[#26cfd6]█ █ █  █     █   █  █      █   ██  █[/]
-[#26cfd6]█ █ █  █     █   █  █      █   █ █ █[/]
-[#22bedc]█   █  ████  ████   █      █   █ █ █[/]
-[#22bedc]█   █  █     ███    █      █   █  ██[/]
-[#1a9cd8]█   █  █     █  █   █      █   █  ██[/]
-[#1a9cd8]█   █  █     █   █  █      █   █   █[/]
-[#1690c7]█   █  █     █   █  █      █   █   █[/]
-[#1690c7]█   █  █     █   █  █      █   █   █[/]
-[#1284b8]█   █  ████  █   █  █      █   █   █[/]
-[#1284b8]█   █  █     █   █  █      █   █   █[/]
-[#0e78a8]█   █  █     █   █  █      █   █   █[/]
-[#0e78a8]█   █  █     █   █  ████   █   █   █[/]
-[#0a6c98]█   █  █     █   █  ████  ███  █   █[/]
-[#0a6c98]█   █            █             █   █[/]"""
-
-MERLIN_HERO = """
-[#CD7F32]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#CD7F32]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠜⠣⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#FFBF00]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠊⠁⠀⡀⠈⠑⢄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#FFBF00]⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠊⠀⠀⠀⠪⡪⠂⠀⠀⠑⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#FFD700]⠀⠀⠀⠀⠀⠤⠤⠴⠥⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠤⠬⠦⠤⠤⠄⠀⠀⠀⠀[/]
-[#FFD700]⠀⠀⠀⠤⠤⠤⠤⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠧⠤⠤⠤⠄⠀⠀[/]
-[#FFBF00]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢣⠀⠀⠀⠀⠀⠀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#FFBF00]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡄⠆⠀⡄⠰⢠⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#CD7F32]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠱⡠⠔⠣⢄⠎⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#CD7F32]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠀⠉⡄⢸⡇⢠⠉⠀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#B8860B]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢣⠀⢱⢸⡇⡎⠀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#B8860B]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢣⠸⣼⣧⠇⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#B8860B]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢆⣿⣿⡰⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#B8860B]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢾⡷⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#B8860B]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-"""
+MERLIN_AGENT_LOGO = "\n".join([
+    "[#2be0e0]" + '`7MMM.     ,MMF\'`7MM"""YMM  `7MM"""Mq.  `7MMF\'      `7MMF\'`7MN.   `7MF\'' + "[/]",
+    "[#29d5de]" + '  MMMb    dPMM    MM    `7    MM   `MM.   MM          MM    MMN.    M' + "[/]",
+    "[#26cfd6]" + '  M YM   ,M MM    MM   d      MM   ,M9    MM          MM    M YMb   M' + "[/]",
+    "[#22bedc]" + "  M  Mb  M' MM    MMmmMM      MMmmdM9     MM          MM    M  `MN. M" + "[/]",
+    "[#1a9cd8]" + "  M  YM.P'  MM    MM   Y  ,   MM  YM.     MM      ,   MM    M   `MM.M" + "[/]",
+    "[#1690c7]" + "  M  `YM'   MM    MM     ,M   MM   `Mb.   MM     ,M   MM    M     YMM" + "[/]",
+    "[#1284b8]" + ".JML. `'  .JMML..JMMmmmmMMM .JMML. .JMM..JMMmmmmMMM .JMML..JML.    YM" + "[/]",
+])
 
 # === Skills scanning ===
 
@@ -655,7 +630,7 @@ def _banner_tool_lines(
     tools: list, unavailable_toolsets: list, get_toolset_for_tool, *,
     lazy_tools: set, disabled_tools: set, accent: str, dim: str, text: str) -> list:
     """"Available Tools" section: up to 8 toolsets, each truncated to ~42 columns."""
-    lines = [f"[bold {accent}]Available Tools[/]"]
+    lines = [f"[bold {accent}]ᚨ ACTIVE RUNES (QUICK SLOTS)[/]"]
     toolsets_dict: Dict[str, list] = {}
     for tool in tools:
         tool_name = tool["function"]["name"]
@@ -723,7 +698,7 @@ def build_welcome_banner(
     text = _skin_color("banner_text", "#FFF8DC")
     # Use skin's custom hero art if provided
     _bskin = _quiet(_active_skin)
-    left_lines = ["", getattr(_bskin, "banner_hero", None) or MERLIN_HERO, ""]
+    left_lines = ["", getattr(_bskin, "banner_hero", None) or "", ""]
     left_lines += _banner_left_lines(model, cwd, session_id, context_length, provider, accent=accent, dim=dim,
                                      context_pinned=context_pinned)
     right_lines = _banner_tool_lines(
@@ -735,7 +710,7 @@ def build_welcome_banner(
     if mcp_status:
         right_lines += ["", f"[bold {accent}]MCP Servers[/]"]
         right_lines.extend(_mcp_server_line(srv, dim=dim, text=text) for srv in mcp_status)
-    right_lines += ["", f"[bold {accent}]Available Skills[/]"]
+    right_lines += ["", f"[bold {accent}]ᛞ RUNES LOADED[/]"]
     # The skills catalog is only reachable when the `skills` toolset is enabled (skill_view /
     # skill_manage). When disabled (Blank Slate) the agent cannot load any skill, so advertising
     # the on-disk catalog would be misleading — reflect the real state.
@@ -780,8 +755,11 @@ def build_welcome_banner(
     release_info = get_latest_release_tag()
     if release_info:
         version_label = f"[link={release_info[1]}]{version_label}[/link]"
+    arcane_label = version_label.replace("Merlin Agent ", "✧ MERLIN ARCANE AGENT TUI v")
+    if "✧" not in arcane_label:
+        arcane_label = f"✧ MERLIN ARCANE AGENT TUI ᛟ {version_label}"
     outer_panel = Panel(
-        layout_table, title=f"[bold {_skin_color('banner_title', '#FFD700')}]{version_label}[/]",
+        layout_table, title=f"[bold {_skin_color('banner_title', '#FFD700')}]{arcane_label}[/]",
         border_style=_skin_color("banner_border", "#CD7F32"), padding=(0, 2))
     console.print()
     if shutil.get_terminal_size().columns >= 95:
