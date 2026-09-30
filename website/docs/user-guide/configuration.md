@@ -232,9 +232,9 @@ terminal:
   home_mode: auto   # auto | real | profile — subprocess HOME policy
   env_passthrough: []  # Env var names to forward to sandboxed execution (terminal + execute_code)
   sync_back_max_bytes: 2147483648  # Remote backends: refuse to extract a state archive larger than this (bytes)
-  singularity_image: "docker://aexagent/merlin-sandbox:desktop"  # Container image for Singularity backend
-  modal_image: "aexagent/merlin-sandbox:desktop"                 # Container image for Modal backend
-  daytona_image: "aexagent/merlin-sandbox:desktop"               # Container image for Daytona backend
+  singularity_image: "docker://ghcr.io/epinoiahorizon/merlin-sandbox:desktop"  # Container image for Singularity backend
+  modal_image: "ghcr.io/epinoiahorizon/merlin-sandbox:desktop"                 # Container image for Modal backend
+  daytona_image: "ghcr.io/epinoiahorizon/merlin-sandbox:desktop"               # Container image for Daytona backend
 ```
 
 `terminal.temp_dir` controls where Merlin puts session temp artifacts on the
@@ -359,7 +359,7 @@ terminal:
   # Any other image works for shell work; the screen then needs bot_desktop.placement: gateway.
   # Writing this key is a decision: a persisted container on another image is recreated on the next
   # terminal call. Left unset, an existing container is kept and the CLI / Screen pane ask first.
-  docker_image: "aexagent/merlin-sandbox:desktop"
+  docker_image: "ghcr.io/epinoiahorizon/merlin-sandbox:desktop"
   docker_mount_cwd_to_workspace: false  # Mount launch dir into /workspace
   docker_run_as_host_user: false   # See "Running container as host user" below
   docker_snap_compat: false        # See "Snap-packaged Docker (AppArmor)" below
@@ -588,7 +588,7 @@ Runs commands in a [Singularity/Apptainer](https://apptainer.org) container. Des
 ```yaml
 terminal:
   backend: singularity
-  singularity_image: "docker://aexagent/merlin-sandbox:desktop"
+  singularity_image: "docker://ghcr.io/epinoiahorizon/merlin-sandbox:desktop"
   container_cpu: 1                 # CPU cores
   container_memory: 5120           # MB
   container_persistent: true       # Writable overlay persists across sessions

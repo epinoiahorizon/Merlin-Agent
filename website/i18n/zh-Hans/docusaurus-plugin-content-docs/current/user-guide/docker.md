@@ -33,7 +33,7 @@ Docker 与 Merlin Agent 的交集有两种截然不同的方式：
 mkdir -p ~/.merlin
 docker run -it --rm \
   -v ~/.merlin:/opt/data \
-  aexagent/merlin-agent setup
+  ghcr.io/epinoiahorizon/merlin-agent setup
 ```
 
 这将进入设置向导，向导会提示你输入 API 密钥并将其写入 `~/.merlin/.env`。你只需执行一次。强烈建议此时为 gateway 配置一个聊天系统。
@@ -48,7 +48,7 @@ docker run -d \
   --restart unless-stopped \
   -v ~/.merlin:/opt/data \
   -p 8642:8642 \
-  aexagent/merlin-agent gateway run
+  ghcr.io/epinoiahorizon/merlin-agent gateway run
 ```
 
 端口 8642 暴露 gateway 的 [OpenAI 兼容 API 服务器](./features/api-server.md)和健康检查端点。如果你只使用聊天平台（Telegram、Discord 等），该端口是可选的；但如果你希望 dashboard 或外部工具访问 gateway，则必须开放。
@@ -65,7 +65,7 @@ docker run -d \
   -e API_SERVER_HOST=0.0.0.0 \
   -e API_SERVER_KEY="$(openssl rand -hex 32)" \
   -e API_SERVER_CORS_ORIGINS='*' \
-  aexagent/merlin-agent gateway run
+  ghcr.io/epinoiahorizon/merlin-agent gateway run
 ```
 
 在面向互联网的机器上开放任何端口都存在安全风险。除非你了解相关风险，否则不应这样做。
@@ -82,7 +82,7 @@ docker run -d \
   -p 8642:8642 \
   -p 9119:9119 \
   -e MERLIN_DASHBOARD=1 \
-  aexagent/merlin-agent gateway run
+  ghcr.io/epinoiahorizon/merlin-agent gateway run
 ```
 
 Dashboard 由 s6 监管：若进程崩溃，`s6-supervise` 会在短暂退避后自动重启。Dashboard 的 stdout/stderr 会直接转发到 `docker logs <container>`；gateway 的主输出现在写入每个 profile 的 s6 日志文件，见下方的 per-profile 日志说明。
@@ -129,7 +129,7 @@ Dashboard 由 s6 监管：若进程崩溃，`s6-supervise` 会在短暂退避后
 ```sh
 docker run -it --rm \
   -v ~/.merlin:/opt/data \
-  aexagent/merlin-agent
+  ghcr.io/epinoiahorizon/merlin-agent
 ```
 
 或者，如果你已通过 Docker Desktop 等方式在运行中的容器内打开了终端，直接运行：
@@ -207,7 +207,7 @@ docker run -it --rm \
   -v ~/.merlin:/opt/data \
   -e ANTHROPIC_API_KEY="sk-ant-..." \
   -e OPENAI_API_KEY="sk-..." \
-  aexagent/merlin-agent
+  ghcr.io/epinoiahorizon/merlin-agent
 ```
 
 直接传入的 `-e` 标志会覆盖 `.env` 中的值。这对于不希望将密钥写入磁盘的 CI/CD 或密钥管理器集成非常有用。
@@ -223,7 +223,7 @@ docker run -it --rm \
 ```yaml
 services:
   merlin:
-    image: aexagent/merlin-agent:latest
+    image: ghcr.io/epinoiahorizon/merlin-agent:latest
     container_name: merlin
     restart: unless-stopped
     command: gateway run
@@ -267,7 +267,7 @@ docker run -d \
   --restart unless-stopped \
   --memory=4g --cpus=2 \
   -v ~/.merlin:/opt/data \
-  aexagent/merlin-agent gateway run
+  ghcr.io/epinoiahorizon/merlin-agent gateway run
 ```
 
 ## Dockerfile 说明 {#what-the-dockerfile-does}
@@ -333,13 +333,13 @@ merlin profile delete coder            # 拆除 s6 槽
 拉取最新镜像并重建容器。你的数据目录不受影响。
 
 ```sh
-docker pull aexagent/merlin-agent:latest
+docker pull ghcr.io/epinoiahorizon/merlin-agent:latest
 docker rm -f merlin
 docker run -d \
   --name merlin \
   --restart unless-stopped \
   -v ~/.merlin:/opt/data \
-  aexagent/merlin-agent gateway run
+  ghcr.io/epinoiahorizon/merlin-agent gateway run
 ```
 
 或使用 Docker Compose：
@@ -373,10 +373,10 @@ SSH 和 Modal 后端也会进行相同的同步——技能和凭据文件在每
 
 ### 持久安装——构建派生镜像
 
-当工具必须在每次容器启动时立即可用且无需重新安装延迟时，构建一个继承自 `aexagent/merlin-agent` 并在层中安装该工具的新镜像：
+当工具必须在每次容器启动时立即可用且无需重新安装延迟时，构建一个继承自 `ghcr.io/epinoiahorizon/merlin-agent` 并在层中安装该工具的新镜像：
 
 ```dockerfile
-FROM aexagent/merlin-agent:latest
+FROM ghcr.io/epinoiahorizon/merlin-agent:latest
 
 USER root
 RUN apt-get update \
@@ -397,7 +397,7 @@ docker run -d \
   my-merlin:latest gateway run
 ```
 
-入口点脚本和 `/opt/data` 语义原样继承，本页其余内容仍然适用。拉取更新的上游 `aexagent/merlin-agent` 时记得重新构建镜像。
+入口点脚本和 `/opt/data` 语义原样继承，本页其余内容仍然适用。拉取更新的上游 `ghcr.io/epinoiahorizon/merlin-agent` 时记得重新构建镜像。
 
 ### 复杂工具或多服务栈——运行 sidecar 容器
 
@@ -406,7 +406,7 @@ docker run -d \
 ```yaml
 services:
   merlin:
-    image: aexagent/merlin-agent:latest
+    image: ghcr.io/epinoiahorizon/merlin-agent:latest
     container_name: merlin
     restart: unless-stopped
     command: gateway run
@@ -464,7 +464,7 @@ services:
             - capabilities: [gpu]
 
   merlin:
-    image: aexagent/merlin-agent:latest
+    image: ghcr.io/epinoiahorizon/merlin-agent:latest
     container_name: merlin
     restart: unless-stopped
     command: gateway run
@@ -508,7 +508,7 @@ docker run -d \
   --name merlin \
   -v ~/.merlin:/opt/data \
   -p 8642:8642 \
-  aexagent/merlin-agent gateway run
+  ghcr.io/epinoiahorizon/merlin-agent gateway run
 ```
 
 ```yaml
@@ -527,7 +527,7 @@ docker run -d \
   --name merlin \
   --network host \
   -v ~/.merlin:/opt/data \
-  aexagent/merlin-agent gateway run
+  ghcr.io/epinoiahorizon/merlin-agent gateway run
 ```
 
 ```yaml
@@ -593,7 +593,7 @@ docker run -d \
   --name merlin \
   --shm-size=1g \
   -v ~/.merlin:/opt/data \
-  aexagent/merlin-agent gateway run
+  ghcr.io/epinoiahorizon/merlin-agent gateway run
 ```
 
 ### 网络问题后 gateway 无法重连
@@ -608,6 +608,6 @@ docker restart merlin
 
 ```sh
 docker logs --tail 50 merlin          # 最近日志
-docker run -it --rm aexagent/merlin-agent:latest version     # 验证版本
+docker run -it --rm ghcr.io/epinoiahorizon/merlin-agent:latest version     # 验证版本
 docker stats merlin                    # 资源使用情况
 ```

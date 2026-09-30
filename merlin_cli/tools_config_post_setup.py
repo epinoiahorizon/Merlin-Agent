@@ -75,7 +75,7 @@ def _post_setup_agent_browser(post_setup_key: str) -> None:
         if docker and post_setup_key == "agent_browser" and not _chromium_installed():
             _print_warning("    Chromium is missing but you're running in Docker.")
             _info_lines("Pull the latest image to get the bundled Chromium:",
-                        "  docker pull ghcr.io/aexagent/merlin-agent:latest")
+                        "  docker pull ghcr.io/epinoiahorizon/merlin-agent:latest")
         return
 
     try:

@@ -81,7 +81,7 @@ def test_promotion_reuses_the_receipt_digest_without_rebuilding():
 
     promote_stable('v1.2.3', digest, run=run)
     create = next(argv for argv in calls if argv[3] == 'create')
-    assert create[-1] == f'aexagent/merlin-agent@{digest}'
+    assert create[-1] == f'ghcr.io/epinoiahorizon/merlin-agent@{digest}'
     assert all('build' not in argv for argv in calls)
 
     with pytest.raises(DockerReleaseError, match='versioned tag'):
@@ -106,15 +106,15 @@ def test_promotion_preserves_independent_desktop_digest():
         raise AssertionError(argv)
 
     promote_stable('v1.2.3', slim, run=run)
-    assert f'aexagent/merlin-agent:v1.2.3-desktop' in inspected
+    assert f'ghcr.io/epinoiahorizon/merlin-agent:v1.2.3-desktop' in inspected
     assert {tuple(cmd[4:]) for cmd in created} == {
-        ('-t', 'aexagent/merlin-agent:stable', '-t', 'aexagent/merlin-agent:latest',
-         f'aexagent/merlin-agent@{slim}'),
-        ('-t', 'aexagent/merlin-agent:stable-desktop', '-t',
-         'aexagent/merlin-agent:latest-desktop', f'aexagent/merlin-agent@{desktop}'),
+        ('-t', 'ghcr.io/epinoiahorizon/merlin-agent:stable', '-t', 'ghcr.io/epinoiahorizon/merlin-agent:latest',
+         f'ghcr.io/epinoiahorizon/merlin-agent@{slim}'),
+        ('-t', 'ghcr.io/epinoiahorizon/merlin-agent:stable-desktop', '-t',
+         'ghcr.io/epinoiahorizon/merlin-agent:latest-desktop', f'ghcr.io/epinoiahorizon/merlin-agent@{desktop}'),
     }
-    assert 'aexagent/merlin-agent:stable-desktop' in inspected
-    assert 'aexagent/merlin-agent:latest-desktop' in inspected
+    assert 'ghcr.io/epinoiahorizon/merlin-agent:stable-desktop' in inspected
+    assert 'ghcr.io/epinoiahorizon/merlin-agent:latest-desktop' in inspected
 
 
 def test_promotion_requires_desktop_version_before_moving_any_alias():
@@ -145,7 +145,7 @@ def test_published_digest_checks_desktop_tag():
         return 'sha256:' + ('e' if argv[4].endswith('-desktop') else 'd') * 64
 
     assert published_digest('v1.2.3', run=run) == 'sha256:' + 'd' * 64
-    assert inspected == ['aexagent/merlin-agent:v1.2.3',
-                         'aexagent/merlin-agent:v1.2.3-desktop']
+    assert inspected == ['ghcr.io/epinoiahorizon/merlin-agent:v1.2.3',
+                         'ghcr.io/epinoiahorizon/merlin-agent:v1.2.3-desktop']
     with pytest.raises(DockerReleaseError, match='desktop'):
         published_digest('v1.2.3', run=lambda argv: 'garbage' if argv[4].endswith('-desktop') else 'sha256:' + 'd' * 64)
