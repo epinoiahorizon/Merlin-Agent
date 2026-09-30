@@ -81,7 +81,7 @@ const identity = {
           // validated + re-signed by the Store on submission.
           identityName: 'AtlasResearchInc.MerlinAgent',
           publisher: 'CN=EE6D86E4-606F-4E38-B940-AD7248C9D519',
-          publisherDisplayName: 'AexAgent Inc.'
+          publisherDisplayName: 'Epinoia Horizon Inc.'
         }
       }
     : {})

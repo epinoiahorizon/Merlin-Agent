@@ -2433,7 +2433,7 @@ stt:
   cloud_trim_silence: true     # trim long pauses with ffmpeg before uploading to a cloud provider (default: true)
   cloud_trim_threshold_db: -40 # audio quieter than this counts as silence
   cloud_trim_keep_ms: 300      # how much of each pause survives the trim (keeps natural pacing)
-  # prompt: "Merlin, Teknium, AexAgent, kanban"   # Static vocabulary hint (see below)
+  # prompt: "Merlin, Teknium, Epinoia Horizon, kanban"   # Static vocabulary hint (see below)
   local:
     model: "base"              # tiny, base, small, medium, large-v3
     language: ""               # per-provider override of stt.language
@@ -2485,7 +2485,7 @@ STT_OPENAI_BASE_URL=https://api.openai.com/v1
 ```yaml
 stt:
   provider: "local"
-  prompt: "Merlin, Teknium, AexAgent, kanban, Ollama"
+  prompt: "Merlin, Teknium, Epinoia Horizon, kanban, Ollama"
 ```
 
 **Composition.** The config value is the base. Plugins that register the [`pre_transcription`](./features/hooks.md#pre_transcription) hook mutate on top of it, last-writer-wins per field. Multiple plugins' hints compose deterministically: plugin discovery loads plugins in sorted order by plugin id, and each plugin's callbacks run in its own registration order, so the same set of plugins always produces the same final prompt. A hook returning an empty string for `prompt` clears the config prompt for that request. Hooks may also override `language` and `model`; `file_path` is read-only and any attempt to change it is logged and dropped. With no hook registered and no `stt.prompt` set, the outgoing request is identical to previous releases.

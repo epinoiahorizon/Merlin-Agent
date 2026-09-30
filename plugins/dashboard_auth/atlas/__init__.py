@@ -41,7 +41,7 @@ class AtlasDashboardAuthProvider(JwtOAuthProvider):
     """Atlas Portal OAuth via authorization-code + PKCE (S256)."""
 
     name = "atlas"
-    display_name = "AexAgent"
+    display_name = "Epinoia Horizon"
 
     def __init__(self, *, client_id: str, portal_url: str) -> None:
         # Defense-in-depth: register() filters too, but a malformed id must never construct a provider.

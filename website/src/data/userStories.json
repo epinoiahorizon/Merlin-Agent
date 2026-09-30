@@ -744,7 +744,7 @@
     "date": "2026",
     "category": "integrations",
     "headline": "Hindsight Cloud memory, connected",
-    "quote": "Connect your AexAgent Merlin Agent to Hindsight Cloud, the best-performing AI Agent memory, in a few easy steps!",
+    "quote": "Connect your Epinoia Horizon Agent to Hindsight Cloud, the best-performing AI Agent memory, in a few easy steps!",
     "size": "sm"
   },
   {
@@ -1712,7 +1712,7 @@
     "date": "2026",
     "category": "integrations",
     "headline": "Firecrawl for scrape/search/browse",
-    "quote": "Merlin Agent by AexAgent can now scrape, search, and interact with the web using Firecrawl. Enable it during setup to give Merlin the ability.",
+    "quote": "Merlin Agent by Epinoia Horizon can now scrape, search, and interact with the web using Firecrawl. Enable it during setup to give Merlin the ability.",
     "size": "sm"
   },
   {
@@ -2581,7 +2581,7 @@
     "date": "2026",
     "category": "integrations",
     "headline": "Vessel Browser: agent-native browser born at the Merlin hackathon",
-    "quote": "I recently participated in AexAgent's Merlin Agent Hackathon, which is where this project was born. Every tool out there assumes a human operator with automation bolted on. I wanted to flip that — make the agent the primary driver and give the human a supervisory role.",
+    "quote": "I recently participated in Epinoia Horizon's Merlin Agent Hackathon, which is where this project was born. Every tool out there assumes a human operator with automation bolted on. I wanted to flip that — make the agent the primary driver and give the human a supervisory role.",
     "size": "md"
   },
   {

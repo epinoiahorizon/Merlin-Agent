@@ -2104,7 +2104,7 @@ def _warn_nonagentic_merlin_model(agent):
         _merlin_warn = _check_merlin_model_warning(agent.model or "")
         if _merlin_warn:
             _user_msg = (
-                "⚠ AexAgent Merlin 3 & 4 models are NOT agentic — they "
+                "⚠ Epinoia Horizon 3 & 4 models are NOT agentic — they "
                 "lack reliable tool-calling for agent workflows (delegation, "
                 "cron, proactive tools). Consider an agentic model instead "
                 "(Claude, GPT, Gemini, Qwen-Coder, etc.)."

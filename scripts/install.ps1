@@ -601,8 +601,7 @@ function Write-Banner {
     Write-Host ""
     Write-Host "+---------------------------------------------------------+" -ForegroundColor Magenta
     Write-Host "|             * Merlin Agent Installer                    |" -ForegroundColor Magenta
-    Write-Host "+---------------------------------------------------------+" -ForegroundColor Magenta
-    Write-Host "|  An open source AI agent by AexAgent.              |" -ForegroundColor Magenta
+    Write-Host "|  An open source AI agent by Epinoia Horizon.            |" -ForegroundColor Magenta
     Write-Host "+---------------------------------------------------------+" -ForegroundColor Magenta
     Write-Host ""
 }

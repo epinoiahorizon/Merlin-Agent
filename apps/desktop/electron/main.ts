@@ -1658,7 +1658,7 @@ if (IS_WINDOWS) {
 app.setAboutPanelOptions({
   applicationName: APP_NAME,
   applicationVersion: nativeAboutVersion(appVersionInfo(INSTALL_STAMP, '', app.getVersion())),
-  copyright: 'Copyright © 2026 AexAgent'
+  copyright: 'Copyright © 2026 Epinoia Horizon'
 })
 
 // Custom scheme for streaming audio/video into the renderer. Local paths read
@@ -7511,7 +7511,7 @@ function installMediaPermissions() {
 // OAuth remote-gateway auth.
 //
 // Hosted Merlin gateways gate the dashboard behind an OAuth provider (e.g.
-// AexAgent) instead of a static session token. The auth model is
+// Epinoia Horizon) instead of a static session token. The auth model is
 // fundamentally different from the token path:
 //
 //   * REST is authed by HttpOnly session cookies (``merlin_session_at``),
@@ -10876,7 +10876,7 @@ async function probeRemoteAuthMode(rawUrl) {
 
   if (authRequired) {
     // Best-effort: a gated gateway exposes the registered providers so the
-    // button can read "Sign in with AexAgent" instead of a generic
+    // button can read "Sign in with Epinoia Horizon" instead of a generic
     // label, and so a username/password provider can be distinguished from
     // an OAuth-redirect one (``supports_password``). A failure here doesn't
     // change the auth mode, so swallow it.
@@ -18660,7 +18660,7 @@ function showAboutPanelFresh(): void {
     app.setAboutPanelOptions({
       applicationName: APP_NAME,
       applicationVersion: skew.outOfSync ? `${display} — app build out of date, update the desktop app` : display,
-      copyright: 'Copyright © 2026 AexAgent'
+      copyright: 'Copyright © 2026 Epinoia Horizon'
     })
     app.showAboutPanel()
   })

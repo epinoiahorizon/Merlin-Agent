@@ -484,10 +484,10 @@ The connection has two halves: on the backend you protect it with an **auth prov
 
 **Pick a provider based on where the backend lives:**
 
-- **OAuth (Atlas Portal) — preferred for anything reachable beyond your own machine.** Logins are verified against your Atlas account, so this is the option suitable for a VPS, a public host, or any remote backend. Register the dashboard with `merlin dashboard register` (or the Portal [`/local-dashboards`](https://portal.epinoiahorizon.com/local-dashboards) page) to provision its OAuth client, then sign in from the app with **Sign in with AexAgent**. A self-hosted OIDC provider works the same way if you run your own identity provider.
+- **OAuth (Atlas Portal) — preferred for anything reachable beyond your own machine.** Logins are verified against your Atlas account, so this is the option suitable for a VPS, a public host, or any remote backend. Register the dashboard with `merlin dashboard register` (or the Portal [`/local-dashboards`](https://portal.epinoiahorizon.com/local-dashboards) page) to provision its OAuth client, then sign in from the app with **Sign in with Epinoia Horizon**. A self-hosted OIDC provider works the same way if you run your own identity provider.
 - **Username/password — local / trusted-network use only.** The simplest option when the backend is on the same trusted LAN or reachable only over a VPN (e.g. Tailscale). It protects a single shared credential with no external identity provider, so **do not use it for a dashboard exposed to the public internet** — reach for OAuth there instead.
 
-The rest of this section shows the username/password path because it's the quickest to stand up on a trusted network; for the OAuth path see [Web Dashboard → Default provider: AexAgent](./features/web-dashboard.md#default-provider-atlas-research).
+The rest of this section shows the username/password path because it's the quickest to stand up on a trusted network; for the OAuth path see [Web Dashboard → Default provider: Epinoia Horizon](./features/web-dashboard.md#default-provider-atlas-research).
 
 ### On the backend (the remote machine)
 
@@ -527,7 +527,7 @@ The backend reads and writes your `.env` (API keys, secrets) and can run agent c
 **Settings → Gateways → Remote gateway:**
 
 1. **Remote URL** — `http://<backend-host>:9119` (path prefixes like `/merlin` work if you front it with a reverse proxy)
-2. **Sign in** — the app detects which provider the backend advertises and adapts the button. For a username/password backend it shows a **Sign in** button that opens a credential form (enter the credentials from step 1). For an OAuth backend it shows **Sign in with `<provider>`** (e.g. *Sign in with AexAgent*), which runs the provider's browser sign-in. Either way the app ends up with an authenticated session against the backend.
+2. **Sign in** — the app detects which provider the backend advertises and adapts the button. For a username/password backend it shows a **Sign in** button that opens a credential form (enter the credentials from step 1). For an OAuth backend it shows **Sign in with `<provider>`** (e.g. *Sign in with Epinoia Horizon*), which runs the provider's browser sign-in. Either way the app ends up with an authenticated session against the backend.
 3. **Save and reconnect** — switches the desktop shell onto the remote backend. The session refreshes automatically; you stay signed in across restarts when `MERLIN_DASHBOARD_BASIC_AUTH_SECRET` is set.
 
 You can also set the backend URL without the UI via the `MERLIN_DESKTOP_REMOTE_URL` environment variable before launching the app (it overrides the in-app setting); you still sign in from the Gateways settings panel.

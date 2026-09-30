@@ -102,7 +102,7 @@ print_banner() {
     printf '%s\n' "┌─────────────────────────────────────────────────────────┐"
     printf '%s\n' "│             ☤ Merlin Agent Installer                    │"
     printf '%s\n' "├─────────────────────────────────────────────────────────┤"
-    printf '%s\n' "│  An open source AI agent by AexAgent.              │"
+    printf '%s\n' "│  An open source AI agent by Epinoia Horizon.            │"
     printf '%s\n' "└─────────────────────────────────────────────────────────┘"
     printf '%s\n' "$C_NC"
 }
