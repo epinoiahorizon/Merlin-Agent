@@ -418,7 +418,7 @@ claim tag object's immutable tagger timestamp (`year.hourOfYear.secondOfHour.0`)
 independently of the SemVer payload tag.
 Missing baseline
 artifacts are a blocker, not permission to fabricate or skip acceptance.
-See [the bundled update contract](https://github.com/NousResearch/merlin-agent/blob/main/tests/install/BUNDLED_UPDATES.md).
+See [the bundled update contract](https://github.com/epinoiahorizon/Merlin-Agent/blob/main/tests/install/BUNDLED_UPDATES.md).
 
 ## Explicit exclusions and policy
 

@@ -202,7 +202,7 @@ async function locateMerlin(ssh, remoteMerlinPath) {
     //   - version checking: `<python> --version` printed "Python x.y.z" instead of
     //     the Merlin version, and
     //   - capability probing: `<python> serve --help` failed entirely.
-    // See https://github.com/NousResearch/merlin-agent/issues/74411
+    // See https://github.com/epinoiahorizon/Merlin-Agent/issues/74411
     return candidate
   }
 

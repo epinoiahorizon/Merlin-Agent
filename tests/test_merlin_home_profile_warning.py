@@ -1,6 +1,6 @@
 """Tests for get_merlin_home() profile-mode fallback warning.
 
-Regression test for https://github.com/NousResearch/merlin-agent/issues/18594.
+Regression test for https://github.com/epinoiahorizon/Merlin-Agent/issues/18594.
 
 When MERLIN_HOME is unset but an active_profile file indicates a non-default
 profile is active, get_merlin_home() should:

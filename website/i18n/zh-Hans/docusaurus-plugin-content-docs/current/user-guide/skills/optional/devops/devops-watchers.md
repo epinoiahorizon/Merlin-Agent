@@ -81,7 +81,7 @@ python $MERLIN_HOME/skills/devops/watchers/scripts/watch_rss.py \
 
 ```bash
 python $MERLIN_HOME/skills/devops/watchers/scripts/watch_github.py \
-  --name merlin-issues --repo NousResearch/merlin-agent --scope issues
+  --name merlin-issues --repo epinoiahorizon/Merlin-Agent --scope issues
 ```
 
 轮询任意 JSON API：

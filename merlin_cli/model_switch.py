@@ -105,7 +105,7 @@ _MERLIN_MODEL_WARNING = (
 
 # Match only the real Nous Research Merlin 3 / 4 chat families; a bare substring check
 # false-positived on tool-capable local Modelfiles like ``merlin-brain:qwen3-14b-ctx16k``.
-#   match:    NousResearch/Merlin-3-Llama-3.1-70B, merlin-4-405b, openrouter/merlin3:70b
+#   match:    epinoiahorizon/Merlin-3-Llama-3.1-70B, merlin-4-405b, openrouter/merlin3:70b
 #   no match: merlin-brain:qwen3-14b-ctx16k, qwen3:14b, claude-opus-4-6
 _NOUS_MERLIN_NON_AGENTIC_RE = re.compile(r"(?:^|[/:])merlin[-_ ]?[34](?:[-_.:]|$)", re.IGNORECASE)
 

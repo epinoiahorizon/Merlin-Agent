@@ -59,7 +59,7 @@ This browse snapshot is distinct from the installer's
 ## What's in an entry
 
 Each catalog entry is a small YAML file in the
-[`plugin-catalog/`](https://github.com/NousResearch/merlin-agent/tree/main/plugin-catalog)
+[`plugin-catalog/`](https://github.com/epinoiahorizon/Merlin-Agent/tree/main/plugin-catalog)
 directory of the merlin-agent repository, declaring:
 
 | Field | Meaning |
@@ -265,7 +265,7 @@ catalog for discovery.
 
 Submissions are pull requests that add one `plugin-catalog/<name>.yaml` file.
 The full checklist lives in the
-[plugin-catalog README](https://github.com/NousResearch/merlin-agent/tree/main/plugin-catalog);
+[plugin-catalog README](https://github.com/epinoiahorizon/Merlin-Agent/tree/main/plugin-catalog);
 in short, an entry must be:
 
 1. **Owner-submitted** — the PR author owns or maintains the plugin repo.

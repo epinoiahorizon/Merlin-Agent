@@ -593,7 +593,7 @@ including one an installer replaced in place.
   half is **not** installed in the selected profile shows **Install here**,
   which pre-fills the install dialog from the package's origin (catalog entry
   or git remote) for that profile only. Optional extras such as the
-  [Accent Picker](https://github.com/NousResearch/merlin-desktop-accent-picker)
+  [Accent Picker](https://github.com/epinoiahorizon/merlin-desktop-accent-picker)
   install from their own repos via **Install from Git**.
 - **Uninstall** — every plugin installed under the selected profile's
   `plugins/` folder (user or git install) has a trash button beside its name.

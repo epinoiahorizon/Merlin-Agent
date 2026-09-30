@@ -914,6 +914,6 @@ If using OpenRouter, make sure your API key has credits. A 400 from OpenRouter o
 
 If your issue isn't covered here:
 
-1. **Search existing issues:** [GitHub Issues](https://github.com/NousResearch/merlin-agent/issues)
-2. **Ask the community:** [Nous Research Discord](https://discord.gg/nousresearch)
+1. **Search existing issues:** [GitHub Issues](https://github.com/epinoiahorizon/Merlin-Agent/issues)
+2. **Ask the community:** [Merlin Agent Discord](https://discord.gg/nousresearch)
 3. **File a bug report:** Include your OS, Python version (`python3 --version`), Merlin version (`merlin --version`), and the full error message

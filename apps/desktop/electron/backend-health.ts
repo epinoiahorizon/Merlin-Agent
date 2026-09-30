@@ -150,7 +150,7 @@ export function makeNousCloudBackendDownError(baseUrl: string, error: unknown): 
       `(HTTP ${serverError.statusCode}: server-side fault). ` +
       'Check https://portal.nousresearch.com for backend status, ' +
       'or switch to Local mode in Settings → Gateway. ' +
-      'You can also reach out on Discord at discord.gg/NousResearch ' +
+      'You can also reach out on Discord at discord.gg/merlin-agent ' +
       'for immediate assistance. ' +
       `Original detail: ${detail}`
   ) as any

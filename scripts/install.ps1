@@ -71,7 +71,7 @@ $script:BoundParams = $PSBoundParameters
 # Under iex, script scope is the caller's session and outlives a run; start
 # each run without the previous run's answer (see Set-LauncherUserPath).
 $script:BinDirOnCallerPath = $null
-$RepoUrl = if ($env:MERLIN_REPO_URL) { $env:MERLIN_REPO_URL } else { "https://github.com/NousResearch/merlin-agent.git" }
+$RepoUrl = if ($env:MERLIN_REPO_URL) { $env:MERLIN_REPO_URL } else { "https://github.com/epinoiahorizon/Merlin-Agent.git" }
 
 # --- BEGIN GENERATED: bootstrap pins (scripts/gen-bootstrap-pins.py) ---
 # Derived from pm/lock.json. DO NOT EDIT BY HAND:

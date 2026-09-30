@@ -39,7 +39,7 @@ env:
 jobs:
   # PR code: secret-free build + smoke per arch.
   build:
-    if: github.repository == 'NousResearch/merlin-agent'
+    if: github.repository == 'epinoiahorizon/Merlin-Agent'
     strategy:
       fail-fast: false
       matrix:
@@ -75,7 +75,7 @@ jobs:
 
   # Trusted source only; the sole Docker Hub credential boundary.
   publish:
-    if: github.repository == 'NousResearch/merlin-agent' && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish))
+    if: github.repository == 'epinoiahorizon/Merlin-Agent' && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish))
     needs: [build]
     environment: container-publish
     strategy:
@@ -129,7 +129,7 @@ jobs:
 
   # Registry-side stitch of the two digests into one tagged manifest list.
   merge:
-    if: ${{ !cancelled() && github.repository == 'NousResearch/merlin-agent' && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish)) }}
+    if: ${{ !cancelled() && github.repository == 'epinoiahorizon/Merlin-Agent' && (github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish)) }}
     needs: [publish]
     runs-on: ubuntu-latest
     timeout-minutes: 10

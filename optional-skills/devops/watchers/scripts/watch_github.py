@@ -6,7 +6,7 @@ Usage (via cron with --no-agent):
     merlin cron create merlin-issues \\
       --schedule "*/5 * * * *" --no-agent \\
       --script "$MERLIN_HOME/skills/devops/watchers/scripts/watch_github.py" \\
-      --script-args "--name merlin-issues --repo NousResearch/merlin-agent --scope issues"
+      --script-args "--name merlin-issues --repo epinoiahorizon/Merlin-Agent --scope issues"
 
 Set GITHUB_TOKEN (or GH_TOKEN) in the Merlin .env file
 (``${MERLIN_HOME:-~/.merlin}/.env``) to avoid the 60 req/hr

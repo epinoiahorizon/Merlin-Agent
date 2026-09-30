@@ -20,7 +20,7 @@ set -u
 # hygiene can't break the locked sync the way it used to before pm owned it.
 export UV_NO_CONFIG=1
 
-REPO_URL="${MERLIN_REPO_URL:-https://github.com/NousResearch/merlin-agent.git}"
+REPO_URL="${MERLIN_REPO_URL:-https://github.com/epinoiahorizon/Merlin-Agent.git}"
 BRANCH="main"
 INSTALL_COMMIT=""
 INSTALL_DIR="${MERLIN_INSTALL_DIR:-}"

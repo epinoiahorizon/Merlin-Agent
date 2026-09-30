@@ -81,7 +81,7 @@ Watch a GitHub repo (set `GITHUB_TOKEN` in `${MERLIN_HOME:-~/.merlin}/.env` to a
 
 ```bash
 python $MERLIN_HOME/skills/devops/watchers/scripts/watch_github.py \
-  --name merlin-issues --repo NousResearch/merlin-agent --scope issues
+  --name merlin-issues --repo epinoiahorizon/Merlin-Agent --scope issues
 ```
 
 Poll an arbitrary JSON API:

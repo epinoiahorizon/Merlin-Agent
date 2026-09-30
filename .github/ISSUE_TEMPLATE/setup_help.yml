@@ -12,8 +12,8 @@ body:
         - Run `merlin debug share` and paste the links in the Debug Report section below
         - If you're in a chat session, you can use `/debug` instead — it does the same thing
         - Try `merlin update` to get the latest version
-        - Check the [README troubleshooting section](https://github.com/NousResearch/merlin-agent#troubleshooting)
-        - For general questions, consider the [Nous Research Discord](https://discord.gg/NousResearch) for faster help
+        - Check the [README troubleshooting section](https://github.com/epinoiahorizon/Merlin-Agent#troubleshooting)
+        - For general questions, consider the [Merlin Agent Discord](https://discord.gg/merlin-agent) for faster help
 
   - type: textarea
     id: description

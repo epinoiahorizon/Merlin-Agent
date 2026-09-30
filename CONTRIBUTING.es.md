@@ -45,7 +45,7 @@ Las habilidades incluidas (en `skills/`) se envían con cada instalación de Mer
 
 Si tu habilidad es oficial y útil pero no universalmente necesaria (ej., una integración de servicio de pago, una dependencia pesada), ponla en **`optional-skills/`** — se envía con el repositorio pero no está activada por defecto. Los usuarios pueden descubrirla a través de `merlin skills browse` (etiquetada como "oficial") e instalarla con `merlin skills install` (sin advertencia de terceros, confianza integrada).
 
-Si tu habilidad es especializada, contribuida por la comunidad o de nicho, es mejor para un **Skills Hub** — súbela a un registro de habilidades y compártela en el [Discord de Nous Research](https://discord.gg/NousResearch). Los usuarios pueden instalarla con `merlin skills install`.
+Si tu habilidad es especializada, contribuida por la comunidad o de nicho, es mejor para un **Skills Hub** — súbela a un registro de habilidades y compártela en el [Discord de Nous Research](https://discord.gg/merlin-agent). Los usuarios pueden instalarla con `merlin skills install`.
 
 ---
 
@@ -566,7 +566,7 @@ test(tools): añadir tests unitarios para file_operations
 
 ## Reportar Issues
 
-- Usa [GitHub Issues](https://github.com/NousResearch/merlin-agent/issues)
+- Usa [GitHub Issues](https://github.com/epinoiahorizon/Merlin-Agent/issues)
 - Incluye: SO, versión de Python, versión de Merlin (`merlin --version`), traza de error completa
 - Incluye pasos para reproducir
 - Verifica los issues existentes antes de crear duplicados
@@ -576,7 +576,7 @@ test(tools): añadir tests unitarios para file_operations
 
 ## Comunidad
 
-- **Discord**: [discord.gg/NousResearch](https://discord.gg/NousResearch) — para preguntas, mostrar proyectos y compartir habilidades
+- **Discord**: [discord.gg/merlin-agent](https://discord.gg/merlin-agent) — para preguntas, mostrar proyectos y compartir habilidades
 - **GitHub Discussions**: Para propuestas de diseño y discusiones de arquitectura
 - **Skills Hub**: Sube habilidades especializadas a un registro y compártelas con la comunidad
 

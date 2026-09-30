@@ -277,7 +277,7 @@ describe('PluginsTab', () => {
         kind: 'disk',
         status: 'loaded',
         packageName: 'merlin-media-studio',
-        packageOrigin: { repo: 'https://github.com/NousResearch/merlin-media-studio.git', sha: 'abc' }
+        packageOrigin: { repo: 'https://github.com/epinoiahorizon/merlin-media-studio.git', sha: 'abc' }
       }
     })
 
@@ -290,7 +290,7 @@ describe('PluginsTab', () => {
       expect($pluginInstallRequest.get()).toMatchObject({
         legacyHint: 'agent',
         profile: 'workbot',
-        repo: 'https://github.com/NousResearch/merlin-media-studio.git',
+        repo: 'https://github.com/epinoiahorizon/merlin-media-studio.git',
         sha: 'abc'
       })
     })

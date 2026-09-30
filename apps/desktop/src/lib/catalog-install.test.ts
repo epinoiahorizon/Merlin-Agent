@@ -20,8 +20,8 @@ describe('public catalog install links', () => {
     [{ name: 'pdf', source: 'Anthropic', identifier: 'anthropics/skills/skills/pdf' }, 'anthropics/skills/skills/pdf'],
     [{ name: 'pdf', source: 'optional' }, 'official/pdf'],
     [
-      { name: 'pdf', source: 'built-in', installIdentifier: 'NousResearch/merlin-agent/skills/productivity/pdf' },
-      'NousResearch/merlin-agent/skills/productivity/pdf'
+      { name: 'pdf', source: 'built-in', installIdentifier: 'epinoiahorizon/Merlin-Agent/skills/productivity/pdf' },
+      'epinoiahorizon/Merlin-Agent/skills/productivity/pdf'
     ],
     [
       { name: 'A name', source: 'future-source', identifier: 'provider/path?mode=one&two#readme' },

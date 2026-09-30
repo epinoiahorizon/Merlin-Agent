@@ -346,7 +346,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = with lib; {
     description = "AI agent with advanced tool-calling capabilities";
-    homepage = "https://github.com/NousResearch/merlin-agent";
+    homepage = "https://github.com/epinoiahorizon/Merlin-Agent";
     mainProgram = "merlin";
     license = licenses.mit;
     platforms = platforms.unix;

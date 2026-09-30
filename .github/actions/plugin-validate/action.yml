@@ -24,7 +24,7 @@ runs:
         set -euo pipefail
         source=$(mktemp -d "$RUNNER_TEMP/merlin-plugin-validator.XXXXXX")
         git init "$source"
-        git -C "$source" remote add origin https://github.com/NousResearch/merlin-agent.git
+        git -C "$source" remote add origin https://github.com/epinoiahorizon/Merlin-Agent.git
         git -C "$source" fetch --depth=1 -- origin "$_MERLIN_REF"
         git -C "$source" checkout --detach FETCH_HEAD
         printf 'source=%s\n' "$source" >> "$GITHUB_OUTPUT"

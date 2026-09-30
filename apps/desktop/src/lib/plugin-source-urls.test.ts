@@ -4,9 +4,9 @@ import { resolvePluginSourceLinks } from './plugin-source-urls'
 
 describe('resolvePluginSourceLinks', () => {
   it('maps owner/repo to github browse and clone urls', () => {
-    expect(resolvePluginSourceLinks('NousResearch/merlin-example-plugins')).toEqual({
-      gitUrl: 'https://github.com/NousResearch/merlin-example-plugins.git',
-      browseUrl: 'https://github.com/NousResearch/merlin-example-plugins',
+    expect(resolvePluginSourceLinks('epinoiahorizon/merlin-example-plugins')).toEqual({
+      gitUrl: 'https://github.com/epinoiahorizon/merlin-example-plugins.git',
+      browseUrl: 'https://github.com/epinoiahorizon/merlin-example-plugins',
       subdir: null
     })
   })

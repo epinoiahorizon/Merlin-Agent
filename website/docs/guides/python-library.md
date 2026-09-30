@@ -15,7 +15,7 @@ Merlin isn't just a CLI tool. You can import `AIAgent` directly and use it progr
 Clone Merlin and prepare its source environment through PM. The Bash recipe is:
 
 ```bash
-git clone https://github.com/NousResearch/merlin-agent.git
+git clone https://github.com/epinoiahorizon/Merlin-Agent.git
 cd merlin-agent
 source ./activate
 ```

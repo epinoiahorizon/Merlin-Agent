@@ -295,15 +295,15 @@ export default function UserStoriesCollage(): React.JSX.Element {
       <div className={styles.footer}>
         Built something with Merlin?{' '}
         <a
-          href="https://github.com/NousResearch/merlin-agent/edit/main/website/src/data/userStories.json"
+          href="https://github.com/epinoiahorizon/Merlin-Agent/edit/main/website/src/data/userStories.json"
           target="_blank"
           rel="noopener noreferrer"
         >
           Add your story to this page
         </a>{' '}
         by editing <code>userStories.json</code>, or post it in the{' '}
-        <a href="https://discord.gg/NousResearch" target="_blank" rel="noopener noreferrer">
-          Nous Research Discord
+        <a href="https://discord.gg/merlin-agent" target="_blank" rel="noopener noreferrer">
+          Merlin Agent Discord
         </a>{' '}
         and we&apos;ll pick it up.
       </div>

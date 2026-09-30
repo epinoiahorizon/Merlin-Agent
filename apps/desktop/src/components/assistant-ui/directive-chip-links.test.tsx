@@ -8,7 +8,7 @@ import { DirectiveContent } from './directive-text'
 
 const desktopWindow = window as unknown as { merlinDesktop?: Window['merlinDesktop'] }
 
-const PR_URL = 'https://github.com/NousResearch/merlin-agent/pull/107950'
+const PR_URL = 'https://github.com/epinoiahorizon/Merlin-Agent/pull/107950'
 
 function installDesktopBridge() {
   const openExternal = vi.fn().mockResolvedValue(undefined)

@@ -13,7 +13,7 @@ import urllib.request
 
 DEFAULT_UA = (
     "merlin-osint-investigation/0.2 "
-    "(+https://github.com/NousResearch/merlin-agent; "
+    "(+https://github.com/epinoiahorizon/Merlin-Agent; "
     "set MERLIN_OSINT_UA env var to identify yourself per "
     "Wikimedia / SEC fair-use guidance)"
 )

@@ -46,11 +46,11 @@ uv2nix 环境、覆盖包、插件依赖和开发 shell 使用同一个解释器
 
 ```bash
 # 直接运行（首次使用时构建，之后使用缓存）
-nix run github:NousResearch/merlin-agent -- setup
-nix run github:NousResearch/merlin-agent -- chat
+nix run github:epinoiahorizon/Merlin-Agent -- setup
+nix run github:epinoiahorizon/Merlin-Agent -- chat
 
 # 或持久化安装
-nix profile install github:NousResearch/merlin-agent
+nix profile install github:epinoiahorizon/Merlin-Agent
 merlin setup
 merlin chat
 ```
@@ -61,7 +61,7 @@ merlin chat
 <summary><strong>从本地克隆构建</strong></summary>
 
 ```bash
-git clone https://github.com/NousResearch/merlin-agent.git
+git clone https://github.com/epinoiahorizon/Merlin-Agent.git
 cd merlin-agent
 nix build
 ./result/bin/merlin setup
@@ -86,7 +86,7 @@ nix build
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    merlin-agent.url = "github:NousResearch/merlin-agent";
+    merlin-agent.url = "github:epinoiahorizon/Merlin-Agent";
   };
 
   outputs = { nixpkgs, merlin-agent, ... }: {
@@ -696,7 +696,7 @@ services.merlin-agent = {
 
 ```nix
 {
-  inputs.merlin-agent.url = "github:NousResearch/merlin-agent";
+  inputs.merlin-agent.url = "github:epinoiahorizon/Merlin-Agent";
   outputs = { merlin-agent, nixpkgs, ... }: {
     nixpkgs.overlays = [ merlin-agent.overlays.default ];
     # 然后：

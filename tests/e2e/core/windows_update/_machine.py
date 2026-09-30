@@ -72,9 +72,9 @@ UPDATE_TIMEOUT = 1200.0
 CMD_TIMEOUT = 300.0
 GATEWAY_READY_TIMEOUT = 240.0
 CANONICAL_URLS = (
-    "https://github.com/NousResearch/merlin-agent.git",
-    "https://github.com/NousResearch/merlin-agent",
-    "git@github.com:NousResearch/merlin-agent.git",
+    "https://github.com/epinoiahorizon/Merlin-Agent.git",
+    "https://github.com/epinoiahorizon/Merlin-Agent",
+    "git@github.com:epinoiahorizon/Merlin-Agent.git",
 )
 NEXT_MARKER = ".merlin-e2e-next"
 # Captured before any machine strips PATH: harness plumbing (serve.git, rev-parse) only.

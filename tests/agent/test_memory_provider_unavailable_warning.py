@@ -1,4 +1,4 @@
-"""Regression tests for NousResearch/merlin-agent#2765.
+"""Regression tests for epinoiahorizon/Merlin-Agent#2765.
 
 A memory provider configured via ``memory.provider`` but reporting
 ``is_available() == False`` (e.g. missing credentials, or a systemd/gateway

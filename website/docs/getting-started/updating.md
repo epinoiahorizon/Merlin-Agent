@@ -393,7 +393,7 @@ You no longer need to wrap `merlin update` in `screen` or `tmux` to survive a te
 merlin --version
 ```
 
-Compare against the latest release at the [GitHub releases page](https://github.com/NousResearch/merlin-agent/releases).
+Compare against the latest release at the [GitHub releases page](https://github.com/epinoiahorizon/Merlin-Agent/releases).
 
 ### Updating from Messaging Platforms
 

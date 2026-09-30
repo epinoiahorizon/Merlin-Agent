@@ -30,7 +30,7 @@ command. A hook with no concrete consumer is speculative infrastructure and is r
   PR is a coupling decision, not a quality judgment.
 - Reference/docs-companion plugins (`example-dashboard`, `strike-freedom-cockpit`,
   `plugin-llm-example`, `plugin-llm-async-example`) live in
-  [`merlin-example-plugins`](https://github.com/NousResearch/merlin-example-plugins), not here.
+  [`merlin-example-plugins`](https://github.com/epinoiahorizon/merlin-example-plugins), not here.
 
 ## Plugin catalog (`plugin-catalog/`, Sep 2026)
 

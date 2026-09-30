@@ -100,8 +100,8 @@ def canary(tmp_path, r2_server, monkeypatch):
     base = f"http://127.0.0.1:{r2_server.server_port}/merlin-releases"
     env = {**os.environ, "PATH": str(tools) + os.pathsep + os.environ["PATH"],
            "FIXTURE_RELEASE": str(release_state), "FIXTURE_WINDOWS_VERSION": windows_version, "GITHUB_ACTIONS": "true",
-           "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_REPOSITORY": "NousResearch/merlin-agent",
-           "GITHUB_WORKFLOW_REF": "NousResearch/merlin-agent/.github/workflows/desktop-bundled-release.yml@refs/heads/main",
+           "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_REPOSITORY": "epinoiahorizon/Merlin-Agent",
+           "GITHUB_WORKFLOW_REF": "epinoiahorizon/Merlin-Agent/.github/workflows/desktop-bundled-release.yml@refs/heads/main",
            "RELEASE_TAG": tag, "TAG": tag, "MERLIN_PAYLOAD_TAG": tag,
            "RELEASE_TAG_OBJECT": tag_object,
            "RELEASE_COMMIT": commit, "RELEASE_PHASE": "", "MERLIN_DESKTOP_VARIANT": "bundled",

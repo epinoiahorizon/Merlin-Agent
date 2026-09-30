@@ -23,8 +23,8 @@ from merlin_cli.model_switch import (
 @pytest.mark.parametrize(
     "model_name",
     [
-        "NousResearch/Merlin-3-Llama-3.1-70B",
-        "NousResearch/Merlin-3-Llama-3.1-405B",
+        "epinoiahorizon/Merlin-3-Llama-3.1-70B",
+        "epinoiahorizon/Merlin-3-Llama-3.1-405B",
         "merlin-3",
         "Merlin-3",
         "merlin-4",

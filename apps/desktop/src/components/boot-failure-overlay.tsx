@@ -431,7 +431,7 @@ export function BootFailureOverlay() {
       {
         key: 'discord',
         label: copy.cloudDownDiscord,
-        onClick: () => openExternalLink('https://discord.gg/NousResearch'),
+        onClick: () => openExternalLink('https://discord.gg/merlin-agent'),
         variant: 'ghost'
       },
       { ...settingsAction, variant: 'ghost' }

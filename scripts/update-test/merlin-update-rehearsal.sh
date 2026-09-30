@@ -29,8 +29,8 @@
 
 set -euo pipefail
 
-OFFICIAL_HTTPS="https://github.com/NousResearch/merlin-agent.git"
-OFFICIAL_SSH="git@github.com:NousResearch/merlin-agent.git"
+OFFICIAL_HTTPS="https://github.com/epinoiahorizon/Merlin-Agent.git"
+OFFICIAL_SSH="git@github.com:epinoiahorizon/Merlin-Agent.git"
 DEFAULT_SOURCE="https://github.com/ethernet8023/merlin-agent.git"
 
 SUBCMD=""

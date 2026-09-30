@@ -316,7 +316,7 @@ def extract_local_skills():
             rel_id = rel.replace(os.sep, "/")
             install_identifier = (
                 f"official/{rel_id}" if source_label == "optional"
-                else f"NousResearch/merlin-agent/skills/{rel_id}"
+                else f"epinoiahorizon/Merlin-Agent/skills/{rel_id}"
             )
             skills.append({
                 "name": fm.get("name", os.path.basename(root)),

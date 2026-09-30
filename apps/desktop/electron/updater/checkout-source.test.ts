@@ -109,7 +109,7 @@ function channelRecord(channel: 'stable' | 'canary', sequence: number): FixtureR
   return {
     schema: 1,
     name: channel,
-    repository: 'NousResearch/merlin-agent',
+    repository: 'epinoiahorizon/Merlin-Agent',
     policy: channel === 'stable' ? 'stable-release' : 'canary-release',
     state: 'active',
     revision: 1,
@@ -159,7 +159,7 @@ function buildManifest(
       schema: 1,
       buildId: id,
       channel,
-      repository: 'NousResearch/merlin-agent',
+      repository: 'epinoiahorizon/Merlin-Agent',
       commit: sha,
       sourceVersion: tag.replace(/^v/, '').split('+')[0],
       releaseTag: tag,
@@ -257,12 +257,12 @@ it('carries each install channel from Python publication checks into the source 
         })
       )
       responses.set(`/${manifestKey(channel)}`, body)
-      responses.set(`/repos/NousResearch/merlin-agent/releases/tags/${tags[channel]}`, {
+      responses.set(`/repos/epinoiahorizon/Merlin-Agent/releases/tags/${tags[channel]}`, {
         tag_name: tags[channel],
         draft: false,
         prerelease: channel === 'canary'
       })
-      responses.set(`/repos/NousResearch/merlin-agent/commits/${tags[channel]}`, { sha })
+      responses.set(`/repos/epinoiahorizon/Merlin-Agent/commits/${tags[channel]}`, { sha })
     }
 
     responses.set('/releases/stable/release-candidates.json', { tag: tags.stable, commit: commits[1] })
@@ -272,7 +272,7 @@ it('carries each install channel from Python publication checks into the source 
       JSON.stringify({
         schema: 1,
         name: 'main',
-        repository: 'NousResearch/merlin-agent',
+        repository: 'epinoiahorizon/Merlin-Agent',
         policy: 'source-branch',
         state: 'active',
         revision: 1,

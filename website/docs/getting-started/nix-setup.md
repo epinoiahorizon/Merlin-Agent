@@ -63,17 +63,17 @@ No clone needed. Nix fetches, builds, and runs everything:
 
 ```bash
 # Run the desktop app
-nix run github:NousResearch/merlin-agent#desktop
+nix run github:epinoiahorizon/Merlin-Agent#desktop
 
 # Or install persistently
-nix profile install github:NousResearch/merlin-agent#desktop
+nix profile install github:epinoiahorizon/Merlin-Agent#desktop
 
 # run the tui
-nix run github:NousResearch/merlin-agent -- setup
-nix run github:NousResearch/merlin-agent -- --tui
+nix run github:epinoiahorizon/Merlin-Agent -- setup
+nix run github:epinoiahorizon/Merlin-Agent -- --tui
 
 # or install it in your profile
-nix profile install github:NousResearch/merlin-agent
+nix profile install github:epinoiahorizon/Merlin-Agent
 merlin setup
 merlin --tui
 ```
@@ -91,7 +91,7 @@ The `default` package adds ~700 MB to the closure. If you only need messaging pl
 <summary><strong>Running from a local clone</strong></summary>
 
 ```bash
-git clone https://github.com/NousResearch/merlin-agent.git
+git clone https://github.com/epinoiahorizon/Merlin-Agent.git
 cd merlin-agent
 nix develop
 merlin setup
@@ -116,7 +116,7 @@ This module needs NixOS. Merlin is an agent for one person. If you want an agent
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    merlin-agent.url = "github:NousResearch/merlin-agent";
+    merlin-agent.url = "github:epinoiahorizon/Merlin-Agent";
   };
 
   outputs = { nixpkgs, merlin-agent, ... }: {
@@ -637,7 +637,7 @@ The option set is the same set that the NixOS module uses. It is `services.merli
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    merlin-agent.url = "github:NousResearch/merlin-agent";
+    merlin-agent.url = "github:epinoiahorizon/Merlin-Agent";
   };
 }
 ```
@@ -888,7 +888,7 @@ External flakes can override the package directly:
 
 ```nix
 {
-  inputs.merlin-agent.url = "github:NousResearch/merlin-agent";
+  inputs.merlin-agent.url = "github:epinoiahorizon/Merlin-Agent";
   outputs = { merlin-agent, nixpkgs, ... }: {
     nixpkgs.overlays = [ merlin-agent.overlays.default ];
     # Then:

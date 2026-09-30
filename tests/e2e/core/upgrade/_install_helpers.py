@@ -25,8 +25,8 @@ from pathlib import Path
 
 from tests.e2e.core.upgrade import _helpers as H
 
-OFFICIAL_HTTPS = "https://github.com/NousResearch/merlin-agent.git"
-OFFICIAL_SSH = "git@github.com:NousResearch/merlin-agent.git"
+OFFICIAL_HTTPS = "https://github.com/epinoiahorizon/Merlin-Agent.git"
+OFFICIAL_SSH = "git@github.com:epinoiahorizon/Merlin-Agent.git"
 TRACEBACK = "Traceback (most recent call last)"
 FAKE_KEY = "sk-fake-e2e-install-update"
 

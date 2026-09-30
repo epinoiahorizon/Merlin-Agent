@@ -25,8 +25,8 @@ function mkdtemp(prefix: string) {
 
 describe('resolvePluginGitUrl', () => {
   it('maps owner/repo shorthand to github git url', () => {
-    expect(resolvePluginGitUrl('NousResearch/merlin-example-plugins')).toEqual({
-      gitUrl: 'https://github.com/NousResearch/merlin-example-plugins.git',
+    expect(resolvePluginGitUrl('epinoiahorizon/merlin-example-plugins')).toEqual({
+      gitUrl: 'https://github.com/epinoiahorizon/merlin-example-plugins.git',
       subdir: null
     })
   })

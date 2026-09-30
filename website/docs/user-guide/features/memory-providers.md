@@ -73,7 +73,7 @@ The legacy `merlin honcho setup` command still works (it now redirects to `merli
 
 **Headless / remote machines:** for cloud auth on a box without a browser (SSH, remote VM), pick **device** at the wizard's auth-method prompt. The CLI prints a short code and a verification link; open the link in a browser on any other machine, approve, and setup completes — no API key copy-paste. The wizard defaults to this option automatically when it detects no usable local browser.
 
-**Config:** `$MERLIN_HOME/honcho.json` (profile-local) or `~/.honcho/config.json` (global). Resolution order: `$MERLIN_HOME/honcho.json` > `~/.merlin/honcho.json` > `~/.honcho/config.json`. See the [config reference](https://github.com/NousResearch/merlin-agent/blob/main/plugins/memory/honcho/README.md) and the [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/merlin).
+**Config:** `$MERLIN_HOME/honcho.json` (profile-local) or `~/.honcho/config.json` (global). Resolution order: `$MERLIN_HOME/honcho.json` > `~/.merlin/honcho.json` > `~/.honcho/config.json`. See the [config reference](https://github.com/epinoiahorizon/Merlin-Agent/blob/main/plugins/memory/honcho/README.md) and the [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/merlin).
 
 <details>
 <summary>Full config reference</summary>
@@ -275,7 +275,7 @@ Off-gateway these keys do nothing. `merlin memory setup` only prompts for them w
 
 </details>
 
-See the [config reference](https://github.com/NousResearch/merlin-agent/blob/main/plugins/memory/honcho/README.md) and [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/merlin).
+See the [config reference](https://github.com/epinoiahorizon/Merlin-Agent/blob/main/plugins/memory/honcho/README.md) and [Honcho integration guide](https://docs.honcho.dev/v3/guides/integrations/merlin).
 
 
 ---

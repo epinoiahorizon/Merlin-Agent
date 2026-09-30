@@ -151,7 +151,7 @@ See [Package management](../reference/package-management.md) for PM commands and
 - **Comments**: Only when explaining non-obvious intent, trade-offs, or API quirks
 - **Error handling**: Catch specific exceptions. Use `logger.warning()`/`logger.error()` with `exc_info=True` for unexpected errors
 - **Cross-platform**: Never assume Unix (see below)
-- **Profile-safe paths**: Never hardcode `~/.merlin` — use `get_merlin_home()` from `merlin_constants` for code paths and `display_merlin_home()` for user-facing messages. See [AGENTS.md](https://github.com/NousResearch/merlin-agent/blob/main/AGENTS.md#profiles-multi-instance-support) for full rules.
+- **Profile-safe paths**: Never hardcode `~/.merlin` — use `get_merlin_home()` from `merlin_constants` for code paths and `display_merlin_home()` for user-facing messages. See [AGENTS.md](https://github.com/epinoiahorizon/Merlin-Agent/blob/main/AGENTS.md#profiles-multi-instance-support) for full rules.
 
 ## Cross-Platform Compatibility
 
@@ -294,7 +294,7 @@ When you ask Merlin to review a PR in a repository that has `.agents/checks/`, t
 
 ## Reporting Issues
 
-- Use [GitHub Issues](https://github.com/NousResearch/merlin-agent/issues)
+- Use [GitHub Issues](https://github.com/epinoiahorizon/Merlin-Agent/issues)
 - Include: OS, Python version, Merlin version (`merlin --version`), full error traceback
 - Include steps to reproduce
 - Check existing issues before creating duplicates
@@ -302,10 +302,10 @@ When you ask Merlin to review a PR in a repository that has `.agents/checks/`, t
 
 ## Community
 
-- **Discord**: [discord.gg/NousResearch](https://discord.gg/NousResearch)
+- **Discord**: [discord.gg/merlin-agent](https://discord.gg/merlin-agent)
 - **GitHub Discussions**: For design proposals and architecture discussions
 - **Skills Hub**: Upload specialized skills and share with the community
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the [MIT License](https://github.com/NousResearch/merlin-agent/blob/main/LICENSE).
+By contributing, you agree that your contributions will be licensed under the [MIT License](https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE).

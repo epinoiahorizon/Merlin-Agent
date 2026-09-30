@@ -24,7 +24,7 @@ import {
   type UpdateTarget
 } from '@/store/updates'
 
-const RELEASE_NOTES_URL = 'https://github.com/NousResearch/merlin-agent/releases'
+const RELEASE_NOTES_URL = 'https://github.com/epinoiahorizon/Merlin-Agent/releases'
 const INSTALLER_URL = 'https://merlin-agent.nousresearch.com/'
 
 export type UpdateStatusTone = 'idle' | 'available' | 'error' | 'unsupported'

@@ -202,7 +202,7 @@ stdenv.mkDerivation {
 
   meta = with lib; {
     description = "Native Electron desktop shell for Merlin Agent";
-    homepage = "https://github.com/NousResearch/merlin-agent";
+    homepage = "https://github.com/epinoiahorizon/Merlin-Agent";
     license = licenses.mit;
     platforms = platforms.unix;
     mainProgram = "merlin-desktop";

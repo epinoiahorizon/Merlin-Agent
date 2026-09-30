@@ -92,7 +92,7 @@ def _real_uv() -> str | None:
     return cand if cand and Path(cand).exists() else None
 
 
-OFFICIAL_URL = "https://github.com/NousResearch/merlin-agent.git"
+OFFICIAL_URL = "https://github.com/epinoiahorizon/Merlin-Agent.git"
 
 
 class _Refs(NamedTuple):

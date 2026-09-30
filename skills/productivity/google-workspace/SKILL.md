@@ -13,7 +13,7 @@ required_credential_files:
 metadata:
   merlin:
     tags: [Google, Gmail, Calendar, Drive, Sheets, Docs, Contacts, Email, OAuth]
-    homepage: https://github.com/NousResearch/merlin-agent
+    homepage: https://github.com/epinoiahorizon/Merlin-Agent
     related_skills: [himalaya]
 ---
 

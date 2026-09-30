@@ -83,7 +83,7 @@ const config: Config = {
         docs: {
           routeBasePath: '/',  // Docs at the root of /docs/
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/NousResearch/merlin-agent/edit/main/website/',
+          editUrl: 'https://github.com/epinoiahorizon/Merlin-Agent/edit/main/website/',
           // Relative `.md` links (readable on GitHub, #114428) must also resolve
           // across the zh-Hans fallback boundary; see src/remark/relativeDocLinks.js.
           beforeDefaultRemarkPlugins: [[relativeDocLinks, {siteDir: __dirname}]],
@@ -161,12 +161,12 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://github.com/NousResearch/merlin-agent',
+          href: 'https://github.com/epinoiahorizon/Merlin-Agent',
           label: 'GitHub',
           position: 'right',
         },
         {
-          href: 'https://discord.gg/NousResearch',
+          href: 'https://discord.gg/merlin-agent',
           label: 'Discord',
           position: 'right',
         },
@@ -187,8 +187,8 @@ const config: Config = {
         {
           title: 'Community',
           items: [
-            { label: 'Discord', href: 'https://discord.gg/NousResearch' },
-            { label: 'GitHub Issues', href: 'https://github.com/NousResearch/merlin-agent/issues' },
+            { label: 'Discord', href: 'https://discord.gg/merlin-agent' },
+            { label: 'GitHub Issues', href: 'https://github.com/epinoiahorizon/Merlin-Agent/issues' },
             { label: 'Skills Hub', href: 'https://agentskills.io' },
           ],
         },
@@ -196,7 +196,7 @@ const config: Config = {
           title: 'More',
           items: [
             { label: 'Desktop Download', href: 'https://merlin-agent.nousresearch.com/' },
-            { label: 'GitHub', href: 'https://github.com/NousResearch/merlin-agent' },
+            { label: 'GitHub', href: 'https://github.com/epinoiahorizon/Merlin-Agent' },
             { label: 'Nous Research', href: 'https://nousresearch.com' },
           ],
         },

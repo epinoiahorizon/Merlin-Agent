@@ -81,7 +81,7 @@ def _connect_error_detail(exc: BaseException) -> str:
         return (
             f"{text} — macOS Local Network Privacy is blocking this launchd gateway from the LAN. "
             "Run `merlin gateway install` to regenerate the launchd job, then `merlin gateway restart`. "
-            "https://github.com/NousResearch/merlin-agent/issues/71206"
+            "https://github.com/epinoiahorizon/Merlin-Agent/issues/71206"
         )
     return text
 

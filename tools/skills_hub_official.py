@@ -38,7 +38,7 @@ class OptionalSkillSource(SkillSource):
 
     SOURCE_ID = "official"
     TRUST_LEVEL = "builtin"
-    OFFICIAL_REPO = "NousResearch/merlin-agent"
+    OFFICIAL_REPO = "epinoiahorizon/Merlin-Agent"
     OPTIONAL_SKILLS_PREFIX = "optional-skills"
 
     _parse_frontmatter = staticmethod(_parse_frontmatter)
