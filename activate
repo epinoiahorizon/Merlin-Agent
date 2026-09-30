@@ -1,0 +1,225 @@
+#!/usr/bin/env bash
+# ============================================================================
+# venv-style activation for the Merlin dev environment (pm-managed tools).
+#
+#   source ./activate      (bash / zsh, repo root)
+#   .\activate.ps1         (PowerShell)
+#
+# Emits the composed pm env (PATH + tool vars) into the CURRENT shell, with
+# save/restore: `deactivate` undoes exactly what activation changed.
+#
+# `merlin` becomes a shell function for this checkout. It runs only while the
+# shell is inside this worktree and refuses outside it, so a sibling worktree
+# keeps its own command. A prompt prefix names the worktree.
+#
+# Sync through setup before selecting the environment. PM owns freshness;
+# activation does not maintain a second dependency stamp. It trusts the
+# recorded tool digest instead of re-hashing every entry. `merlin pm
+# install` and `merlin update` keep that check.
+# ============================================================================
+_MERLIN_REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Options: `--test-extras a,b` selects the test environment's runtime extras
+# (default: [all]); `--` ends options.
+# A bare `source ./activate` inherits the caller's positional parameters.
+# Ignore unrelated words so scripts with their own arguments can source it.
+_merlin_test_env="--test-environment"
+_merlin_expect_extras=""
+for _merlin_arg in "$@"; do
+    if [ -n "$_merlin_expect_extras" ]; then
+        _merlin_test_env="--test-environment=$_merlin_arg"
+        _merlin_expect_extras=""
+        continue
+    fi
+    case "$_merlin_arg" in
+        --) break ;;
+        --test-extras) _merlin_expect_extras=1 ;;
+        --test-extras=*) _merlin_test_env="--test-environment=${_merlin_arg#--test-extras=}" ;;
+        *) : ;;
+    esac
+done
+if [ -n "$_merlin_expect_extras" ]; then
+    printf '%s\n' 'activate: --test-extras needs a comma-separated list' >&2
+    unset _merlin_arg _merlin_test_env _merlin_expect_extras
+    return 2 2>/dev/null || exit 2
+fi
+# Setup runs in a child: failures must not exit or partially activate the
+# caller's shell, and activation must not republish launchers or shell config.
+if ! (
+    unset PYTHONHOME PYTHONPATH VIRTUAL_ENV
+    bash "$_MERLIN_REPO/setup-merlin.sh" --runtime-only "$_merlin_test_env"
+) >&2; then
+    printf '%s\n' 'activate: setup failed; shell environment unchanged' >&2
+    unset _merlin_arg _merlin_test_env _merlin_expect_extras
+    return 1 2>/dev/null || exit 1
+fi
+unset _merlin_arg _merlin_test_env _merlin_expect_extras
+
+# Guard against double-sourcing: venv activate precedent (re-activating is a
+# no-op re-save; we keep it idempotent by deactivating first). Key on the
+# function, not the sentinel: child shells inherit __MERLIN_ACTIVATED from an
+# activated parent but never the function, and there is nothing to undo there.
+if [ "$(type -t deactivate 2>/dev/null)" = "function" ]; then
+    deactivate
+fi
+
+# Bootstrap Python only emits the environment; it does not install anything.
+_merlin_repo="$_MERLIN_REPO"
+_merlin_py=""
+for _merlin_candidate in "$_merlin_repo/.venv/bin/python" "$_merlin_repo/.venv/Scripts/python.exe" \
+                         "$_merlin_repo/venv/bin/python" "$_merlin_repo/venv/Scripts/python.exe"; do
+    [ -x "$_merlin_candidate" ] && { _merlin_py="$_merlin_candidate"; break; }
+done
+if [ -z "$_merlin_py" ]; then
+    for _merlin_store in "${MERLIN_RUNTIME_DIR:-}" "$_merlin_repo/../tools" "${MERLIN_HOME:-$HOME/.merlin}/tools"; do
+        [ -n "$_merlin_store" ] || continue
+        for _merlin_candidate in "$_merlin_store"/python-*/bin/python3 "$_merlin_store"/python-*/python.exe "$_merlin_store"/python-*/bin/python "$_merlin_store"/python-*/bin/python.exe; do
+            [ -x "$_merlin_candidate" ] && { _merlin_py="$_merlin_candidate"; break; }
+        done
+        [ -n "$_merlin_py" ] && break
+    done
+fi
+if [ -z "$_merlin_py" ]; then
+    echo "activate: no bootstrap Python found; run setup-merlin.sh" >&2
+    return 1 2>/dev/null || exit 1
+fi
+
+# --- emit export lines from `pm env` ---
+_merlin_json="$(PYTHONHOME= PYTHONPATH="$_merlin_repo" "$_merlin_py" -m pm.environments)"
+if [ -z "$_merlin_json" ] || [ "${_merlin_json#*{}" = "$_merlin_json" ]; then
+    echo "activate: could not read pm env (run ./setup-merlin.sh first)" >&2
+    unset _merlin_repo _merlin_os _merlin_arch _merlin_target _merlin_store _merlin_py _merlin_json
+    return 1 2>/dev/null || exit 1
+fi
+
+_merlin_keys="$(printf '%s' "$_merlin_json" | "$_merlin_py" -c 'import json,sys; print(" ".join(json.load(sys.stdin)))' \
+    | tr ' ' '\n' | grep -E '^[A-Za-z_][A-Za-z0-9_]*$' | tr '\n' ' ')"
+[ -n "$_merlin_keys" ] || _merlin_keys="PATH"
+
+# --- snapshot what we are about to change (deactivate restores this) ---
+# __MERLIN_ACTIVATED is part of the composed env below (it carries the
+# installed-state path this environment was built from), so it is snapshotted
+# and exported with every other key — no separate assignment here.
+__MERLIN_SAVED_PATH="$PATH"
+for _merlin_k in $_merlin_keys; do
+    eval "__MERLIN_SAVED_$_merlin_k=\"\${$_merlin_k+set}\""
+    eval "__MERLIN_PRIOR_$_merlin_k=\${$_merlin_k-__MERLIN_UNSET__}"
+done
+
+# Resolved before the export below replaces PATH.
+_merlin_cygpath="$(command -v cygpath 2>/dev/null || :)"
+
+eval "$(printf '%s' "$_merlin_json" | "$_merlin_py" -c '
+import json, sys, shlex, re
+for k, v in json.load(sys.stdin).items():
+    # Windows carries names like ProgramFiles(ARM) that are not valid
+    # bash identifiers — skip them (they pass through untouched).
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", k):
+        continue
+    print("export %s=%s" % (k, shlex.quote(str(v))))')"
+
+# The MSYS/Cygwin runtime hands a native Windows Python these variables in
+# Windows form (`C:\a;C:\b`) and converts them back only for its own children.
+# Exported verbatim, bash splits PATH on ':' and finds no commands.
+if [ -n "$_merlin_cygpath" ]; then
+    PATH="$("$_merlin_cygpath" -u -p "$PATH")"
+    for _merlin_k in HOME TMPDIR TMP TEMP; do
+        if [ -n "${!_merlin_k-}" ]; then
+            printf -v "$_merlin_k" '%s' "$("$_merlin_cygpath" -u "${!_merlin_k}")"
+        fi
+    done
+fi
+
+# This checkout, not whichever `merlin` PATH finds. A function beats PATH, an
+# alias, and a hashed command, including the MSIX execution alias.
+__MERLIN_WORKTREE="$_merlin_repo"
+# The branch names the worktree. A checkout cannot share a branch with another.
+__MERLIN_WORKTREE_NAME="$(git -C "$_merlin_repo" rev-parse --abbrev-ref HEAD 2>/dev/null || :)"
+if [ -z "$__MERLIN_WORKTREE_NAME" ] || [ "$__MERLIN_WORKTREE_NAME" = HEAD ]; then
+    __MERLIN_WORKTREE_NAME="$(basename "$_merlin_repo")"
+fi
+__MERLIN_SAVED_PS1="${PS1-__MERLIN_UNSET__}"
+__MERLIN_SAVED_PROMPT_COMMAND="${PROMPT_COMMAND-__MERLIN_UNSET__}"
+
+_merlin_worktree_here() {
+    _merlin_top="$(git rev-parse --show-toplevel 2>/dev/null)" || return 1
+    [ "$(cd "$_merlin_top" && pwd -P)" = "$(cd "$__MERLIN_WORKTREE" && pwd -P)" ]
+}
+
+merlin() {
+    _merlin_worktree_here || {
+        printf '%s\n' "merlin: $(pwd) is outside $__MERLIN_WORKTREE; refusing (the installed command is hidden while this checkout is active)" >&2
+        return 1
+    }
+    (
+        cd "$__MERLIN_WORKTREE" || exit 1
+        if [ -n "${PYTHON-}" ]; then
+            exec "$PYTHON" merlin "$@"
+        elif [ -x .venv/Scripts/python.exe ]; then
+            exec .venv/Scripts/python.exe merlin "$@"
+        elif [ -x .venv/bin/python ]; then
+            exec .venv/bin/python merlin "$@"
+        elif [ -x venv/Scripts/python.exe ]; then
+            exec venv/Scripts/python.exe merlin "$@"
+        elif [ -x venv/bin/python ]; then
+            exec venv/bin/python merlin "$@"
+        else
+            exec python merlin "$@"
+        fi
+    )
+}
+
+_merlin_prompt() {
+    if [ "$__MERLIN_SAVED_PS1" = "__MERLIN_UNSET__" ]; then
+        _merlin_base_ps1=""
+    else
+        _merlin_base_ps1="$__MERLIN_SAVED_PS1"
+    fi
+    if _merlin_worktree_here; then
+        PS1="($__MERLIN_WORKTREE_NAME) $_merlin_base_ps1"
+    else
+        PS1="$_merlin_base_ps1"
+    fi
+}
+
+if [ -n "${PROMPT_COMMAND-}" ]; then
+    PROMPT_COMMAND="_merlin_prompt; ${PROMPT_COMMAND}"
+else
+    PROMPT_COMMAND=_merlin_prompt
+fi
+_merlin_prompt
+
+deactivate() {
+    export PATH="$__MERLIN_SAVED_PATH"
+    for _merlin_k in $__MERLIN_KEY_LIST; do
+        eval "_merlin_was=\"\$__MERLIN_SAVED_$_merlin_k\""
+        eval "_merlin_old=\"\$__MERLIN_PRIOR_$_merlin_k\""
+        if [ "$_merlin_was" != "set" ]; then
+            unset "$_merlin_k"
+        else
+            export "$_merlin_k=$_merlin_old"
+        fi
+        unset "__MERLIN_SAVED_$_merlin_k" "__MERLIN_PRIOR_$_merlin_k"
+    done
+    if [ "$__MERLIN_SAVED_PS1" = "__MERLIN_UNSET__" ]; then
+        unset PS1
+    else
+        PS1="$__MERLIN_SAVED_PS1"
+    fi
+    if [ "$__MERLIN_SAVED_PROMPT_COMMAND" = "__MERLIN_UNSET__" ]; then
+        unset PROMPT_COMMAND
+    else
+        PROMPT_COMMAND="$__MERLIN_SAVED_PROMPT_COMMAND"
+    fi
+    unset __MERLIN_SAVED_PATH __MERLIN_KEY_LIST __MERLIN_ACTIVATED \
+          __MERLIN_WORKTREE __MERLIN_WORKTREE_NAME \
+          __MERLIN_SAVED_PS1 __MERLIN_SAVED_PROMPT_COMMAND
+    unset -f deactivate merlin _merlin_worktree_here _merlin_prompt
+    unset _merlin_k _merlin_was _merlin_old _merlin_top
+}
+
+# remember the key list for deactivate (kept out of the loop vars above)
+__MERLIN_KEY_LIST="$_merlin_keys"
+
+unset _merlin_repo _merlin_os _merlin_arch _merlin_target _merlin_store \
+      _merlin_py _merlin_json _merlin_keys _merlin_k _merlin_entry _merlin_venvpy \
+      _merlin_winarch _merlin_top _merlin_cygpath
