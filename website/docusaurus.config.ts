@@ -197,11 +197,11 @@ const config: Config = {
           items: [
             { label: 'Desktop Download', href: 'https://merlin-agent.epinoiahorizon.com/' },
             { label: 'GitHub', href: 'https://github.com/epinoiahorizon/Merlin-Agent' },
-            { label: 'AexAgent', href: 'https://epinoiahorizon.com' },
+            { label: 'Epinoia Horizon', href: 'https://epinoiahorizon.com' },
           ],
         },
       ],
-      copyright: `Built by <a href="https://epinoiahorizon.com">AexAgent</a> · MIT License · ${new Date().getFullYear()}`,
+      copyright: `Built by <a href="https://epinoiahorizon.com">Epinoia Horizon</a> · MIT License · ${new Date().getFullYear()}`,
     },
     prism: {
       theme: prismThemes.github,

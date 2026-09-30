@@ -228,7 +228,7 @@ module.exports = {
     applicationId: appNamePascal,
     displayName,
     publisher: store ? mustStoreMsix(storeMsixWhenStore).publisher : OUT_OF_STORE_PUBLISHER,
-    publisherDisplayName: store ? mustStoreMsix(storeMsixWhenStore).publisherDisplayName : 'AexAgent',
+    publisherDisplayName: store ? mustStoreMsix(storeMsixWhenStore).publisherDisplayName : 'Epinoia Horizon',
     // The native quad is the build time (scripts/msix-shared.mjs::nativeQuad),
     // baked into the manifest template, so the builder's own build-number
     // override would stamp a second, conflicting version.
@@ -258,7 +258,7 @@ module.exports = {
   },
   linux: {
     category: 'Development',
-    maintainer: 'AexAgent <support@epinoiahorizon.com>',
+    maintainer: 'Epinoia Horizon <support@epinoiahorizon.com>',
     synopsis: light
       ? 'Remote-only desktop client for Merlin Agent.'
       : 'Native desktop shell for Merlin Agent.',

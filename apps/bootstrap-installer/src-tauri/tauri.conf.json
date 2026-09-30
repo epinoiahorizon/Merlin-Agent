@@ -36,8 +36,8 @@
     "category": "DeveloperTool",
     "shortDescription": "Merlin",
     "longDescription": "Installs Merlin Agent on your machine. Drives scripts/install.ps1 (Windows) and scripts/install.sh (macOS/Linux).",
-    "publisher": "AexAgent",
-    "copyright": "Copyright © 2026 AexAgent",
+    "publisher": "Epinoia Horizon",
+    "copyright": "Copyright © 2026 Epinoia Horizon",
     "targets": [
       "app",
       "dmg",

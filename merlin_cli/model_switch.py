@@ -98,12 +98,12 @@ def _bare_custom_provider_def(current_base_url: str) -> Optional[ProviderDef]:
 # --- Non-agentic model warning
 
 _MERLIN_MODEL_WARNING = (
-    "AexAgent Merlin 3 & 4 models are NOT agentic and are not designed "
+    "Epinoia Horizon 3 & 4 models are NOT agentic and are not designed "
     "for use with Merlin Agent. They lack the tool-calling capabilities "
     "required for agent workflows. Consider using an agentic model instead "
     "(Claude, GPT, Gemini, DeepSeek, etc.).")
 
-# Match only the real AexAgent Merlin 3 / 4 chat families; a bare substring check
+# Match only the real Epinoia Horizon 3 / 4 chat families; a bare substring check
 # false-positived on tool-capable local Modelfiles like ``merlin-brain:qwen3-14b-ctx16k``.
 #   match:    epinoiahorizon/Merlin-3-Llama-3.1-70B, merlin-4-405b, openrouter/merlin3:70b
 #   no match: merlin-brain:qwen3-14b-ctx16k, qwen3:14b, claude-opus-4-6

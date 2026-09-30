@@ -542,7 +542,7 @@ def _oauth_wire_namer(anthropic_tools: List[Dict[str, Any]]):
 
 
 _OAUTH_SYSTEM_REPLACEMENTS = (
-    ("Merlin Agent", "Claude Code"), ("Merlin agent", "Claude Code"), ("AexAgent", "Anthropic"),
+    ("Merlin Agent", "Claude Code"), ("Merlin agent", "Claude Code"), ("Epinoia Horizon", "Anthropic"),
 )
 # The slug is rewritten only as a standalone prose word. Joined to a host, path, repo, mailbox
 # or quoted as an identifier (``merlin-agent.epinoiahorizon.com``, ``~/.merlin/merlin-agent/venv``,

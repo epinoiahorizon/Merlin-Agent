@@ -12,7 +12,7 @@ After a dependency change, reactivate the checkout and restart Merlin.
 
 [Merlin Cloud](https://portal.epinoiahorizon.com/cloud) runs hosted Merlin Agent instances for you. Normally you manage them from the `/agents` page in the [Atlas Portal](../integrations/atlas-portal.md). This guide connects your **local** Merlin Agent to the Portal's MCP server so you can manage those cloud instances by just asking — "list my cloud agents", "restart the stopped one", "what's it costing me" — without leaving your terminal.
 
-It's a standard [MCP](../user-guide/features/mcp.md) server hosted by AexAgent, gated by the same OAuth login you already use for the Portal. Once connected, Merlin gets two tools it can call on your behalf.
+It's a standard [MCP](../user-guide/features/mcp.md) server hosted by Epinoia Horizon, gated by the same OAuth login you already use for the Portal. Once connected, Merlin gets two tools it can call on your behalf.
 
 ## What you can do with it
 

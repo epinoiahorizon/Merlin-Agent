@@ -5,7 +5,7 @@ Prior to this check, the warning fired on any model whose name contained
 local Modelfiles such as ``merlin-brain:qwen3-14b-ctx16k`` — a tool-capable
 Qwen3 wrapper that happens to live under the "merlin" tag namespace.
 
-``is_atlas_merlin_non_agentic`` should only match the actual AexAgent
+``is_atlas_merlin_non_agentic`` should only match the actual Epinoia Horizon
 Merlin-3 / Merlin-4 chat family.
 """
 

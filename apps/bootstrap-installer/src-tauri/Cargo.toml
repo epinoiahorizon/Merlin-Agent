@@ -2,7 +2,7 @@
 name = "merlin-bootstrap"
 version = "0.0.0"
 description = "Merlin Setup — signed installer that drives scripts/install.ps1"
-authors = ["AexAgent <info@epinoiahorizon.com>"]
+authors = ["Epinoia Horizon <info@epinoiahorizon.com>"]
 edition = "2021"
 rust-version = "1.77"
 
