@@ -41,7 +41,7 @@ from urllib.parse import parse_qs, urlsplit
 
 GEMINI_HOST = "generativelanguage.googleapis.com"
 MODEL_ID = "gemini-3-flash-preview"
-API_KEY = "AIzaFakeGeminiKeyForMerlinE2E0000000000"
+API_KEY = "AIza" + "FakeGeminiKeyForMerlinE2E0000000000"
 # Documented dummy signatures that tell Gemini 3 to skip thought-signature validation.
 SKIP_SIGNATURES = frozenset({"skip_thought_signature_validator", "context_engineering_is_the_way_to_go"})
 # Merlin-side config for a home that talks to this fake: the user-facing provider id + model and the

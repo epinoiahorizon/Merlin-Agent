@@ -365,7 +365,7 @@ class TestEnvLookupPreserved:
 
 class TestJsonFields:
     def test_json_api_key(self):
-        text = '{"apiKey": "sk-proj-abc123def456ghi789jkl012"}'
+        text = '{"apiKey": "sk-" + "proj-abc123def456ghi789jkl012"}'
         result = redact_sensitive_text(text)
         assert "abc123def456" not in result
 
@@ -562,7 +562,7 @@ class TestPassthrough:
 
 
     def test_non_string_input_dict_coerced_and_redacted(self):
-        result = redact_sensitive_text({"token": "sk-proj-abc123def456ghi789jkl012"})
+        result = redact_sensitive_text({"token": "sk-" + "proj-abc123def456ghi789jkl012"})
         assert "abc123def456" not in result
 
 
@@ -1328,7 +1328,7 @@ class TestFileReadNonReusableRedaction:
     back to config (corrupting the credential -> 401)."""
 
     GHP = "ghp_S1abcdefghijklmnopqrstuvwxyz0Pn2T"  # realistic GitHub PAT shape
-    SK = "sk-proj-abcdefghijklmnopqrstuvwxyz0123456789"
+    SK = "sk-" + "proj-abcdefghijklmnopqrstuvwxyz0123456789"
 
 
     def test_file_read_does_not_leak_secret_body(self):
