@@ -77,25 +77,21 @@ jobs:
               pass
 
           # Floors — same as build_skills_index.py EXPECTED_FLOORS.
+          # Merlin Agent floors: the in-tree catalog (bundled + optional) is
+          # the index's own source of truth; external registries are additive.
           floors = {
-              "skills.sh": 100,
-              "lobehub": 100,
-              "clawhub": 50,
-              "official": 50,
-              "github": 30,
-              "browse-sh": 50,
+              "bundled": 40,
+              "optional": 100,
           }
           issues = []
           if age_hours is not None and age_hours > 26:
               issues.append(f"Index is {age_hours:.1f}h old (limit 26h)")
           for src, floor in floors.items():
               count = by_src.get(src, 0)
-              if src == "skills.sh":
-                  count = by_src.get("skills.sh", 0) + by_src.get("skills-sh", 0)
               if count < floor:
                   issues.append(f"{src}: {count} < {floor}")
-          if total < 1500:
-              issues.append(f"total skills: {total} < 1500")
+          if total < 150:
+              issues.append(f"total skills: {total} < 150")
 
           if issues:
               detail = "; ".join(issues)
