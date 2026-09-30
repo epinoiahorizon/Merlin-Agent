@@ -388,57 +388,61 @@ class CLITuiMixin:
 
     def _get_extra_tui_widgets(self) -> list:
         """Extension hook: wrapper CLIs return widgets inserted between the spacer and status bar."""
-        return []
+        widgets = []
+        arcane = False
+        try:
+            from merlin_cli.skin_engine import get_active_skin
+            skin = get_active_skin()
+            arcane = skin.get_branding("response_label", "").strip().startswith("ᛟ") or                      skin.get_branding("help_header", "").startswith("✧━")
+        except Exception:
+            arcane = False
+        if arcane:
+            widgets.extend(self._grimoire_widgets())
+        return widgets
 
-    def _register_extra_tui_keybindings(self, kb, *, input_area) -> None:
-        """Extension hook: wrapper CLIs add bindings to ``kb`` (``input_area`` is the main TextArea)."""
+    def _grimoire_widgets(self) -> list:
+        """Arcane Grimoire chrome: SPELLBOOK STATUS block + QUICK SLOTS rail + footer."""
+        try:
+            from prompt_toolkit.layout.controls import FormattedTextControl
+            from prompt_toolkit.layout.containers import Window
+        except ImportError:
+            return []
 
-    def _build_tui_layout_children(
-        self,
-        *,
-        sudo_widget,
-        secret_widget,
-        connection_widget=None,
-        approval_widget,
-        slash_confirm_widget=None,
-        clarify_widget,
-        model_picker_widget=None,
-        command_palette_widget=None,
-        spinner_widget=None,
-        spacer,
-        status_bar,
-        input_rule_top,
-        image_bar,
-        input_area,
-        input_rule_bot,
-        voice_status_bar,
-        completions_menu) -> list:
-        """Ordered children of the root ``HSplit``; override only for full control over ordering
-        (wrappers normally override ``_get_extra_tui_widgets`` instead)."""
-        ordered = [
-            Window(height=0),
-            sudo_widget,
-            secret_widget,
-            connection_widget,
-            approval_widget,
-            slash_confirm_widget,
-            clarify_widget,
-            model_picker_widget,
-            command_palette_widget,
-            spinner_widget,
-            spacer,
-            *self._get_extra_tui_widgets(),
-            getattr(self, "_pet_widget", None),
-            getattr(self, "_stash_panel_widget", None),
-            getattr(self, "_subagent_dock_widget", None),
-            status_bar,
-            input_rule_top,
-            image_bar,
-            input_area,
-            input_rule_bot,
-            voice_status_bar,
-            completions_menu]
-        return [item for item in ordered if item is not None]
+        try:
+            from merlin_cli.skin_engine import get_active_skin
+            skin = get_active_skin()
+        except Exception:
+            skin = None
+        c_title = skin.get_color("banner_title", "#e6c04a") if skin else "#e6c04a"
+        c_dim   = skin.get_color("banner_dim",   "#657b83") if skin else "#657b83"
+        c_text  = skin.get_color("banner_text",  "#fdf6e3") if skin else "#fdf6e3"
+        c_good  = skin.get_color("ui_ok",        "#859900") if skin else "#859900"
+
+        model = getattr(self, "model", "") or "unconfigured"
+
+        def status_text():
+            return [
+                ("fg:" + c_title, "✧━ ⟨ SPELLBOOK STATUS ⟩ ━✧"),
+                ("fg:" + c_dim, "\nᛟ Incantation : "), ("fg:" + c_text, str(model)),
+                ("fg:" + c_dim, "  (Arcane Intelligence)"),
+                ("fg:" + c_dim, "\nᛞ Runes Loaded: "), ("fg:" + c_text, "55 active skills"),
+                ("fg:" + c_dim, "\nᚨ Mana        : "),
+                ("fg:" + c_good, "live in the status bar below"),
+                ("fg:" + c_dim, "\nᛝ Response    : "), ("fg:" + c_dim, "casting..."),
+            ]
+
+        def slots_text():
+            slots = [("ᛋ", "web-search"), ("ᛗ", "code-exec"), ("ᚠ", "file-read"), ("ᚦ", "tools")]
+            frag = [("fg:" + c_title, "ᚨ QUICK SLOTS  ")]
+            for i, (rune, label) in enumerate(slots, 1):
+                frag += [("fg:" + c_title, f"[{i}] {rune} "), ("fg:" + c_text, f"{label}  ")]
+            frag += [("fg:" + c_dim, "\n[ESC] banish · [/] runes · [CTRL+C] terminate")]
+            return frag
+
+        return [
+            Window(FormattedTextControl(status_text), height=6, dont_extend_height=True),
+            Window(FormattedTextControl(slots_text), height=3, dont_extend_height=True),
+        ]
 
     def _tui_spinner_loop(self):
         while not self._should_exit:
