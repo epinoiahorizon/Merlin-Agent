@@ -141,7 +141,7 @@ function startLabel(from, to) {
 export const SPEC = {
   windows: {
     install: [
-      // irm https://merlin.arthovlabs.com/install.ps1 | iex
+      // irm https://merlin.aexagent.site/install.ps1 | iex
       { method: 'installer-script' },
       // The same one-liner with -IncludeDesktop: builds Merlin.exe AND
       // registers Start Menu / Desktop shortcuts, so it is a second real

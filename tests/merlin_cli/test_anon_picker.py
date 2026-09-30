@@ -21,7 +21,7 @@ GUEST_STATE = {
     "anon_token": "anon_t",
     "access_token": "aaa.bbb.ccc",
     "expires_at": "2030-01-01T00:00:00+00:00",
-    "inference_base_url": "https://welcome-api.arthovlabs.com/v1",
+    "inference_base_url": "https://welcome-api.aexagent.site/v1",
 }
 
 

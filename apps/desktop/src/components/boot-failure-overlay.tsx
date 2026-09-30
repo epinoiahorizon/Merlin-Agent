@@ -423,7 +423,7 @@ export function BootFailureOverlay() {
       {
         key: 'portal',
         label: copy.cloudDownCheckPortal,
-        onClick: () => openExternalLink('https://portal.arthovlabs.com'),
+        onClick: () => openExternalLink('https://portal.aexagent.site'),
         icon: <ExternalLink />
       },
       localAction,

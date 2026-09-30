@@ -165,7 +165,7 @@ SCENARIOS: list[tuple[str, str, dict[str, str]]] = [
         "managed-gateway-only",
         "",
         {
-            "TOOL_GATEWAY_DOMAIN": "arthovlabs.com",
+            "TOOL_GATEWAY_DOMAIN": "aexagent.site",
             "TOOL_GATEWAY_USER_TOKEN": "atlas-token",
         },
     ),

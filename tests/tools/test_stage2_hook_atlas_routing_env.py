@@ -20,8 +20,8 @@ from agent.secret_scope import load_env_file
 REPO_ROOT = Path(__file__).resolve().parents[2]
 STAGE2_HOOK = REPO_ROOT / "docker" / "stage2-hook.sh"
 
-PORTAL = "https://portal.staging-arthovlabs.com"
-INFERENCE = "https://stg-inference-api.arthovlabs.com/v1"
+PORTAL = "https://portal.staging-aexagent.site"
+INFERENCE = "https://stg-inference-api.aexagent.site/v1"
 NAMES = ("MERLIN_PORTAL_BASE_URL", "ATLAS_PORTAL_BASE_URL", "ATLAS_INFERENCE_BASE_URL")
 
 
@@ -94,7 +94,7 @@ def test_container_wins_over_stale_line_then_idempotent_then_removed_when_unset(
     home = tmp_path / "home"
     home.mkdir()
     env_file = home / ".env"
-    env_file.write_text("MERLIN_PORTAL_BASE_URL=https://portal.arthovlabs.com\nATLAS_INFERENCE_BASE_URL=https://by-hand/v1\nOTHER=1\n")
+    env_file.write_text("MERLIN_PORTAL_BASE_URL=https://portal.aexagent.site\nATLAS_INFERENCE_BASE_URL=https://by-hand/v1\nOTHER=1\n")
 
     first = _run_sync(stage2_text, home, {"MERLIN_PORTAL_BASE_URL": PORTAL})
     assert first.returncode == 0, first.stderr

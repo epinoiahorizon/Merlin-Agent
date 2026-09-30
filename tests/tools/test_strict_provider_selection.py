@@ -23,7 +23,7 @@ from tools import tool_backend_helpers as tbh
 
 MANAGED = SimpleNamespace(
     atlas_user_token="managed-token",
-    gateway_origin="https://gateway.arthovlabs.com",
+    gateway_origin="https://gateway.aexagent.site",
 )
 
 
@@ -215,7 +215,7 @@ class TestSttStrictSelection:
              patch("tools.managed_tool_gateway.resolve_managed_tool_gateway", return_value=MANAGED):
             api_key, base_url = tt._resolve_openai_audio_client_config()
         assert api_key == "managed-token"
-        assert base_url.startswith("https://gateway.arthovlabs.com")
+        assert base_url.startswith("https://gateway.aexagent.site")
 
     def test_vendor_selection_missing_key_errors_without_managed_call(self):
         from tools import transcription_tools as tt

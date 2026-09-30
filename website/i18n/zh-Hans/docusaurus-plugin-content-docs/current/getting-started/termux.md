@@ -27,7 +27,7 @@ Merlin 的 Termux 软件包适用于 aarch64（arm64-v8a）设备，目前处于
    ```bash
    mkdir -p "$PREFIX/etc/apt/keyrings"
    curl -fsSL \
-     https://merlin-assets.arthovlabs.com/releases/termux/canary/key.asc \
+     https://merlin-assets.aexagent.site/releases/termux/canary/key.asc \
      -o "$PREFIX/etc/apt/keyrings/merlin-agent.asc"
    ```
 
@@ -49,7 +49,7 @@ Merlin 的 Termux 软件包适用于 aarch64（arm64-v8a）设备，目前处于
 
    ```bash
    printf '%s\n' \
-     "deb [signed-by=$PREFIX/etc/apt/keyrings/merlin-agent.asc] https://merlin-assets.arthovlabs.com/releases/termux/canary merlin-canary main" \
+     "deb [signed-by=$PREFIX/etc/apt/keyrings/merlin-agent.asc] https://merlin-assets.aexagent.site/releases/termux/canary merlin-canary main" \
      > "$PREFIX/etc/apt/sources.list.d/merlin-agent.list"
    ```
 

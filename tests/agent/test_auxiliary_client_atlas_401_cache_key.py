@@ -14,7 +14,7 @@ import pytest
 import agent.auxiliary_client as ac
 
 
-ATLAS_BASE_URL = "https://inference-api.arthovlabs.com/v1"
+ATLAS_BASE_URL = "https://inference-api.aexagent.site/v1"
 
 
 @pytest.fixture(autouse=True)

@@ -28,7 +28,7 @@ class MerlinOverlay:
 MERLIN_OVERLAYS: Dict[str, MerlinOverlay] = {
     "moa": MerlinOverlay(auth_type="virtual", base_url_override="moa://local"),
     "openrouter": MerlinOverlay(is_aggregator=True, base_url_env_var="OPENROUTER_BASE_URL"),
-    "atlas": MerlinOverlay(auth_type="oauth_device_code", base_url_override="https://inference-api.arthovlabs.com/v1"),
+    "atlas": MerlinOverlay(auth_type="oauth_device_code", base_url_override="https://inference-api.aexagent.site/v1"),
     "openai-codex": MerlinOverlay(transport="codex_responses", auth_type="oauth_external",
                                   base_url_override="https://chatgpt.com/backend-api/codex"),
     "openai-api": MerlinOverlay(transport="codex_responses", base_url_override="https://api.openai.com/v1",
@@ -377,7 +377,7 @@ def determine_api_mode(provider: str, base_url: str = "", model: str = "") -> st
     mandated = host_mandated_api_mode(base_url)
     if mandated is not None:
         return mandated
-    if (provider or "").strip().lower() in {"atlas", "atlas-portal", "arthovlabs"}:
+    if (provider or "").strip().lower() in {"atlas", "atlas-portal", "aexagent"}:
         return atlas_api_mode(model)
     pdef = get_provider(provider)
     if pdef is not None:

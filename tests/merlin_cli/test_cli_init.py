@@ -493,7 +493,7 @@ class TestNestedDictModelDefaultPairing:
                 },
                 "providers": {
                     "atlas": {
-                        "base_url": "https://inference-api.arthovlabs.com/v1",
+                        "base_url": "https://inference-api.aexagent.site/v1",
                     },
                 },
             },

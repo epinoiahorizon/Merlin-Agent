@@ -998,7 +998,7 @@ def _desktop_macos_setup_tcc_identity(identity: str = "Merlin Local Signing") ->
     print(
         "\n  Note: macOS will re-prompt for permissions ONE final time (the identity "
         "changed). Grant them and they persist from then on. If a permission gets "
-        "stuck, reset it with:  tccutil reset All com.arthovlabs.merlin"
+        "stuck, reset it with:  tccutil reset All com.aexagent.merlin"
     )
     return True
 
@@ -1766,7 +1766,7 @@ def cmd_gui(args: argparse.Namespace):
             print(
                 "  This Merlin came from Homebrew, which does not ship the desktop app's\n"
                 "  source tree, so it cannot be built from this install.\n"
-                "  Install the desktop app from https://merlin-agent.arthovlabs.com,\n"
+                "  Install the desktop app from https://merlin-agent.aexagent.site,\n"
                 "  or run `merlin desktop` from a source checkout."
             )
         sys.exit(1)

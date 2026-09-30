@@ -400,7 +400,7 @@ def _resolve_api_mode(agent, api_mode, provider_name, base_url):
         host.startswith("bedrock-runtime.") and base_url_host_matches(url, "amazonaws.com")
     ):
         agent.api_mode = "bedrock_converse"
-    elif agent.provider in {"atlas", "atlas-portal", "arthovlabs"}:
+    elif agent.provider in {"atlas", "atlas-portal", "aexagent"}:
         # Portal is dual-wire (anthropic/* → Messages, else chat_completions); covers direct
         # AIAgent construction without a resolved runtime.
         from merlin_cli.providers import atlas_api_mode
@@ -2104,7 +2104,7 @@ def _warn_nonagentic_merlin_model(agent):
         _merlin_warn = _check_merlin_model_warning(agent.model or "")
         if _merlin_warn:
             _user_msg = (
-                "⚠ Arthov Labs Merlin 3 & 4 models are NOT agentic — they "
+                "⚠ AexAgent Merlin 3 & 4 models are NOT agentic — they "
                 "lack reliable tool-calling for agent workflows (delegation, "
                 "cron, proactive tools). Consider an agentic model instead "
                 "(Claude, GPT, Gemini, Qwen-Coder, etc.)."

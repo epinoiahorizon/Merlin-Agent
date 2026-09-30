@@ -194,8 +194,8 @@ def test_resolve_atlas_runtime_credentials_invoke_jwt_is_idempotent(
         "active_provider": "atlas",
         "providers": {
             "atlas": {
-                "portal_base_url": "https://portal.arthovlabs.com",
-                "inference_base_url": "https://inference-api.arthovlabs.com/v1",
+                "portal_base_url": "https://portal.aexagent.site",
+                "inference_base_url": "https://inference-api.aexagent.site/v1",
                 "client_id": "merlin-cli",
                 "token_type": "Bearer",
                 "scope": auth_mod.DEFAULT_ATLAS_SCOPE,
@@ -440,8 +440,8 @@ class TestLoginAtlasSkipKeepsCurrent:
         fake_auth_state = {
             "access_token": "fake-atlas-token",
             "agent_key": "fake-agent-key",
-            "inference_base_url": "https://inference-api.arthovlabs.com",
-            "portal_base_url": "https://portal.arthovlabs.com",
+            "inference_base_url": "https://inference-api.aexagent.site",
+            "portal_base_url": "https://portal.aexagent.site",
             "refresh_token": "fake-refresh",
             "token_expires_at": 9999999999,
         }
@@ -664,7 +664,7 @@ def test_refresh_token_reuse_detection_surfaces_actionable_message():
     with pytest.raises(AuthError) as exc_info:
         _refresh_access_token(
             client=_FakeClient(),
-            portal_base_url="https://portal.arthovlabs.com",
+            portal_base_url="https://portal.aexagent.site",
             client_id="merlin-cli",
             refresh_token="rt_consumed_elsewhere",
         )
@@ -724,7 +724,7 @@ def test_refresh_token_exchange_error_classification(
     with pytest.raises(AuthError) as exc_info:
         _refresh_access_token(
             client=_FakeClient(),
-            portal_base_url="https://portal.arthovlabs.com",
+            portal_base_url="https://portal.aexagent.site",
             client_id="merlin-cli",
             refresh_token="refresh-still-valid",
         )
@@ -827,7 +827,7 @@ def test_refresh_token_exchange_sends_refresh_token_header():
 
     payload = _refresh_access_token(
         client=client,
-        portal_base_url="https://portal.arthovlabs.com",
+        portal_base_url="https://portal.aexagent.site",
         client_id="merlin-cli",
         refresh_token="refresh-1",
     )
@@ -986,7 +986,7 @@ class TestStalePortalBaseUrlMigration:
             "active_provider": "atlas",
             "providers": {
                 "atlas": {
-                    "portal_base_url": "https://api.arthovlabs.com",
+                    "portal_base_url": "https://api.aexagent.site",
                     "access_token": "test-token",
                     "refresh_token": "test-refresh",
                 }
@@ -1016,7 +1016,7 @@ class TestStalePortalBaseUrlMigration:
         auth_file = merlin_home / "auth.json"
         store = json.loads(auth_file.read_text())
         store["providers"]["atlas"]["portal_base_url"] = (
-            "http://portal.arthovlabs.com"
+            "http://portal.aexagent.site"
         )
         auth_file.write_text(json.dumps(store, indent=2))
 
@@ -1072,7 +1072,7 @@ def test_poll_for_token_timeout_raises_actionable_message():
     with pytest.raises(TimeoutError):
         auth_mod._poll_for_token(
             client=cast(httpx.Client, _PendingClient()),
-            portal_base_url="https://portal.arthovlabs.com",
+            portal_base_url="https://portal.aexagent.site",
             client_id="merlin-cli",
             device_code="device",
             expires_in=1,

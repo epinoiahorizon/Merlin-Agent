@@ -904,7 +904,7 @@ export default function PluginsPage() {
               {t.pluginsPage.catalogEmpty ?? "No catalog entries match."}{" "}
               <a
                 className="underline"
-                href="https://merlin-agent.arthovlabs.com/docs/plugins"
+                href="https://merlin-agent.aexagent.site/docs/plugins"
                 target="_blank"
                 rel="noreferrer"
               >

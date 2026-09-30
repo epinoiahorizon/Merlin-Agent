@@ -93,9 +93,9 @@ class TestAtlasModelReasoningCapabilities:
         from merlin_cli.models_reasoning_caps import atlas_catalog_url
 
         monkeypatch.setenv(
-            "ATLAS_INFERENCE_BASE_URL", "https://staging.arthovlabs.com/v1"
+            "ATLAS_INFERENCE_BASE_URL", "https://staging.aexagent.site/v1"
         )
-        assert atlas_catalog_url() == "https://staging.arthovlabs.com/v1/models"
+        assert atlas_catalog_url() == "https://staging.aexagent.site/v1/models"
 
         monkeypatch.delenv("ATLAS_INFERENCE_BASE_URL")
         assert atlas_catalog_url().endswith("/v1/models")

@@ -30,7 +30,7 @@ from plugins.dashboard_auth._shared import (
 logger = logging.getLogger(__name__)
 _TAG = "dashboard-auth-atlas"
 
-_DEFAULT_PORTAL_URL = "https://portal.arthovlabs.com"
+_DEFAULT_PORTAL_URL = "https://portal.aexagent.site"
 _SCOPE = "agent_dashboard:access"  # contract C3
 _EXPECTED_CONTRACT_VERSION = 1  # contract C11
 
@@ -41,7 +41,7 @@ class AtlasDashboardAuthProvider(JwtOAuthProvider):
     """Atlas Portal OAuth via authorization-code + PKCE (S256)."""
 
     name = "atlas"
-    display_name = "Arthov Labs"
+    display_name = "AexAgent"
 
     def __init__(self, *, client_id: str, portal_url: str) -> None:
         # Defense-in-depth: register() filters too, but a malformed id must never construct a provider.

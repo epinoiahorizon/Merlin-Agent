@@ -375,7 +375,7 @@ On a shared team bot, use Docker as the terminal backend so agent commands run i
 ```bash
 # In ~/.merlin/.env
 TERMINAL_ENV=docker
-TERMINAL_DOCKER_IMAGE=arthovlabs/merlin-sandbox:desktop
+TERMINAL_DOCKER_IMAGE=aexagent/merlin-sandbox:desktop
 ```
 
 Or in `~/.merlin/config.yaml`:

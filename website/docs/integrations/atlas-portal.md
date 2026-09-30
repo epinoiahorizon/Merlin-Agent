@@ -6,7 +6,7 @@ description: "One subscription, 300+ frontier models, and the Tool Gateway — t
 
 # Atlas Portal
 
-[Atlas Portal](https://portal.arthovlabs.com) is Arthov Labs's unified subscription gateway and **the recommended way to run Merlin Agent**. One OAuth login replaces the juggling act of separate accounts, API keys, and billing relationships across every model lab, search API, image generator, and browser provider you'd otherwise need to wire up by hand.
+[Atlas Portal](https://portal.aexagent.site) is AexAgent's unified subscription gateway and **the recommended way to run Merlin Agent**. One OAuth login replaces the juggling act of separate accounts, API keys, and billing relationships across every model lab, search API, image generator, and browser provider you'd otherwise need to wire up by hand.
 
 If you only have time to set up one thing, set up this. The fastest path:
 
@@ -16,7 +16,7 @@ merlin setup --portal
 
 That single command runs the Portal OAuth, lets you pick a Atlas model, sets Atlas as your inference provider in `config.yaml`, and turns on the Tool Gateway. You're ready to `merlin chat` immediately after.
 
-Don't have a subscription yet? [portal.arthovlabs.com/manage-subscription](https://portal.arthovlabs.com/manage-subscription) — sign up, then come back and run the command above.
+Don't have a subscription yet? [portal.aexagent.site/manage-subscription](https://portal.aexagent.site/manage-subscription) — sign up, then come back and run the command above.
 
 ## What's in the subscription
 
@@ -74,7 +74,7 @@ Because everything routes through one OAuth-authenticated Portal session, you do
 
 ## A note on Merlin 4
 
-Arthov Labs's own **Merlin 4** family (Merlin-4-70B, Merlin-4-405B) is available through the Portal at heavily discounted rates. These are **frontier hybrid-reasoning chat models** — strong at math, science, instruction following, schema adherence, roleplay, and long-form writing.
+AexAgent's own **Merlin 4** family (Merlin-4-70B, Merlin-4-405B) is available through the Portal at heavily discounted rates. These are **frontier hybrid-reasoning chat models** — strong at math, science, instruction following, schema adherence, roleplay, and long-form writing.
 
 They are **not recommended for use inside Merlin Agent**, however. Merlin 4 is tuned for chat and reasoning, not the rapid-fire tool-calling loop the agent relies on. Use them for research workflows or via the [subscription proxy](../user-guide/features/subscription-proxy.md) from other tooling — but for agent work, pick a frontier agentic model from the catalog instead:
 
@@ -85,7 +85,7 @@ They are **not recommended for use inside Merlin Agent**, however. Merlin 4 is t
 /model deepseek/deepseek-v4-pro        # cost-effective coder
 ```
 
-The Portal's own [model info page](https://portal.arthovlabs.com/info) carries the same warning, so this isn't a Merlin-side opinion — it's the official guidance from Arthov Labs.
+The Portal's own [model info page](https://portal.aexagent.site/info) carries the same warning, so this isn't a Merlin-side opinion — it's the official guidance from AexAgent.
 
 ## Setup
 
@@ -97,14 +97,14 @@ merlin setup --portal
 
 This runs the full setup in one shot:
 
-1. Opens your browser to portal.arthovlabs.com for OAuth login
+1. Opens your browser to portal.aexagent.site for OAuth login
 2. Stores the refresh token at `~/.merlin/auth.json`
 3. Lets you pick a Atlas model from the curated list (or skip to keep your current one)
 4. Sets Atlas as your inference provider in `~/.merlin/config.yaml` (when you pick a model)
 5. Turns on the Tool Gateway (web, image, TTS, browser routing)
 6. Returns you to your terminal ready to `merlin chat`
 
-If you don't have a subscription yet, sign up at [portal.arthovlabs.com/manage-subscription](https://portal.arthovlabs.com/manage-subscription) first.
+If you don't have a subscription yet, sign up at [portal.aexagent.site/manage-subscription](https://portal.aexagent.site/manage-subscription) first.
 
 ### Existing install — add Portal alongside other providers
 
@@ -146,7 +146,7 @@ merlin portal open       # open the subscription management page in your browser
   Atlas Portal
   ───────────
   Auth:    ✓ logged in
-  Portal:  https://portal.arthovlabs.com
+  Portal:  https://portal.aexagent.site
   Model:   ✓ using Atlas as inference provider
 
   Tool Gateway
@@ -199,7 +199,7 @@ The Tool Gateway is opt-in per tool, not all-or-nothing. The managed backends sh
 
 Manage your plan, view usage, or upgrade/cancel at any time:
 
-- **Web:** [portal.arthovlabs.com/manage-subscription](https://portal.arthovlabs.com/manage-subscription)
+- **Web:** [portal.aexagent.site/manage-subscription](https://portal.aexagent.site/manage-subscription)
 - **CLI shortcut:** `merlin portal open` (opens the same page in your default browser)
 
 ## Configuration reference
@@ -210,7 +210,7 @@ After `merlin setup --portal`, `~/.merlin/config.yaml` will look like:
 model:
   provider: atlas
   default: anthropic/claude-sonnet-4.6     # or whatever model you picked
-  base_url: https://inference-api.arthovlabs.com/v1
+  base_url: https://inference-api.aexagent.site/v1
 ```
 
 The Tool Gateway settings live under their respective tool sections — each category has a single selection key, and picking **Atlas Subscription** in `merlin tools` (or `merlin setup --portal`) writes the value `atlas`:

@@ -14,7 +14,7 @@ from typing import Optional
 import httpx
 
 # Atlas-hosted pairing API; override for PoC/staging with TELEGRAM_ONBOARDING_URL.
-DEFAULT_API_URL = "https://setup.merlin-agent.arthovlabs.com"
+DEFAULT_API_URL = "https://setup.merlin-agent.aexagent.site"
 TELEGRAM_ONBOARDING_URL_ENV = "TELEGRAM_ONBOARDING_URL"
 DEFAULT_BOT_NAME = "Merlin Agent"
 DEFAULT_POLL_TIMEOUT = 180

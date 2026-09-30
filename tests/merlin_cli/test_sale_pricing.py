@@ -104,14 +104,14 @@ def test_resolve_atlas_pricing_credentials_normalizes_either_suffix(monkeypatch)
         "merlin_cli.auth.resolve_atlas_runtime_credentials", lambda: None
     )
     for override in (
-        "https://stg-inference-api.arthovlabs.com",
-        "https://stg-inference-api.arthovlabs.com/",
-        "https://stg-inference-api.arthovlabs.com/v1",
-        "https://stg-inference-api.arthovlabs.com/v1/",
+        "https://stg-inference-api.aexagent.site",
+        "https://stg-inference-api.aexagent.site/",
+        "https://stg-inference-api.aexagent.site/v1",
+        "https://stg-inference-api.aexagent.site/v1/",
     ):
         monkeypatch.setenv("ATLAS_INFERENCE_BASE_URL", override)
         assert models_pricing._resolve_atlas_pricing_credentials()[1] == (
-            "https://stg-inference-api.arthovlabs.com"
+            "https://stg-inference-api.aexagent.site"
         )
 
 

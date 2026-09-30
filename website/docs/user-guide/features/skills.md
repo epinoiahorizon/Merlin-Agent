@@ -26,9 +26,9 @@ it is not inferred from the public catalog. **Browse** is a native catalog UI,
 not an embedded website or a second, smaller catalog.
 
 Desktop and the public [Skills Hub](/skills) read the same published CDN
-snapshot: [`/docs/api/skills.json`](https://merlin-agent.arthovlabs.com/docs/api/skills.json).
+snapshot: [`/docs/api/skills.json`](https://merlin-agent.aexagent.site/docs/api/skills.json).
 The public docs alias serves the same snapshot as Desktop's fetch URL,
-`https://arthovlabs.github.io/merlin-agent/docs/api/skills.json`. The docs
+`https://epinoiahorizon.github.io/merlin-agent/docs/api/skills.json`. The docs
 build generates it from bundled `skills/`, `optional-skills/`, and the
 centralized skills index. Browsing does not crawl GitHub or query upstream
 marketplaces live; installation still retrieves the selected skill through
@@ -820,7 +820,7 @@ merlin skills tap add myorg/skills-repo
 [skills.sh schema](https://skills.sh/schemas/skills.sh.schema.json). Its
 `groupings` (each with a `title` and a list of skill names) are read at index
 time and become the category labels shown in the
-[Skills Hub](https://merlin-agent.arthovlabs.com/docs) page — instead of a
+[Skills Hub](https://merlin-agent.aexagent.site/docs) page — instead of a
 tag-derived guess. This is generic: any tap that ships the file gets real
 categorization, no Merlin-side changes required.
 

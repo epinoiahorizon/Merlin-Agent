@@ -427,14 +427,14 @@ test('isServerSideHttpError detects 502/503/504', () => {
 
 test('isAtlasCloudAgentUrl detects cloud agent hosts', () => {
   // Positive cases
-  assert.equal(isAtlasCloudAgentUrl('https://ares-3009.agents.arthovlabs.com'), true)
-  assert.equal(isAtlasCloudAgentUrl('https://ares-3009.agents.arthovlabs.com/api/health'), true)
-  assert.equal(isAtlasCloudAgentUrl('http://test.agents.arthovlabs.com'), true)
+  assert.equal(isAtlasCloudAgentUrl('https://ares-3009.agents.aexagent.site'), true)
+  assert.equal(isAtlasCloudAgentUrl('https://ares-3009.agents.aexagent.site/api/health'), true)
+  assert.equal(isAtlasCloudAgentUrl('http://test.agents.aexagent.site'), true)
 
   // Negative cases
   assert.equal(isAtlasCloudAgentUrl('http://127.0.0.1:9000'), false)
   assert.equal(isAtlasCloudAgentUrl('https://gateway.example.com'), false)
-  assert.equal(isAtlasCloudAgentUrl('https://arthovlabs.com'), false)
+  assert.equal(isAtlasCloudAgentUrl('https://aexagent.site'), false)
   assert.equal(isAtlasCloudAgentUrl('not-a-url'), false)
 })
 
@@ -443,7 +443,7 @@ test('waitForMerlinReady classifies a persistent cloud agent 503 as cloud-backen
   const currentTime = { value: 0 }
 
   try {
-    await waitForMerlinReady('https://ares-3009.agents.arthovlabs.com', {
+    await waitForMerlinReady('https://ares-3009.agents.aexagent.site', {
       fetchPublicJson: async () => {
         attempts++
         // Always return 503
@@ -537,7 +537,7 @@ test('isServerSideHttpError structured path excludes 500/401/403/404/429 even wh
 test('makeAtlasCloudBackendDownError produces the Cloud shape and preserves cause', () => {
   const err = new Error('upstream unavailable') as any
   err.statusCode = 503
-  const result = makeAtlasCloudBackendDownError('https://ares-3009.agents.arthovlabs.com', err)
+  const result = makeAtlasCloudBackendDownError('https://ares-3009.agents.aexagent.site', err)
   assert.ok(result)
   assert.equal((result as any).isCloudBackendDown, true)
   assert.equal((result as any).statusCode, 503)
@@ -547,7 +547,7 @@ test('makeAtlasCloudBackendDownError produces the Cloud shape and preserves caus
 test('makeAtlasCloudBackendDownError returns null for a Cloud 401 (routes to reauth)', () => {
   const err = new Error('Unauthorized') as any
   err.statusCode = 401
-  assert.equal(makeAtlasCloudBackendDownError('https://ares-3009.agents.arthovlabs.com', err), null)
+  assert.equal(makeAtlasCloudBackendDownError('https://ares-3009.agents.aexagent.site', err), null)
 })
 
 test('makeAtlasCloudBackendDownError returns null for a non-Cloud 503 (generic remote failure)', () => {
@@ -559,7 +559,7 @@ test('makeAtlasCloudBackendDownError returns null for a non-Cloud 503 (generic r
 
 test('makeAtlasCloudBackendDownError preserves legacy string-prefix compatibility', () => {
   const result = makeAtlasCloudBackendDownError(
-    'https://ares-3009.agents.arthovlabs.com',
+    'https://ares-3009.agents.aexagent.site',
     new Error('503: Service Unavailable')
   )
 

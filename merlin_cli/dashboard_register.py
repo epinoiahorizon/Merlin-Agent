@@ -17,7 +17,7 @@ import urllib.request
 from typing import Optional
 from urllib.parse import urlparse
 
-_DEFAULT_PORTAL = "https://portal.arthovlabs.com"
+_DEFAULT_PORTAL = "https://portal.aexagent.site"
 
 # Docker-style adjective_noun names; the portal keys on row id, so collisions are harmless.
 _NAME_ADJECTIVES = (

@@ -1068,7 +1068,7 @@ def try_recover_primary_transport(
     # Portal OpenAI-wire traffic rides aggregator retry infra (skip), but Portal Claude on native
     # Messages holds a local Anthropic client that needs the rebuild.
     if (
-        (agent.provider or "").strip().lower() in {"atlas", "atlas-portal", "arthovlabs"}
+        (agent.provider or "").strip().lower() in {"atlas", "atlas-portal", "aexagent"}
         and getattr(agent, "api_mode", None) != "anthropic_messages"
     ):
         return False
@@ -1689,7 +1689,7 @@ def anthropic_prompt_cache_policy(
     is_kimi = _model_name_is_kimi_family(eff_model) or "moonshot" in model_lower
     is_openrouter = base_url_host_matches(eff_base_url, "openrouter.ai")
     # Atlas Portal proxies to OpenRouter; treat as OpenRouter-equivalent for cache layout.
-    is_atlas_portal = base_url_host_matches(eff_base_url, "arthovlabs.com")
+    is_atlas_portal = base_url_host_matches(eff_base_url, "aexagent.site")
     is_anthropic_wire = eff_api_mode == "anthropic_messages"
     is_native_anthropic = is_anthropic_wire and (
         eff_provider == "anthropic" or base_url_hostname(eff_base_url) == "api.anthropic.com"

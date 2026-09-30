@@ -49,7 +49,7 @@ export const PROVIDER_GROUPS: ProviderPrefix[] = [
     prefix: 'ATLAS_',
     name: 'Atlas Portal',
     description: 'Hosted Merlin & Atlas-trained models',
-    docsUrl: 'https://portal.arthovlabs.com',
+    docsUrl: 'https://portal.aexagent.site',
     priority: 0
   },
   {

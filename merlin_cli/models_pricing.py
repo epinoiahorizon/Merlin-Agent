@@ -292,7 +292,7 @@ def _resolve_openrouter_api_key() -> str:
     return os.getenv("OPENROUTER_API_KEY", "").strip()
 
 
-_DEFAULT_ATLAS_INFERENCE_BASE = "https://inference-api.arthovlabs.com"
+_DEFAULT_ATLAS_INFERENCE_BASE = "https://inference-api.aexagent.site"
 
 
 def _resolve_atlas_pricing_credentials() -> tuple[str, str]:

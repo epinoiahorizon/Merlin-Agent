@@ -1,6 +1,6 @@
 # Contributor Quick Reference
 
-For occasional contributors and PR authors. Full developer docs: https://merlin-agent.arthovlabs.com/docs/developer-guide/
+For occasional contributors and PR authors. Full developer docs: https://merlin-agent.aexagent.site/docs/developer-guide/
 
 ### Project Layout
 

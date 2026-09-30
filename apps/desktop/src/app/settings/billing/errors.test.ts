@@ -42,7 +42,7 @@ describe('resolveRefusal', () => {
       const resolved = resolveRefusal({
         kind: kind as BillingRefusal['kind'],
         message: 'Server message.',
-        portalUrl: 'https://portal.arthovlabs.com/billing',
+        portalUrl: 'https://portal.aexagent.site/billing',
         retryAfter: 90
       })
 

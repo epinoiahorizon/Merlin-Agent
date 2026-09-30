@@ -245,7 +245,7 @@ def refresh_reasoning_caps_async(provider: Optional[str]) -> None:
     rejects. Called from the conversation loop's reasoning_mandatory recovery so the profile guard
     is right again on the next request; no-op for providers without a catalog.
     """
-    src = {"atlas": _ATLAS_CAPS, "atlas-portal": _ATLAS_CAPS, "arthovlabs": _ATLAS_CAPS,
+    src = {"atlas": _ATLAS_CAPS, "atlas-portal": _ATLAS_CAPS, "aexagent": _ATLAS_CAPS,
            "openrouter": _OPENROUTER_CAPS}.get(str(provider or "").strip().lower())
     if src is not None:
         _warm_reasoning_caps_async(lambda: _fetch_caps(src, force=True))

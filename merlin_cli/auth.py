@@ -1793,7 +1793,7 @@ def _optional_base_url(value: Any) -> Optional[str]:
 # Valid Atlas Portal hosts; a stored portal_base_url outside this set is a misconfiguration and falls
 # back to the default. localhost / 127.0.0.1 are for local development and testing.
 _ATLAS_PORTAL_ALLOWED_HOSTS: FrozenSet[str] = frozenset({
-    "portal.arthovlabs.com", "localhost", "127.0.0.1"})
+    "portal.aexagent.site", "localhost", "127.0.0.1"})
 
 # Per-process memo for resolve_atlas_access_token: startup runs one check_fn per managed tool and
 # each would trigger its own ~15s blocking refresh of an expired token; a short-TTL memo collapses

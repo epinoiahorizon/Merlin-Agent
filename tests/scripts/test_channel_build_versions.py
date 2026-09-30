@@ -21,7 +21,7 @@ def channel_request(commit: str, sequence: int = 65536) -> dict:
         "windowsVersion": f"0.{sequence // 65536}.{sequence % 65536}.0",
         "identity": {
             "token": token, "displayName": "Merlin unregistered-preview",
-            "appId": f"com.arthovlabs.merlin-channel-{token}",
+            "appId": f"com.aexagent.merlin-channel-{token}",
             "appNamePascal": f"MerlinChannel{token}", "artifactNamePascal": "MerlinBundled",
             "cliName": "merlin-unregistered-preview", "windowsExecutableName": "merlin-unregistered-preview",
             "msixAppIdWithOrg": f"AtlasResearch.MerlinChannel{token}",

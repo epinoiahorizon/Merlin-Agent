@@ -82,7 +82,7 @@ class TestBuildAnthropicClient:
             )
             kwargs = mock_sdk.Anthropic.call_args[1]
             headers = kwargs["default_headers"]
-            assert headers["HTTP-Referer"] == "https://merlin-agent.arthovlabs.com"
+            assert headers["HTTP-Referer"] == "https://merlin-agent.aexagent.site"
             assert headers["X-Title"] == "Merlin Agent"
             from merlin_cli.version_info import get_version_info
             assert headers["User-Agent"] == f"MerlinAgent/{get_version_info().base_version}"
@@ -1808,8 +1808,8 @@ def test_oauth_system_prompt_sanitizer_preserves_docs_url():
             {
                 "role": "system",
                 "content": (
-                    "Merlin Agent by Arthov Labs uses merlin-agent skills. "
-                    "Docs: https://merlin-agent.arthovlabs.com/docs ; "
+                    "Merlin Agent by AexAgent uses merlin-agent skills. "
+                    "Docs: https://merlin-agent.aexagent.site/docs ; "
                     "interpreter ~/.merlin/merlin-agent/venv/bin/python ; "
                     "source github.com/epinoiahorizon/Merlin-Agent ; mail merlin-agent@example.com ; "
                     "skill_view(name='merlin-agent') ; merlin-agent's docs ; built by merlin-agent."
@@ -1825,7 +1825,7 @@ def test_oauth_system_prompt_sanitizer_preserves_docs_url():
 
     system_text = "\n".join(block["text"] for block in kwargs["system"])
     assert "Claude Code by Anthropic uses claude-code skills." in system_text
-    assert "https://merlin-agent.arthovlabs.com/docs" in system_text
+    assert "https://merlin-agent.aexagent.site/docs" in system_text
     # Paths and repo slugs are addresses too: a subagent told to run
     # ``~/.merlin/claude-code/venv/bin/python`` fails on a file that does not exist.
     assert "~/.merlin/merlin-agent/venv/bin/python" in system_text

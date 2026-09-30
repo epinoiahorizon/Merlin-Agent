@@ -350,7 +350,7 @@ class TestBuildApiKwargsAtlasPortal:
         agent = _make_agent(
             monkeypatch,
             "atlas",
-            base_url="https://inference-api.arthovlabs.com/v1",
+            base_url="https://inference-api.aexagent.site/v1",
             model="gpt-5",
         )
         messages = [{"role": "user", "content": "hi"}]

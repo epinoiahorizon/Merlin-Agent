@@ -50,9 +50,9 @@ def _fake_atlas_device_data():
     return {
         "device_code": "device-code",
         "user_code": "ATLAS-1234",
-        "verification_uri": "https://portal.arthovlabs.com/device",
+        "verification_uri": "https://portal.aexagent.site/device",
         "verification_uri_complete": (
-            "https://portal.arthovlabs.com/device?user_code=ATLAS-1234"
+            "https://portal.aexagent.site/device?user_code=ATLAS-1234"
         ),
         "expires_in": 600,
         "interval": 5,
@@ -60,7 +60,7 @@ def _fake_atlas_device_data():
 
 
 def _invoke_scope_refusal():
-    request = httpx.Request("POST", "https://portal.arthovlabs.com/oauth/device/code")
+    request = httpx.Request("POST", "https://portal.aexagent.site/oauth/device/code")
     response = httpx.Response(
         400,
         json={
@@ -475,7 +475,7 @@ def test_atlas_dashboard_poller_preserves_effective_scope_when_token_omits_scope
         "created_at": time.time(),
         "status": "pending",
         "error_message": None,
-        "portal_base_url": "https://portal.arthovlabs.com",
+        "portal_base_url": "https://portal.aexagent.site",
         "client_id": "merlin-cli",
         "device_code": "device-code",
         "interval": 5,

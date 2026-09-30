@@ -10,9 +10,9 @@ Python dependency commands on this page use a
 [PM-prepared source checkout](../reference/package-management.md#developer-workflow).
 After a dependency change, reactivate the checkout and restart Merlin.
 
-[Merlin Cloud](https://portal.arthovlabs.com/cloud) runs hosted Merlin Agent instances for you. Normally you manage them from the `/agents` page in the [Atlas Portal](../integrations/atlas-portal.md). This guide connects your **local** Merlin Agent to the Portal's MCP server so you can manage those cloud instances by just asking — "list my cloud agents", "restart the stopped one", "what's it costing me" — without leaving your terminal.
+[Merlin Cloud](https://portal.aexagent.site/cloud) runs hosted Merlin Agent instances for you. Normally you manage them from the `/agents` page in the [Atlas Portal](../integrations/atlas-portal.md). This guide connects your **local** Merlin Agent to the Portal's MCP server so you can manage those cloud instances by just asking — "list my cloud agents", "restart the stopped one", "what's it costing me" — without leaving your terminal.
 
-It's a standard [MCP](../user-guide/features/mcp.md) server hosted by Arthov Labs, gated by the same OAuth login you already use for the Portal. Once connected, Merlin gets two tools it can call on your behalf.
+It's a standard [MCP](../user-guide/features/mcp.md) server hosted by AexAgent, gated by the same OAuth login you already use for the Portal. Once connected, Merlin gets two tools it can call on your behalf.
 
 ## What you can do with it
 
@@ -32,7 +32,7 @@ Every call runs against **your** org with your Portal identity, and membership i
 
 ## Prerequisites
 
-- A [Atlas Portal](../integrations/atlas-portal.md) account with [Merlin Cloud](https://portal.arthovlabs.com/cloud) access (at least one instance, or the ability to create one).
+- A [Atlas Portal](../integrations/atlas-portal.md) account with [Merlin Cloud](https://portal.aexagent.site/cloud) access (at least one instance, or the ability to create one).
 - MCP support installed. If you used the standard install script it's already there; otherwise:
 
   ```bash
@@ -45,7 +45,7 @@ You do **not** need a separate API key or client secret — the server uses OAut
 ## Step 1: add the server
 
 ```bash
-merlin mcp add --url https://portal.arthovlabs.com/mcp --auth oauth merlin-cloud
+merlin mcp add --url https://portal.aexagent.site/mcp --auth oauth merlin-cloud
 ```
 
 `--auth oauth` tells Merlin this is an OAuth-protected HTTP server. On first connect Merlin:
@@ -112,7 +112,7 @@ After `merlin mcp add`, the server lives in `~/.merlin/config.yaml`:
 ```yaml
 mcp_servers:
   merlin-cloud:
-    url: "https://portal.arthovlabs.com/mcp"
+    url: "https://portal.aexagent.site/mcp"
     auth: oauth
 ```
 
@@ -125,7 +125,7 @@ The server exposes both read (`agents`) and mutating (`agent`) tools. If you wan
 ```yaml
 mcp_servers:
   merlin-cloud:
-    url: "https://portal.arthovlabs.com/mcp"
+    url: "https://portal.aexagent.site/mcp"
     auth: oauth
     tools:
       include: [agents]
@@ -146,7 +146,7 @@ The stored client registration no longer matches the server (for example, you co
 ```bash
 merlin mcp remove merlin-cloud
 rm -f ~/.merlin/mcp-tokens/merlin-cloud.*
-merlin mcp add --url https://portal.arthovlabs.com/mcp --auth oauth merlin-cloud
+merlin mcp add --url https://portal.aexagent.site/mcp --auth oauth merlin-cloud
 ```
 
 ### The tools aren't showing up after adding the server

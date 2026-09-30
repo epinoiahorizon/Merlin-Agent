@@ -1,6 +1,6 @@
 name: Sandbox desktop image
 
-# arthovlabs/merlin-sandbox:desktop is the terminal-backend sandbox base
+# aexagent/merlin-sandbox:desktop is the terminal-backend sandbox base
 # (nikolaik/python-nodejs) plus a display stack; Bot Screen, computer_use and
 # the bot's browser run inside it when terminal.backend is docker/ssh/etc.
 # It contains NO Merlin code, so it does not need to track main: it changes
@@ -34,7 +34,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  IMAGE_NAME: arthovlabs/merlin-sandbox
+  IMAGE_NAME: aexagent/merlin-sandbox
 
 jobs:
   # PR code: secret-free build + smoke per arch.

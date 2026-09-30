@@ -14,7 +14,7 @@ import time
 
 import httpx
 
-WELCOME = "https://welcome-api.arthovlabs.com/v1"
+WELCOME = "https://welcome-api.aexagent.site/v1"
 PORTAL = "https://portal.example.test"
 
 

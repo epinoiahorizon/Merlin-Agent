@@ -468,9 +468,9 @@ website; it uses the same **Installed / Browse** tabs as Skills, with search
 at the top and the tab switch and actions on one row.
 
 Desktop and the public [Plugin Catalog](/plugins) consume the same CDN
-snapshot, [`/docs/api/plugins.json`](https://merlin-agent.arthovlabs.com/docs/api/plugins.json).
+snapshot, [`/docs/api/plugins.json`](https://merlin-agent.aexagent.site/docs/api/plugins.json).
 The public alias serves the same data as Desktop's fetch URL,
-`https://arthovlabs.github.io/merlin-agent/docs/api/plugins.json`. The docs
+`https://epinoiahorizon.github.io/merlin-agent/docs/api/plugins.json`. The docs
 build generates it from `plugin-catalog/*.yaml` and cached star counts. The
 same publish also supplies the removed-entry list used by the installer.
 Browsing does not query GitHub live or fetch source repos;

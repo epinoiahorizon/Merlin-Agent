@@ -30,7 +30,7 @@ from merlin_cli import (
 from merlin_cli.auth import _load_auth_store  # noqa: F401  (store import name kept for parity with core tests)
 from merlin_constants import get_merlin_home
 
-WELCOME = "https://welcome-api.arthovlabs.com/v1"
+WELCOME = "https://welcome-api.aexagent.site/v1"
 # Words that must never appear on a user-facing free-tier surface.
 _FORBIDDEN = re.compile(r"guest|anonymous|user id|org id|nas_user|nas_organisation", re.IGNORECASE)
 
@@ -62,7 +62,7 @@ def _account_state() -> dict:
         "auth_method": "oauth_device_code", "client_id": "merlin-cli",
         "access_token": _jwt(sub="nas_user:real", client_id="merlin-cli", account_tier="standard", paid_access=True),
         "refresh_token": "rt_live", "expires_at": "2030-01-01T00:00:00+00:00",
-        "portal_base_url": "https://portal.arthovlabs.com", "inference_base_url": "https://inference-api.arthovlabs.com/v1",
+        "portal_base_url": "https://portal.aexagent.site", "inference_base_url": "https://inference-api.aexagent.site/v1",
     }
 
 

@@ -23,7 +23,7 @@ def test_resolve_managed_tool_gateway_derives_vendor_origin_from_shared_domain()
     with patch.dict(
         os.environ,
         {
-            "TOOL_GATEWAY_DOMAIN": "arthovlabs.com",
+            "TOOL_GATEWAY_DOMAIN": "aexagent.site",
         },
         clear=False,
     ), patch.object(managed_tool_gateway, "managed_atlas_tools_enabled", return_value=True):
@@ -33,7 +33,7 @@ def test_resolve_managed_tool_gateway_derives_vendor_origin_from_shared_domain()
         )
 
     assert result is not None
-    assert result.gateway_origin == "https://firecrawl-gateway.arthovlabs.com"
+    assert result.gateway_origin == "https://firecrawl-gateway.aexagent.site"
     assert result.atlas_user_token == "atlas-token"
     assert result.managed_mode is True
 
@@ -59,7 +59,7 @@ def test_resolve_managed_tool_gateway_is_inactive_without_atlas_token():
     with patch.dict(
         os.environ,
         {
-            "TOOL_GATEWAY_DOMAIN": "arthovlabs.com",
+            "TOOL_GATEWAY_DOMAIN": "aexagent.site",
         },
         clear=False,
     ), patch.object(managed_tool_gateway, "managed_atlas_tools_enabled", return_value=True):
@@ -72,7 +72,7 @@ def test_resolve_managed_tool_gateway_is_inactive_without_atlas_token():
 
 
 def test_resolve_managed_tool_gateway_is_disabled_without_subscription():
-    with patch.dict(os.environ, {"TOOL_GATEWAY_DOMAIN": "arthovlabs.com"}, clear=False), \
+    with patch.dict(os.environ, {"TOOL_GATEWAY_DOMAIN": "aexagent.site"}, clear=False), \
          patch.object(managed_tool_gateway, "managed_atlas_tools_enabled", return_value=False):
         result = resolve_managed_tool_gateway(
             "firecrawl",
@@ -129,7 +129,7 @@ def test_is_managed_tool_gateway_ready_skips_refresh_for_expired_cached_token(tm
 
     with patch.dict(
         os.environ,
-        {"TOOL_GATEWAY_DOMAIN": "arthovlabs.com"},
+        {"TOOL_GATEWAY_DOMAIN": "aexagent.site"},
         clear=False,
     ), patch.object(managed_tool_gateway, "managed_atlas_tools_enabled", return_value=True):
         assert is_managed_tool_gateway_ready("modal") is True
@@ -142,12 +142,12 @@ def test_connector_gateway_origin_pins_the_deployed_connectors_host():
     # the default resolution must not land on the media/vendor origin.
     with patch.dict(
         os.environ,
-        {"TOOL_GATEWAY_DOMAIN": "arthovlabs.com", "TOOL_GATEWAY_SCHEME": "https"},
+        {"TOOL_GATEWAY_DOMAIN": "aexagent.site", "TOOL_GATEWAY_SCHEME": "https"},
         clear=False,
     ):
         os.environ.pop("CONNECTOR_GATEWAY_URL", None)
         assert managed_gateway_auth.connector_gateway_origin() == (
-            "https://connector-gateway.arthovlabs.com"
+            "https://connector-gateway.aexagent.site"
         )
 
 def test_managed_gateway_origin_honors_the_harness_override():
@@ -160,7 +160,7 @@ def test_managed_gateway_origin_honors_the_harness_override():
             "http://127.0.0.1:3009/api/vendorx/generations"
         )
         assert not managed_gateway_auth.is_managed_atlas_gateway_url(
-            "https://tools.arthovlabs.com/api/vendorx/generations"
+            "https://tools.aexagent.site/api/vendorx/generations"
         )
 
 def test_connector_gateway_origin_honors_its_own_override():
@@ -171,14 +171,14 @@ def test_connector_gateway_origin_honors_its_own_override():
         os.environ,
         {
             "CONNECTOR_GATEWAY_URL": "http://127.0.0.1:3009/",
-            "TOOL_GATEWAY_DOMAIN": "arthovlabs.com",
+            "TOOL_GATEWAY_DOMAIN": "aexagent.site",
         },
         clear=False,
     ):
         os.environ.pop("TOOL_GATEWAY_URL", None)
         assert managed_gateway_auth.connector_gateway_origin() == "http://127.0.0.1:3009"
         assert managed_gateway_auth.managed_gateway_origin() == (
-            "https://tool-gateway.arthovlabs.com"
+            "https://tool-gateway.aexagent.site"
         )
         assert managed_gateway_auth.is_managed_atlas_gateway_url(
             "http://127.0.0.1:3009/v1/connectors/search"
@@ -190,22 +190,22 @@ def test_default_bearer_gate_accepts_both_deployed_hosts_only():
     # and scheme downgrades are all out.
     with patch.dict(
         os.environ,
-        {"TOOL_GATEWAY_DOMAIN": "arthovlabs.com", "TOOL_GATEWAY_SCHEME": "https"},
+        {"TOOL_GATEWAY_DOMAIN": "aexagent.site", "TOOL_GATEWAY_SCHEME": "https"},
         clear=False,
     ):
         os.environ.pop("TOOL_GATEWAY_URL", None)
         os.environ.pop("CONNECTOR_GATEWAY_URL", None)
         for trusted in (
-            "https://connector-gateway.arthovlabs.com/v1/connectors/execute",
-            "https://tool-gateway.arthovlabs.com/api/vendorx/generations",
+            "https://connector-gateway.aexagent.site/v1/connectors/execute",
+            "https://tool-gateway.aexagent.site/api/vendorx/generations",
         ):
             assert managed_gateway_auth.is_managed_atlas_gateway_url(trusted)
         for untrusted in (
-            "https://tools.arthovlabs.com/v1/connectors/execute",
-            "https://evil-connector-gateway.arthovlabs.com.attacker.dev/v1/connectors",
-            "https://connector-gateway.arthovlabs.com.attacker.dev/v1/connectors",
-            "http://connector-gateway.arthovlabs.com/v1/connectors",
-            "http://tool-gateway.arthovlabs.com/api/vendorx/generations",
+            "https://tools.aexagent.site/v1/connectors/execute",
+            "https://evil-connector-gateway.aexagent.site.attacker.dev/v1/connectors",
+            "https://connector-gateway.aexagent.site.attacker.dev/v1/connectors",
+            "http://connector-gateway.aexagent.site/v1/connectors",
+            "http://tool-gateway.aexagent.site/api/vendorx/generations",
         ):
             assert not managed_gateway_auth.is_managed_atlas_gateway_url(untrusted)
 

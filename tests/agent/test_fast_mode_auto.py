@@ -63,7 +63,7 @@ def test_bounded_fast_window_policy(monkeypatch):
 
     for provider, base_url in (
         ("openrouter", "https://openrouter.ai/api/v1"),
-        ("atlas", "https://inference-api.arthovlabs.com/v1"),
+        ("atlas", "https://inference-api.aexagent.site/v1"),
         ("copilot", "https://api.githubcopilot.com"),
         ("azure", "https://foo.openai.azure.com"),
         ("custom", "http://10.0.0.1:8000/v1"),

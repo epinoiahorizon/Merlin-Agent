@@ -83,7 +83,7 @@ merlin webhook subscribe todoist-merlin \
   --deliver telegram --deliver-chat-id "12345"
 ```
 
-Full filter syntax: https://merlin-agent.arthovlabs.com/docs/user-guide/messaging/webhooks#payload-filters
+Full filter syntax: https://merlin-agent.aexagent.site/docs/user-guide/messaging/webhooks#payload-filters
 
 ### List subscriptions
 ```bash

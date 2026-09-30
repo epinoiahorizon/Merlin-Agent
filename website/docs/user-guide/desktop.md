@@ -22,7 +22,7 @@ Pick whichever fits the moment. They share state, so you can start a session in 
 
 ## Install
 
-Download the app from the [Merlin Desktop product page](https://merlin-agent.arthovlabs.com/desktop), or follow the [installation instructions for Merlin Desktop](../getting-started/installation.md).
+Download the app from the [Merlin Desktop product page](https://merlin-agent.aexagent.site/desktop), or follow the [installation instructions for Merlin Desktop](../getting-started/installation.md).
 
 If you already have Merlin installed, simply run
 
@@ -286,8 +286,8 @@ the public website consume the same generated CDN snapshots:
 
 | Catalog | Public docs alias | Desktop fetch URL |
 |---|---|---|
-| Skills | [`/docs/api/skills.json`](https://merlin-agent.arthovlabs.com/docs/api/skills.json) | `https://arthovlabs.github.io/merlin-agent/docs/api/skills.json` |
-| Plugins | [`/docs/api/plugins.json`](https://merlin-agent.arthovlabs.com/docs/api/plugins.json) | `https://arthovlabs.github.io/merlin-agent/docs/api/plugins.json` |
+| Skills | [`/docs/api/skills.json`](https://merlin-agent.aexagent.site/docs/api/skills.json) | `https://epinoiahorizon.github.io/merlin-agent/docs/api/skills.json` |
+| Plugins | [`/docs/api/plugins.json`](https://merlin-agent.aexagent.site/docs/api/plugins.json) | `https://epinoiahorizon.github.io/merlin-agent/docs/api/plugins.json` |
 
 The skills snapshot combines `skills/`, `optional-skills/`, and the centralized
 skills index. The plugin snapshot comes from `plugin-catalog/*.yaml` and cached star
@@ -397,7 +397,7 @@ The desktop app and the Merlin backend it talks to update on separate clocks —
 
 After any backend update, the app also re-checks its own version and warns with a one-click **Update desktop app** action if the GUI is still behind — so updating a remote backend can never silently leave you on a stale desktop build.
 
-The [manual update process](https://merlin-agent.arthovlabs.com/docs/getting-started/updating) also works with the GUI.
+The [manual update process](https://merlin-agent.aexagent.site/docs/getting-started/updating) also works with the GUI.
 
 ## Uninstalling
 
@@ -484,10 +484,10 @@ The connection has two halves: on the backend you protect it with an **auth prov
 
 **Pick a provider based on where the backend lives:**
 
-- **OAuth (Atlas Portal) — preferred for anything reachable beyond your own machine.** Logins are verified against your Atlas account, so this is the option suitable for a VPS, a public host, or any remote backend. Register the dashboard with `merlin dashboard register` (or the Portal [`/local-dashboards`](https://portal.arthovlabs.com/local-dashboards) page) to provision its OAuth client, then sign in from the app with **Sign in with Arthov Labs**. A self-hosted OIDC provider works the same way if you run your own identity provider.
+- **OAuth (Atlas Portal) — preferred for anything reachable beyond your own machine.** Logins are verified against your Atlas account, so this is the option suitable for a VPS, a public host, or any remote backend. Register the dashboard with `merlin dashboard register` (or the Portal [`/local-dashboards`](https://portal.aexagent.site/local-dashboards) page) to provision its OAuth client, then sign in from the app with **Sign in with AexAgent**. A self-hosted OIDC provider works the same way if you run your own identity provider.
 - **Username/password — local / trusted-network use only.** The simplest option when the backend is on the same trusted LAN or reachable only over a VPN (e.g. Tailscale). It protects a single shared credential with no external identity provider, so **do not use it for a dashboard exposed to the public internet** — reach for OAuth there instead.
 
-The rest of this section shows the username/password path because it's the quickest to stand up on a trusted network; for the OAuth path see [Web Dashboard → Default provider: Arthov Labs](./features/web-dashboard.md#default-provider-atlas-research).
+The rest of this section shows the username/password path because it's the quickest to stand up on a trusted network; for the OAuth path see [Web Dashboard → Default provider: AexAgent](./features/web-dashboard.md#default-provider-atlas-research).
 
 ### On the backend (the remote machine)
 
@@ -527,7 +527,7 @@ The backend reads and writes your `.env` (API keys, secrets) and can run agent c
 **Settings → Gateways → Remote gateway:**
 
 1. **Remote URL** — `http://<backend-host>:9119` (path prefixes like `/merlin` work if you front it with a reverse proxy)
-2. **Sign in** — the app detects which provider the backend advertises and adapts the button. For a username/password backend it shows a **Sign in** button that opens a credential form (enter the credentials from step 1). For an OAuth backend it shows **Sign in with `<provider>`** (e.g. *Sign in with Arthov Labs*), which runs the provider's browser sign-in. Either way the app ends up with an authenticated session against the backend.
+2. **Sign in** — the app detects which provider the backend advertises and adapts the button. For a username/password backend it shows a **Sign in** button that opens a credential form (enter the credentials from step 1). For an OAuth backend it shows **Sign in with `<provider>`** (e.g. *Sign in with AexAgent*), which runs the provider's browser sign-in. Either way the app ends up with an authenticated session against the backend.
 3. **Save and reconnect** — switches the desktop shell onto the remote backend. The session refreshes automatically; you stay signed in across restarts when `MERLIN_DASHBOARD_BASIC_AUTH_SECRET` is set.
 
 You can also set the backend URL without the UI via the `MERLIN_DESKTOP_REMOTE_URL` environment variable before launching the app (it overrides the in-app setting); you still sign in from the Gateways settings panel.
@@ -692,7 +692,7 @@ damaged application files, repair through the
 
 ```bash
 # Reset a stuck macOS microphone prompt
-tccutil reset Microphone com.arthovlabs.merlin
+tccutil reset Microphone com.aexagent.merlin
 ```
 
 ### Windows: the SSH client is missing or broken
@@ -803,7 +803,7 @@ button, so it looks like there is nothing to re-check. If that happens, reset
 the stale grant once and re-grant:
 
 ```bash
-tccutil reset ScreenCapture com.arthovlabs.merlin   # repeat per service
+tccutil reset ScreenCapture com.aexagent.merlin   # repeat per service
 ```
 
 then toggle the fresh entry ON in System Settings and fully quit & relaunch
@@ -841,7 +841,7 @@ detected and never re-signed.
 One-time note: changing the signing identity (including the first update after
 this fix) changes the app's identity once, so macOS will re-prompt one final
 time. Grants are stable from then on. If a permission gets stuck, reset it with
-`tccutil reset All com.arthovlabs.merlin` and re-grant.
+`tccutil reset All com.aexagent.merlin` and re-grant.
 
 ## See also
 
