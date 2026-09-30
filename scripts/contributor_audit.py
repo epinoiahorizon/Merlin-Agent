@@ -48,7 +48,7 @@ IGNORED_PATTERNS = [
     re.compile(r"^dependabot", re.IGNORECASE),
     re.compile(r"^renovate", re.IGNORECASE),
     re.compile(r"^Merlin\s+(Agent|Audit)$", re.IGNORECASE),
-    re.compile(r"^arthovbot(-eng)?$", re.IGNORECASE),
+    re.compile(r"^epinoiabot(-eng)?$", re.IGNORECASE),
     re.compile(r"^Ubuntu$", re.IGNORECASE),
     # v0.20.0 audit additions:
     re.compile(r"^Blut-?Agent$", re.IGNORECASE),          # self-described AI agent account
@@ -69,7 +69,7 @@ IGNORED_EMAILS = {
     "cursoragent@cursor.com",
     "merlin@epinoiahorizon.com",
     "merlin-audit@example.com",
-    "arthovbot@epinoiahorizon.com",
+    "epinoiabot@epinoiahorizon.com",
     "merlin@habibilabs.dev",
     "omx@oh-my-codex.dev",
     "codex@openai.com",
