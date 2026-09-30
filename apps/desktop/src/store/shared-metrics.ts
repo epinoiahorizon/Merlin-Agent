@@ -4,7 +4,7 @@ import { atom } from 'nanostores'
 import { recordOnboarding, setDesktopMetricsGate } from './desktop-metrics'
 
 /** Public page describing exactly what shared metrics contain and how consent windows work. */
-export const SHARED_METRICS_DOCS_URL = 'https://merlin-agent.aexagent.site/docs/developer-guide/relay-shared-metrics'
+export const SHARED_METRICS_DOCS_URL = 'https://merlin-agent.epinoiahorizon.com/docs/developer-guide/relay-shared-metrics'
 
 export type SharedMetricsConsent = SharedMetricsConsentResult
 

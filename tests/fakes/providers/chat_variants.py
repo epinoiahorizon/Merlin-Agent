@@ -19,7 +19,7 @@ against the installed ``openai`` SDK's ``CompletionCreateParams`` (pydantic
 ``TypeAdapter``); every chunk is built from ``openai.types.chat.ChatCompletionChunk``.
 
 Vendor-host impersonation: routes Merlin gates by hostname (``openrouter.ai``,
-``aexagent.site``) are reached by configuring ``base_url: http://<vendor host>/...``
+``epinoiahorizon.com``) are reached by configuring ``base_url: http://<vendor host>/...``
 and pointing the child's ``HTTP_PROXY`` at this server — the client sends absolute-form
 requests here, no DNS or real network involved (``https://`` URLs get a refused
 ``CONNECT``, so no request can escape to the real vendor).

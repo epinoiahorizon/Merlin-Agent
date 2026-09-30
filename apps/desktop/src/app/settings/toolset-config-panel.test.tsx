@@ -754,7 +754,7 @@ describe('ToolsetConfigPanel', () => {
         flow: 'device_code',
         session_id: 'sess-1',
         user_code: 'ATLAS-1234',
-        verification_url: 'https://portal.aexagent.site/device?user_code=ATLAS-1234',
+        verification_url: 'https://portal.epinoiahorizon.com/device?user_code=ATLAS-1234',
         poll_interval: 5,
         expires_in: 600
       })
@@ -782,7 +782,7 @@ describe('ToolsetConfigPanel', () => {
 
         await waitFor(() => expect(startOAuthLogin).toHaveBeenCalledWith('atlas'))
         expect(openSpy).toHaveBeenCalledWith(
-          'https://portal.aexagent.site/device?user_code=ATLAS-1234',
+          'https://portal.epinoiahorizon.com/device?user_code=ATLAS-1234',
           '_blank',
           'noopener,noreferrer'
         )

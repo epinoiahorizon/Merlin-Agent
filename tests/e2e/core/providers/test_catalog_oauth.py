@@ -35,7 +35,7 @@ from tests.fakes.providers.catalog_oauth import ATLAS_INVOKE_SCOPE, OAuthFake, m
 pytestmark = pytest.mark.skipif(sys.platform == "win32", reason="POSIX harness")
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-PROD_ATLAS_INFERENCE = "https://inference-api.aexagent.site/v1"
+PROD_ATLAS_INFERENCE = "https://inference-api.epinoiahorizon.com/v1"
 TURN_TIMEOUT = 120.0
 # Public, credential-free model-metadata catalog (pricing/context lookups); never carries a vendor token.
 CREDENTIAL_FREE_HOSTS = frozenset({"models.dev:443"})

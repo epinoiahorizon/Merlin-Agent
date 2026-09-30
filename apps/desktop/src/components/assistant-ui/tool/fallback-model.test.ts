@@ -230,28 +230,28 @@ describe('buildToolView browser_navigate title', () => {
     const view = buildToolView(
       part({
         toolName: 'browser_navigate',
-        args: { url: 'https://merlin-agent.aexagent.site/docs' },
+        args: { url: 'https://merlin-agent.epinoiahorizon.com/docs' },
         result: { success: false, error: 'Command timed out after 60 seconds' }
       }),
       ''
     )
 
     expect(view.status).toBe('error')
-    expect(view.title).toContain('merlin-agent.aexagent.site/docs')
+    expect(view.title).toContain('merlin-agent.epinoiahorizon.com/docs')
   })
 
   it('shows opened title on success', () => {
     const view = buildToolView(
       part({
         toolName: 'browser_navigate',
-        args: { url: 'https://merlin-agent.aexagent.site/docs' },
-        result: { success: true, url: 'https://merlin-agent.aexagent.site/docs', title: 'Docs' }
+        args: { url: 'https://merlin-agent.epinoiahorizon.com/docs' },
+        result: { success: true, url: 'https://merlin-agent.epinoiahorizon.com/docs', title: 'Docs' }
       }),
       ''
     )
 
     expect(view.status).toBe('success')
-    expect(view.title).toContain('merlin-agent.aexagent.site/docs')
+    expect(view.title).toContain('merlin-agent.epinoiahorizon.com/docs')
   })
 })
 

@@ -1740,7 +1740,7 @@ export const en: Translations = {
       sshErrHostKey:
         'The host key has CHANGED since you last connected. Verify this is expected, then run ssh-keygen -R <host> and reconnect.',
       sshErrNotInstalled:
-        'Merlin is not installed on the remote host. Install it there (curl -fsSL https://merlin-agent.aexagent.site/install.sh | sh) or set the Merlin path.',
+        'Merlin is not installed on the remote host. Install it there (curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | sh) or set the Merlin path.',
       sshErrPlatform:
         'Unsupported remote platform. Merlin Desktop SSH mode supports Linux, macOS, and Windows remote hosts.',
       sshErrTimeout: 'SSH connection timed out. The host may be unreachable or asleep.',

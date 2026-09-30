@@ -13,7 +13,7 @@ from agent.billing_links import (
 
 def test_is_atlas_inference_route_helper():
     assert is_atlas_inference_route("atlas", "") is True
-    assert is_atlas_inference_route("", "https://inference-api.aexagent.site/v1") is True
+    assert is_atlas_inference_route("", "https://inference-api.epinoiahorizon.com/v1") is True
     assert is_atlas_inference_route("openai", "https://api.openai.com/v1") is False
 
 def test_known_provider_by_slug_resolves_label_and_url():

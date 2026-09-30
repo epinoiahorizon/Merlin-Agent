@@ -1134,8 +1134,8 @@ def _perform_uninstall(
 
 
 _REINSTALL_HINT = {
-    True: "  iex (irm https://merlin-agent.aexagent.site/install.ps1)",
-    False: "  curl -fsSL https://merlin-agent.aexagent.site/install.sh | bash"}
+    True: "  iex (irm https://merlin-agent.epinoiahorizon.com/install.ps1)",
+    False: "  curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash"}
 # windows -> [(line, color or None)]
 _RELOAD_HINT = {
     True: [("Open a new terminal (PowerShell / Windows Terminal) to pick up", Colors.YELLOW),

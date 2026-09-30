@@ -8,7 +8,7 @@ const config: Config = {
   tagline: 'The self-improving AI agent',
   favicon: 'img/favicon.ico',
 
-  url: 'https://merlin-agent.aexagent.site',
+  url: 'https://merlin-agent.epinoiahorizon.com',
   baseUrl: '/docs/',
 
   organizationName: 'AtlasResearch',
@@ -147,7 +147,7 @@ const config: Config = {
           position: 'left',
         },
         {
-          href: 'https://merlin-agent.aexagent.site/',
+          href: 'https://merlin-agent.epinoiahorizon.com/',
           label: 'Download',
           position: 'left',
         },
@@ -156,7 +156,7 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://merlin-agent.aexagent.site',
+          href: 'https://merlin-agent.epinoiahorizon.com',
           label: 'Home',
           position: 'right',
         },
@@ -195,13 +195,13 @@ const config: Config = {
         {
           title: 'More',
           items: [
-            { label: 'Desktop Download', href: 'https://merlin-agent.aexagent.site/' },
+            { label: 'Desktop Download', href: 'https://merlin-agent.epinoiahorizon.com/' },
             { label: 'GitHub', href: 'https://github.com/epinoiahorizon/Merlin-Agent' },
-            { label: 'AexAgent', href: 'https://aexagent.site' },
+            { label: 'AexAgent', href: 'https://epinoiahorizon.com' },
           ],
         },
       ],
-      copyright: `Built by <a href="https://aexagent.site">AexAgent</a> · MIT License · ${new Date().getFullYear()}`,
+      copyright: `Built by <a href="https://epinoiahorizon.com">AexAgent</a> · MIT License · ${new Date().getFullYear()}`,
     },
     prism: {
       theme: prismThemes.github,

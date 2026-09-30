@@ -314,8 +314,8 @@ The CLI uses argparse, so `--help` is a good first probe for "did my new flag re
 
 ## See also
 
-- User-facing setup + troubleshooting: [Egress proxy](https://merlin-agent.aexagent.site/docs/user-guide/egress/iron-proxy)
-- Docker backend internals: [Docker](https://merlin-agent.aexagent.site/docs/user-guide/docker)
-- Bitwarden Secrets Manager integration: [`merlin secrets bitwarden`](https://merlin-agent.aexagent.site/docs/user-guide/secrets/bitwarden)
-- CLI command reference: [`merlin egress`](https://merlin-agent.aexagent.site/docs/reference/cli-commands#merlin-egress)
-- Sandbox-injected environment variables: [Egress proxy (sandbox-injected)](https://merlin-agent.aexagent.site/docs/reference/environment-variables#egress-proxy-sandbox-injected)
+- User-facing setup + troubleshooting: [Egress proxy](https://merlin-agent.epinoiahorizon.com/docs/user-guide/egress/iron-proxy)
+- Docker backend internals: [Docker](https://merlin-agent.epinoiahorizon.com/docs/user-guide/docker)
+- Bitwarden Secrets Manager integration: [`merlin secrets bitwarden`](https://merlin-agent.epinoiahorizon.com/docs/user-guide/secrets/bitwarden)
+- CLI command reference: [`merlin egress`](https://merlin-agent.epinoiahorizon.com/docs/reference/cli-commands#merlin-egress)
+- Sandbox-injected environment variables: [Egress proxy (sandbox-injected)](https://merlin-agent.epinoiahorizon.com/docs/reference/environment-variables#egress-proxy-sandbox-injected)

@@ -703,7 +703,7 @@ class TestChatCompletionsGeminiNativeExtraBodyStrip:
             [{"role": "user", "content": "hi"}],
             None,
             provider_profile=self._atlas_profile(),
-            base_url="https://inference.aexagent.site/v1",
+            base_url="https://inference.epinoiahorizon.com/v1",
             session_id="s1",
             max_tokens=None,
         )

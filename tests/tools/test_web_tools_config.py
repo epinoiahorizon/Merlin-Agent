@@ -74,14 +74,14 @@ class TestFirecrawlClientConfig:
 
     def test_tool_gateway_domain_builds_firecrawl_gateway_origin(self):
         """Shared gateway domain should derive the Firecrawl vendor hostname."""
-        with patch.dict(os.environ, {"TOOL_GATEWAY_DOMAIN": "aexagent.site"}):
+        with patch.dict(os.environ, {"TOOL_GATEWAY_DOMAIN": "epinoiahorizon.com"}):
             with patch("tools.managed_tool_gateway.read_atlas_access_token", return_value="atlas-token"):
                 with patch("plugins.web.firecrawl.provider.Firecrawl") as mock_fc:
                     from plugins.web.firecrawl.provider import _get_firecrawl_client
                     result = _get_firecrawl_client()
                     mock_fc.assert_called_once_with(
                         api_key="atlas-token",
-                        api_url="https://firecrawl-gateway.aexagent.site",
+                        api_url="https://firecrawl-gateway.epinoiahorizon.com",
                     )
                     assert result is mock_fc.return_value
 

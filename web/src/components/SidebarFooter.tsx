@@ -21,7 +21,7 @@ export function SidebarFooter({ status }: SidebarFooterProps) {
       </Typography>
 
       <a
-        href="https://aexagent.site"
+        href="https://epinoiahorizon.com"
         target="_blank"
         rel="noopener noreferrer"
         className={cn(

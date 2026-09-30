@@ -338,7 +338,7 @@ class TestDelegateTask(unittest.TestCase):
 
     def _atlas_child_rederives_api_mode_from_model(self):
         parent = _make_mock_parent(depth=0)
-        parent.base_url = "https://inference-api.aexagent.site/v1"
+        parent.base_url = "https://inference-api.epinoiahorizon.com/v1"
         parent.api_key = "portal-jwt"
         parent.provider = "atlas"
         parent.api_mode = "anthropic_messages"
@@ -1001,7 +1001,7 @@ class TestDelegationProviderIntegration(unittest.TestCase):
         }
         parent = _make_mock_parent(depth=0)
         parent.provider = "atlas"
-        parent.base_url = "https://inference-api.aexagent.site/v1"
+        parent.base_url = "https://inference-api.epinoiahorizon.com/v1"
         parent.api_key = "atlas-key-abc"
 
         with patch("run_agent.AIAgent") as MockAgent:

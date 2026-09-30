@@ -64,7 +64,7 @@ def test_no_state_file_means_no_managed_endpoint(tmp_path, monkeypatch):
 
 def test_remote_providers_unaffected(managed_state):
     assert aux._provider_requires_stream("atlas",
-                                         "https://inference-api.aexagent.site/v1/") is False
+                                         "https://inference-api.epinoiahorizon.com/v1/") is False
 
 
 # ── 2. explicit caps reach the managed endpoint ──────────────

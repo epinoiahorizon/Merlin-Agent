@@ -10,7 +10,7 @@ from providers import register_provider
 from providers.base import OMIT_TEMPERATURE, ProviderProfile
 
 _HEADERS = {
-    "HTTP-Referer": "https://merlin-agent.aexagent.site",
+    "HTTP-Referer": "https://merlin-agent.epinoiahorizon.com",
     "X-Title": "Merlin Agent",
     "User-Agent": f"MerlinAgent/{get_version_info().base_version}",
     # Exclude brotli: httpx's brotlicffi backend has a streaming decode bug on

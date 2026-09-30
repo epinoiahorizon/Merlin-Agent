@@ -343,7 +343,7 @@ def _beta_header(betas: list) -> Dict[str, str]:
 def _attribution_headers() -> Dict[str, str]:
     """Same client-attribution set sent to OpenRouter / Vercel AI Gateway / Fireworks."""
     return {
-        "HTTP-Referer": "https://merlin-agent.aexagent.site", "X-Title": "Merlin Agent",
+        "HTTP-Referer": "https://merlin-agent.epinoiahorizon.com", "X-Title": "Merlin Agent",
         "User-Agent": f"MerlinAgent/{get_version_info().base_version}",
     }
 
@@ -545,7 +545,7 @@ _OAUTH_SYSTEM_REPLACEMENTS = (
     ("Merlin Agent", "Claude Code"), ("Merlin agent", "Claude Code"), ("AexAgent", "Anthropic"),
 )
 # The slug is rewritten only as a standalone prose word. Joined to a host, path, repo, mailbox
-# or quoted as an identifier (``merlin-agent.aexagent.site``, ``~/.merlin/merlin-agent/venv``,
+# or quoted as an identifier (``merlin-agent.epinoiahorizon.com``, ``~/.merlin/merlin-agent/venv``,
 # ``epinoiahorizon/Merlin-Agent``, ``skill_view(name='merlin-agent')``) it is an address the model
 # dereferences, and the rewritten form does not exist (#48860). The OPENING quote marks an
 # identifier; a sentence-final ``.`` or a possessive ``'s`` is prose.

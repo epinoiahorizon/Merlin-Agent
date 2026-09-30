@@ -423,7 +423,7 @@ export function BootFailureOverlay() {
       {
         key: 'portal',
         label: copy.cloudDownCheckPortal,
-        onClick: () => openExternalLink('https://portal.aexagent.site'),
+        onClick: () => openExternalLink('https://portal.epinoiahorizon.com'),
         icon: <ExternalLink />
       },
       localAction,

@@ -16,10 +16,10 @@ import pytest
 
 from merlin_cli import auth_atlas
 
-PROD_INFERENCE = "https://inference-api.aexagent.site/v1"
-ENV_INFERENCE = "https://inference.example-env.aexagent.site/v1"
-OTHER_ATLAS_HOST = "https://portal.aexagent.site/v1"  # Atlas-owned, but not an inference gateway
-NONPROD_PORTAL = "https://portal.example-env.aexagent.site"
+PROD_INFERENCE = "https://inference-api.epinoiahorizon.com/v1"
+ENV_INFERENCE = "https://inference.example-env.epinoiahorizon.com/v1"
+OTHER_ATLAS_HOST = "https://portal.epinoiahorizon.com/v1"  # Atlas-owned, but not an inference gateway
+NONPROD_PORTAL = "https://portal.example-env.epinoiahorizon.com"
 
 
 @pytest.mark.parametrize("helper, var", [
@@ -31,15 +31,15 @@ def test_routing_overrides_follow_the_profile_scope_and_fail_closed_without_one(
     miss, and a call with NO scope gets None — never the launch profile's ambient value."""
     from agent import secret_scope as ss
 
-    monkeypatch.setenv(var, "https://launch.example.aexagent.site")
+    monkeypatch.setenv(var, "https://launch.example.epinoiahorizon.com")
     monkeypatch.delenv("ATLAS_PORTAL_BASE_URL", raising=False)
-    assert helper() == "https://launch.example.aexagent.site"
+    assert helper() == "https://launch.example.epinoiahorizon.com"
 
     ss.set_multiplex_active(True)
     try:
-        token = ss.set_secret_scope({var: "https://profile.example.aexagent.site"})
+        token = ss.set_secret_scope({var: "https://profile.example.epinoiahorizon.com"})
         try:
-            assert helper() == "https://profile.example.aexagent.site"
+            assert helper() == "https://profile.example.epinoiahorizon.com"
         finally:
             ss.reset_secret_scope(token)
         token = ss.set_secret_scope({})

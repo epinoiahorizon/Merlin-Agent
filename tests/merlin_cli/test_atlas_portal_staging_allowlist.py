@@ -4,7 +4,7 @@ _ALLOWED_ATLAS_INFERENCE_HOSTS treatment.
 
 Real incident (2026-07): a hosted agent provisioned by atlas-account-service
 on the `staging` Vercel environment is stamped with
-``MERLIN_PORTAL_BASE_URL=https://portal.staging-aexagent.site`` in its
+``MERLIN_PORTAL_BASE_URL=https://portal.staging-epinoiahorizon.com`` in its
 container env (the documented dev/staging override), while its bootstrap
 ``auth.json`` ALSO persists ``portal_base_url`` to the same staging host.
 
@@ -102,7 +102,7 @@ class TestResolveAccessTokenEnvOverrideWins:
         allowlist-rejection warning must never fire."""
         import merlin_cli.auth as auth
 
-        staging_portal = "https://portal.staging-aexagent.site"
+        staging_portal = "https://portal.staging-epinoiahorizon.com"
         monkeypatch.setenv("MERLIN_HOME", str(tmp_path))
         monkeypatch.setenv("MERLIN_PORTAL_BASE_URL", staging_portal)
         self._write_auth_file(tmp_path, stored_portal_url=staging_portal)

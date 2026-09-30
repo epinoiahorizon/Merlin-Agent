@@ -7,7 +7,7 @@ from scripts.releases import r2, upload_summary
 from scripts.releases.r2_scope import R2Scope
 
 
-BASE = "https://merlin-assets.aexagent.site"
+BASE = "https://merlin-assets.epinoiahorizon.com"
 KEY = "releases/commit/" + "a" * 40 + "/MerlinBundled-1.2.3-win-x64.msix"
 
 

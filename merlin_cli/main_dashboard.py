@@ -654,7 +654,7 @@ def _maybe_setup_dashboard_auth_interactively(args) -> None:
             "    merlin dashboard register\n"
             "  It provisions a Atlas Portal OAuth client and writes "
             "MERLIN_DASHBOARD_OAUTH_CLIENT_ID into ~/.merlin/.env for you.\n"
-            "  Docs: https://merlin-agent.aexagent.site/docs/"
+            "  Docs: https://merlin-agent.epinoiahorizon.com/docs/"
             "user-guide/features/web-dashboard#authentication-gated-mode"
         )
         sys.exit(0)

@@ -311,7 +311,7 @@ describe('MessagingView setup-guide link', () => {
   })
 
   it('opens a real docs URL through the validated external opener', async () => {
-    const docsUrl = 'https://merlin-agent.aexagent.site/docs/user-guide/messaging/teams'
+    const docsUrl = 'https://merlin-agent.epinoiahorizon.com/docs/user-guide/messaging/teams'
     getMessagingPlatforms.mockResolvedValue({ platforms: [platform({ docs_url: docsUrl })] })
 
     await renderMessaging()

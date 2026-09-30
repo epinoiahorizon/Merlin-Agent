@@ -42,7 +42,7 @@ class TestValidatorRules:
         """Sanity check: DEFAULT_ATLAS_INFERENCE_URL must itself validate.
 
         If anyone retargets the default away from
-        ``inference-api.aexagent.site``, they MUST update the allowlist
+        ``inference-api.epinoiahorizon.com``, they MUST update the allowlist
         in the same change — otherwise the allowlist would reject the
         Portal's own legitimate default and break every install.
         """
@@ -91,7 +91,7 @@ class TestEnvOverrideNotGated:
 
 class TestHealsPoisonedStoredValue:
     """A stored inference_base_url that is NOT in the allowlist (e.g. a
-    stale ``stg-inference-api.aexagent.site`` persisted before the
+    stale ``stg-inference-api.epinoiahorizon.com`` persisted before the
     allowlist existed) must be HEALED back to the production default on
     the next refresh — not silently retained.
 
@@ -107,7 +107,7 @@ class TestHealsPoisonedStoredValue:
         import merlin_cli.auth as auth
         import merlin_cli.auth_atlas as merlin_cli_auth_atlas
 
-        poisoned = "https://stg-inference-api.aexagent.site/v1"
+        poisoned = "https://stg-inference-api.epinoiahorizon.com/v1"
         state = {
             "access_token": "tok",
             "refresh_token": "rtok",
@@ -168,7 +168,7 @@ class TestEnvOverrideWins:
     override is a runtime overlay, never written to auth.json).
     """
 
-    STAGING = "https://stg-inference-api.aexagent.site/v1"
+    STAGING = "https://stg-inference-api.epinoiahorizon.com/v1"
 
     def _patch_no_refresh(self, monkeypatch, auth, state):
         import merlin_cli.auth_atlas as merlin_cli_auth_atlas

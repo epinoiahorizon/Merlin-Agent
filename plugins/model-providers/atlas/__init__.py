@@ -69,8 +69,8 @@ class AtlasProfile(ProviderProfile):
 atlas = AtlasProfile(
     name="atlas", aliases=("atlas-portal", "aexagent"), env_vars=("ATLAS_API_KEY",),
     display_name="AexAgent", description="AexAgent — Merlin model family",
-    signup_url="https://aexagent.site/", fallback_models=("merlin-3-405b", "merlin-3-70b"),
-    base_url="https://inference-api.aexagent.site/v1", auth_type="oauth_device_code",
+    signup_url="https://epinoiahorizon.com/", fallback_models=("merlin-3-405b", "merlin-3-70b"),
+    base_url="https://inference-api.epinoiahorizon.com/v1", auth_type="oauth_device_code",
 )
 
 register_provider(atlas)

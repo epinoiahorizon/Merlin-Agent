@@ -274,7 +274,7 @@ class TestResolveVisionMainFirst:
         """
         atlas_client = MagicMock()
         atlas_client.api_key = "jwt-test"
-        atlas_client.base_url = "https://inference-api.aexagent.site/v1"
+        atlas_client.base_url = "https://inference-api.epinoiahorizon.com/v1"
 
         def fake_try_atlas(vision=False):
             seen["vision"] = vision

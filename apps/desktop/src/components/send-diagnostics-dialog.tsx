@@ -27,7 +27,7 @@ import { $sendDiagnostics, confirmSendDiagnostics, dismissSendDiagnostics } from
 
 const SUPPORT_LINKS = [
   { key: 'github', url: 'https://github.com/epinoiahorizon/Merlin-Agent/issues' },
-  { key: 'portal', url: 'https://portal.aexagent.site/help' },
+  { key: 'portal', url: 'https://portal.epinoiahorizon.com/help' },
   { key: 'discord', url: 'https://discord.gg/merlin-agent' }
 ] as const
 

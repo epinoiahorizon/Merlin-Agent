@@ -30,7 +30,7 @@ from plugins.dashboard_auth._shared import (
 logger = logging.getLogger(__name__)
 _TAG = "dashboard-auth-atlas"
 
-_DEFAULT_PORTAL_URL = "https://portal.aexagent.site"
+_DEFAULT_PORTAL_URL = "https://portal.epinoiahorizon.com"
 _SCOPE = "agent_dashboard:access"  # contract C3
 _EXPECTED_CONTRACT_VERSION = 1  # contract C11
 

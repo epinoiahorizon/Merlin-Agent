@@ -258,7 +258,7 @@ module.exports = {
   },
   linux: {
     category: 'Development',
-    maintainer: 'AexAgent <support@aexagent.site>',
+    maintainer: 'AexAgent <support@epinoiahorizon.com>',
     synopsis: light
       ? 'Remote-only desktop client for Merlin Agent.'
       : 'Native desktop shell for Merlin Agent.',

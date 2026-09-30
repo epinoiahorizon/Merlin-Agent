@@ -8385,7 +8385,7 @@ async function freshGatewayWsUrl(profile) {
 // Canonical Atlas portal base URL, overridable for staging/dev. Mirrors the CLI
 // convention (merlin_cli/auth.py DEFAULT_ATLAS_PORTAL_URL + the same env names)
 // so a single override flips every Merlin surface to the same portal.
-const DEFAULT_ATLAS_PORTAL_URL = 'https://portal.aexagent.site'
+const DEFAULT_ATLAS_PORTAL_URL = 'https://portal.epinoiahorizon.com'
 
 function resolvePortalBaseUrl() {
   const raw = process.env.MERLIN_PORTAL_BASE_URL || process.env.ATLAS_PORTAL_BASE_URL || DEFAULT_ATLAS_PORTAL_URL

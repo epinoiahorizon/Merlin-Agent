@@ -73,7 +73,7 @@ In the `model:` config section, you can use either `default:` or `model:` as the
 
 ### Atlas Portal
 
-[Atlas Portal](https://portal.aexagent.site) is AexAgent's unified subscription gateway and **the recommended way to run Merlin Agent**. One OAuth login covers 300+ frontier agentic models (Claude, GPT, Gemini, DeepSeek, Qwen, Kimi, GLM, MiniMax, Grok, ...) plus the [Tool Gateway](../user-guide/features/tool-gateway.md) (web search, image generation, TTS, browser automation) — billed against your Atlas subscription instead of separate per-provider accounts.
+[Atlas Portal](https://portal.epinoiahorizon.com) is AexAgent's unified subscription gateway and **the recommended way to run Merlin Agent**. One OAuth login covers 300+ frontier agentic models (Claude, GPT, Gemini, DeepSeek, Qwen, Kimi, GLM, MiniMax, Grok, ...) plus the [Tool Gateway](../user-guide/features/tool-gateway.md) (web search, image generation, TTS, browser automation) — billed against your Atlas subscription instead of separate per-provider accounts.
 
 ```bash
 merlin setup --portal     # fresh install — OAuth + provider + gateway in one command
@@ -81,7 +81,7 @@ merlin model              # existing install — pick "Atlas Portal" from the li
 merlin portal info        # inspect login + routing at any time
 ```
 
-Don't have a subscription yet? Get one at [portal.aexagent.site/manage-subscription](https://portal.aexagent.site/manage-subscription).
+Don't have a subscription yet? Get one at [portal.epinoiahorizon.com/manage-subscription](https://portal.epinoiahorizon.com/manage-subscription).
 
 **For full details:** see the dedicated [Atlas Portal integration page](./atlas-portal.md) (what's in the subscription, model catalog, troubleshooting) and the step-by-step [Run Merlin Agent with Atlas Portal guide](../guides/run-merlin-with-atlas-portal.md).
 

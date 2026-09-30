@@ -11,8 +11,8 @@ import pytest
 
 from merlin_cli import anon_auth
 
-WELCOME = "https://welcome-api.aexagent.site/v1"
-PAID = "https://inference-api.aexagent.site/v1"
+WELCOME = "https://welcome-api.epinoiahorizon.com/v1"
+PAID = "https://inference-api.epinoiahorizon.com/v1"
 
 
 # ── Auxiliary client: the welcome host serves exactly one model ──────────────────────────────────

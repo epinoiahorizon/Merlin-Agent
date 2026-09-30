@@ -211,7 +211,7 @@ source ~/.bashrc
 # If you previously installed with sudo, clean up:
 sudo rm /usr/local/bin/merlin
 # Then re-run the standard installer
-curl -fsSL https://merlin-agent.aexagent.site/install.sh | bash
+curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
 ```
 
 ---
@@ -792,7 +792,7 @@ Skills with very long descriptions are truncated to 40 characters in the Telegra
 
 1. Install Merlin Agent on the new machine:
    ```bash
-   curl -fsSL https://merlin-agent.aexagent.site/install.sh | bash
+   curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
    ```
 
 2. On the **source machine**, create a full backup:

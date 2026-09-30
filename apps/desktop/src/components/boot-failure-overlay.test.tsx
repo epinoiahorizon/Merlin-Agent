@@ -246,14 +246,14 @@ describe('BootFailureOverlay', () => {
   })
 
   it('recovers a cloud connection through the portal cascade instead of native OAuth', async () => {
-    const gatewayUrl = 'https://agent-1.agents.aexagent.site'
+    const gatewayUrl = 'https://agent-1.agents.epinoiahorizon.com'
     const logout = vi.fn().mockResolvedValue({ ok: true, connected: false })
     const nativeLogin = vi.fn().mockResolvedValue({ ok: true, connected: false })
-    const cloudStatus = vi.fn().mockResolvedValue({ portalBaseUrl: 'https://portal.aexagent.site', signedIn: false })
+    const cloudStatus = vi.fn().mockResolvedValue({ portalBaseUrl: 'https://portal.epinoiahorizon.com', signedIn: false })
 
     const cloudLogin = vi.fn().mockResolvedValue({
       ok: true,
-      portalBaseUrl: 'https://portal.aexagent.site',
+      portalBaseUrl: 'https://portal.epinoiahorizon.com',
       signedIn: true
     })
 
@@ -294,7 +294,7 @@ describe('BootFailureOverlay', () => {
   it('shows the Atlas Cloud down recovery when the backend flags isCloudBackendDown', async () => {
     const restore = stubDesktop(remoteToken)
     $desktopBoot.set({
-      error: 'Atlas Cloud agent ares-3009.agents.aexagent.site is down (HTTP 503: server-side fault).',
+      error: 'Atlas Cloud agent ares-3009.agents.epinoiahorizon.com is down (HTTP 503: server-side fault).',
       fakeMode: false,
       isCloudBackendDown: true,
       message: 'boot failed',
@@ -361,7 +361,7 @@ describe('BootFailureOverlay', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /reinstall the app/i }))
       await waitFor(() =>
-        expect(openExternal).toHaveBeenCalledWith('https://merlin-agent.aexagent.site/docs/user-guide/desktop')
+        expect(openExternal).toHaveBeenCalledWith('https://merlin-agent.epinoiahorizon.com/docs/user-guide/desktop')
       )
     } finally {
       restore()

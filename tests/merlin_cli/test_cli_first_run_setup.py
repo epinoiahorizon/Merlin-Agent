@@ -179,7 +179,7 @@ def test_offer_first_run_setup_routes_into_shared_picker(monkeypatch):
         lambda **kw: {
             "provider": "atlas",
             "api_key": "portal-token",
-            "base_url": "https://inference-api.aexagent.site/v1",
+            "base_url": "https://inference-api.epinoiahorizon.com/v1",
             "source": "oauth",
         },
     )
