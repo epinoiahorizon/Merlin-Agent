@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2023"],
+    "types": ["node"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@merlin/plugin-sdk": ["./src/sdk/index.ts"],
+      "@merlin/shared/ansi": ["../shared/src/ansi.ts"],
+      "@merlin/shared/billing": ["../shared/src/billing-types.ts"],
+      "@merlin/shared/color": ["../shared/src/color.ts"],
+      "@merlin/shared/i18n": ["../shared/src/i18n.ts"],
+      "@merlin/shared/translucency": ["../shared/src/translucency.ts"],
+      "@merlin/shared": ["../shared/src/index.ts"]
+    }
+  },
+  "include": ["src", "../shared/src"],
+  "exclude": ["e2e", "electron", "playwright.config.ts"]
+}
