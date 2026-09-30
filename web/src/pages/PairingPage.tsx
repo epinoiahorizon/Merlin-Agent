@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { Check, ShieldCheck, Trash2, Users, X } from "lucide-react";
-import { Badge } from "@atlas-research/ui/ui/components/badge";
-import { Button } from "@atlas-research/ui/ui/components/button";
-import { Spinner } from "@atlas-research/ui/ui/components/spinner";
-import { H2 } from "@atlas-research/ui/ui/components/typography/h2";
+import { Badge } from "@nous-research/ui/ui/components/badge";
+import { Button } from "@nous-research/ui/ui/components/button";
+import { Spinner } from "@nous-research/ui/ui/components/spinner";
+import { H2 } from "@nous-research/ui/ui/components/typography/h2";
 import { api } from "@/lib/api";
 import type { PairingResponse, PairingUser } from "@/lib/api";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
-import { useToast } from "@atlas-research/ui/hooks/use-toast";
-import { useConfirmDelete } from "@atlas-research/ui/hooks/use-confirm-delete";
-import { Toast } from "@atlas-research/ui/ui/components/toast";
-import { Card, CardContent } from "@atlas-research/ui/ui/components/card";
+import { useToast } from "@nous-research/ui/hooks/use-toast";
+import { useConfirmDelete } from "@nous-research/ui/hooks/use-confirm-delete";
+import { Toast } from "@nous-research/ui/ui/components/toast";
+import { Card, CardContent } from "@nous-research/ui/ui/components/card";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { errorMessage } from "@/lib/api-error";
 
