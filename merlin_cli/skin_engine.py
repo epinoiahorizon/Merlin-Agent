@@ -26,7 +26,7 @@ class SkinConfig:
     tool_prefix: str = "┊"
     tool_emojis: Dict[str, str] = field(default_factory=dict)  # per-tool emoji overrides
     banner_logo: str = ""    # Rich-markup ASCII art logo (replaces MERLIN_AGENT_LOGO)
-    banner_hero: str = ""    # Rich-markup hero art (replaces MERLIN_CADUCEUS)
+    banner_hero: str = ""    # Rich-markup hero art (replaces MERLIN_HERO)
     custom_css: str = ""     # Raw CSS injected as a <style> tag on the desktop GUI (32 KiB cap)
 
     def get_color(self, key: str, fallback: str = "") -> str:
