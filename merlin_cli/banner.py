@@ -671,6 +671,40 @@ def _banner_skill_lines(skills_by_category: Dict[str, List[str]], skills_enabled
     return lines
 
 
+def build_welcome_panel(console: "Console", layout_table) -> None:
+    """Print the full welcome banner: header title, skinned outer panel, version line.
+
+    De-Hermes rewrite of the old ARCANE AGENT TUI panel: title = branding agent_name
+    (skin-aware), version moves to a dim footer line, no nested giant grid look.
+    """
+    from rich.panel import Panel
+
+    try:
+        from merlin_cli.skin_engine import get_active_skin
+        _skin = get_active_skin()
+    except Exception:
+        _skin = None
+    name = (_skin.get_branding("agent_name", "Merlin Agent") if _skin else "Merlin Agent") or "Merlin Agent"
+    version_label = format_banner_version_label()
+    release_info = get_latest_release_tag()
+    if release_info:
+        version_label = f"[link={release_info[1]}]{version_label}[/link]"
+    try:
+        import shutil as _shutil
+        width = max(_shutil.get_terminal_size().columns, 40)
+    except Exception:
+        width = 100
+    console.print()
+    console.print(f"[bold {_skin_color('banner_title', '#FFD700')}]{name}[/]"
+                  f" [dim {_skin_color('banner_dim', '#B8860B')}]{version_label}[/]")
+    console.print()
+    outer_panel = Panel(
+        layout_table,
+        border_style=_skin_color("banner_border", "#CD7F32"), padding=(0, 2),
+        width=min(width, 120))
+    console.print(outer_panel)
+
+
 def build_welcome_banner(
     console: "Console", model: str, cwd: str, tools: List[dict] = None, enabled_toolsets: List[str] = None,
     session_id: str = None, get_toolset_for_tool=None, context_length: int = None, provider: str = None,
@@ -751,18 +785,8 @@ def build_welcome_banner(
     layout_table.add_column("left", justify="left")
     layout_table.add_column("right", justify="left")
     layout_table.add_row("\n".join(left_lines), "\n".join(right_lines))
-    version_label = format_banner_version_label()
-    release_info = get_latest_release_tag()
-    if release_info:
-        version_label = f"[link={release_info[1]}]{version_label}[/link]"
-    arcane_label = version_label.replace("Merlin Agent ", "✧ MERLIN ARCANE AGENT TUI v")
-    if "✧" not in arcane_label:
-        arcane_label = f"✧ MERLIN ARCANE AGENT TUI ᛟ {version_label}"
-    outer_panel = Panel(
-        layout_table, title=f"[bold {_skin_color('banner_title', '#FFD700')}]{arcane_label}[/]",
-        border_style=_skin_color("banner_border", "#CD7F32"), padding=(0, 2))
+    build_welcome_panel(console, layout_table)
     console.print()
     if shutil.get_terminal_size().columns >= 95:
         console.print(getattr(_bskin, "banner_logo", None) or MERLIN_AGENT_LOGO)
         console.print()
-    console.print(outer_panel)
