@@ -632,7 +632,7 @@ def _migrate_to_46(results: Dict[str, Any], quiet: bool) -> None:
 
 
 def _migrate_to_48(results: Dict[str, Any], quiet: bool) -> None:
-    # 47 → 48: the container sandbox default gains a display stack (aexagent/merlin-sandbox:
+    # 47 → 48: the container sandbox default gains a display stack (ghcr.io/epinoiahorizon/merlin-sandbox:
     # desktop) so Bot Screen / computer_use / the browser run inside the sandbox. A saved value
     # still equal to the OLD default is the template copied, not a choice: the key is DROPPED so
     # the file follows the default. It is not rewritten to the new image, because a written image
@@ -681,6 +681,27 @@ def _migrate_to_49(results: Dict[str, Any], quiet: bool) -> None:
         _c.remove_env_value("TERMINAL_VERCEL_RUNTIME")
         if not quiet:
             print("  ✓ Cleared TERMINAL_VERCEL_RUNTIME from .env (was the old default; the image is used instead)")
+
+
+def _migrate_to_50(results: Dict[str, Any], quiet: bool) -> None:
+    # 49 → 50: the brief pre-GHCR defaults pointed at the retired aexagent Docker Hub namespace
+    # (the account was deleted, so those pulls 404). A saved value still equal to one of them is
+    # the template copied, not a choice: drop the key so the file follows the GHCR default
+    # (DEFAULT_SANDBOX_IMAGE). A user's own pin of any other image is never rewritten.
+    from merlin_cli.config_defaults import DEFAULT_SANDBOX_IMAGE, LEGACY_AEX_SANDBOX_IMAGES
+    for legacy in LEGACY_AEX_SANDBOX_IMAGES:
+        for key, old in (
+            ("docker_image", legacy),
+            ("modal_image", legacy),
+            ("daytona_image", legacy),
+            ("singularity_image", f"docker://{legacy}"),
+        ):
+            _rewrite_stale_default(
+                section="terminal", key=key, old=old, new=None,
+                added=f"terminal.{key} unset (follows the default, {DEFAULT_SANDBOX_IMAGE})",
+                message=f"  ✓ terminal.{key}: pointed at the retired aexagent namespace; now follows the "
+                        f"default sandbox image ({DEFAULT_SANDBOX_IMAGE})",
+            )(results, quiet)
 
 
 MIGRATIONS: Tuple[Tuple[int, Callable[[Dict[str, Any], bool], None]], ...] = (
@@ -814,6 +835,10 @@ MIGRATIONS: Tuple[Tuple[int, Callable[[Dict[str, Any], bool], None]], ...] = (
     (48, _migrate_to_48),
     # 48 → 49: the seeded Vercel runtime pin is dropped so fresh sandboxes use the managed image (see _migrate_to_49).
     (49, _migrate_to_49),
+    # 49 → 50: the brief pre-GHCR defaults pointed at the retired aexagent Docker Hub namespace
+    # (user account deleted). A saved value still equal to one of them is the template copied,
+    # not a choice: drop the key so the file follows the GHCR default (see LEGACY_AEX_SANDBOX_IMAGES).
+    (50, _migrate_to_50),
 )
 
 #: Steps triggered by a legacy key or identifier (a renamed or retired key, a removed plugin or

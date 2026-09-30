@@ -31,7 +31,7 @@ from merlin_cli.model_switch import (
         "merlin-4-405b",
         "merlin_4_70b",
         "openrouter/merlin3:70b",
-        "openrouter/aexagent/merlin-4-405b",
+        "openrouter/epinoiahorizon/merlin-4-405b",
         "AtlasResearch/Merlin3",
         "merlin-3.1",
     ],

@@ -1689,7 +1689,7 @@
     "date": "2026-04-04",
     "category": "privacy",
     "headline": "I'm using Merlin — same applies to all agents, sandbox it",
-    "quote": "I'm using Merlin. The same applies to all agents, don't give it free reign over all your stuff. Run it within a sandbox. https://github.com/aexagent/merlin-agent",
+    "quote": "I'm using Merlin. The same applies to all agents, don't give it free reign over all your stuff. Run it within a sandbox. https://github.com/ghcr.io/epinoiahorizon/merlin-agent",
     "size": "sm",
     "id": "hn-flere-imsaho-im-using-merlin"
   },

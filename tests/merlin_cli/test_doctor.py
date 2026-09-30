@@ -89,7 +89,7 @@ class TestDoctorPlatformHints:
 
         hint = doctor_platform._sqlite_upgrade_hint()
 
-        assert "docker pull aexagent/merlin-agent:latest" in hint
+        assert "docker pull ghcr.io/epinoiahorizon/merlin-agent:latest" in hint
         assert "merlin update" not in hint
 
 

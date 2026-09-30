@@ -9,9 +9,13 @@ docs of config.yaml.
 #: user pins one. LEGACY_SANDBOX_IMAGES are the plain defaults that preceded the desktop stack
 #: (the 3.14 pin shipped between the two without a migration); a saved config still holding one
 #: is the template copied, and the config migration unsets it, never a user's own pin.
-DEFAULT_SANDBOX_IMAGE = "aexagent/merlin-sandbox:desktop"
+DEFAULT_SANDBOX_IMAGE = "ghcr.io/epinoiahorizon/merlin-sandbox:desktop"
 LEGACY_SANDBOX_IMAGES = ("nikolaik/python-nodejs:python3.11-nodejs20", "nikolaik/python-nodejs:python3.14-nodejs22")
 LEGACY_SANDBOX_IMAGE = LEGACY_SANDBOX_IMAGES[0]
+#: Defaults that briefly pointed at the retired aexagent Docker Hub namespace (the account was
+#: deleted). The v50 config migration drops saved values still equal to one of these; they are
+#: NOT in LEGACY_SANDBOX_IMAGES, which stays scoped to the pre-desktop-stack plain defaults.
+LEGACY_AEX_SANDBOX_IMAGES = ("aexagent/merlin-sandbox:desktop",)
 # Vercel Sandbox managed image (Vercel deprecated its `runtime` presets in Aug 2026).
 DEFAULT_VERCEL_IMAGE = "vercel/sandbox/universal:latest"
 LEGACY_VERCEL_RUNTIME = "node24"  # the seeded pre-49 default, never a user choice
@@ -2535,7 +2539,7 @@ DEFAULT_CONFIG = {
         #   terminal  always inside the terminal backend (error when it cannot host one).
         #   gateway   always on the gateway host, even with a sandbox terminal: the agent's screen, browser
         #             and computer_use then act OUTSIDE the terminal sandbox. Explicit opt-in.
-        # The sandbox image needs the desktop stack: aexagent/merlin-sandbox:desktop.
+        # The sandbox image needs the desktop stack: ghcr.io/epinoiahorizon/merlin-sandbox:desktop.
         "placement": "auto",
     },
     "computer_use": {
@@ -2715,7 +2719,7 @@ DEFAULT_CONFIG = {
         # Extra ports detection probes for an external llama-server (besides 8080).
         "detect_ports": [],
     },
-    "_config_version": 49,  # Config schema version - bump this when adding new required fields
+    "_config_version": 50,  # Config schema version - bump this when adding new required fields
 }
 
 
