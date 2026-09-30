@@ -853,9 +853,9 @@ export default function SkillsDashboard() {
             )}
 
             <p className={styles.heroSub} style={{ fontSize: "0.85rem", opacity: 0.85 }}>
-              <a href="https://portal.aexagent.site/terms" target="_blank" rel="noopener noreferrer">Terms</a>
+              <a href="https://portal.epinoiahorizon.com/terms" target="_blank" rel="noopener noreferrer">Terms</a>
               {" • "}
-              <a href="https://portal.aexagent.site/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+              <a href="https://portal.epinoiahorizon.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
             </p>
 
             <div className={styles.statsRow}>

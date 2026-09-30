@@ -75,7 +75,7 @@ _ATLAS_EMPTY_AGENT_KEY_FIELDS: Dict[str, Any] = {
     "agent_key": None, "agent_key_id": None, "agent_key_expires_at": None,
     "agent_key_expires_in": None, "agent_key_reused": None, "agent_key_obtained_at": None}
 
-_ATLAS_STALE_PORTAL_HOSTS: FrozenSet[str] = frozenset({"api.aexagent.site"})
+_ATLAS_STALE_PORTAL_HOSTS: FrozenSet[str] = frozenset({"api.epinoiahorizon.com"})
 
 
 def _portal_entitlement_message(capability: str) -> str:
@@ -109,9 +109,9 @@ def _migrate_stale_atlas_portal_url(providers: Dict[str, Any]) -> None:
 # the ATLAS_INFERENCE_BASE_URL env override bypasses it (documented dev/staging escape hatch, the
 # user set it themselves).
 _ALLOWED_ATLAS_INFERENCE_HOSTS: FrozenSet[str] = frozenset({
-    "inference-api.aexagent.site",
+    "inference-api.epinoiahorizon.com",
     # Free-tier (anonymous) host: serves the single ``atlas/welcome`` model.
-    "welcome-api.aexagent.site"})
+    "welcome-api.epinoiahorizon.com"})
 
 def _atlas_inference_host_allowed(hostname: Optional[str]) -> bool:
     """Production hosts always; otherwise only the host the operator named in
@@ -1644,4 +1644,4 @@ def _login_atlas(args, pconfig: ProviderConfig) -> None:
 
 
 def _portal_host(portal_url: Optional[str]) -> str:
-    return urlparse(portal_url or DEFAULT_ATLAS_PORTAL_URL).hostname or "portal.aexagent.site"
+    return urlparse(portal_url or DEFAULT_ATLAS_PORTAL_URL).hostname or "portal.epinoiahorizon.com"

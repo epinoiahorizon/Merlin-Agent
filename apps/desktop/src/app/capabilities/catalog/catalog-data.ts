@@ -40,7 +40,7 @@ export interface CatalogEntry {
   search: string
 }
 
-const DOCS_ORIGIN = 'https://merlin-agent.aexagent.site'
+const DOCS_ORIGIN = 'https://merlin-agent.epinoiahorizon.com'
 // The public domain redirects here without CORS headers on the redirect.
 // Use the docs' actual static host, not GitHub's API or repository endpoints.
 const CATALOG_BASE = 'https://epinoiahorizon.github.io/merlin-agent/docs/api'

@@ -239,7 +239,7 @@ These variables configure the [Tool Gateway](../user-guide/features/tool-gateway
 
 | Variable | Description |
 |----------|-------------|
-| `TOOL_GATEWAY_DOMAIN` | Base domain for Tool Gateway routing (default: `aexagent.site`) |
+| `TOOL_GATEWAY_DOMAIN` | Base domain for Tool Gateway routing (default: `epinoiahorizon.com`) |
 | `TOOL_GATEWAY_SCHEME` | HTTP or HTTPS scheme for gateway URLs (default: `https`) |
 | `TOOL_GATEWAY_USER_TOKEN` | Auth token for the Tool Gateway (normally auto-populated from Atlas auth) |
 | `FIRECRAWL_GATEWAY_URL` | Override URL for the Firecrawl gateway endpoint specifically |

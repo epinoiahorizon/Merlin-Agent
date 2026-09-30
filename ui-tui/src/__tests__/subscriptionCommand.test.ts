@@ -19,7 +19,7 @@ const loggedInState = (overrides: Partial<SubscriptionStateResponse> = {}): Subs
   org_name: 'Acme',
   role: 'OWNER',
   current: null,
-  portal_url: 'https://portal.aexagent.site/billing',
+  portal_url: 'https://portal.epinoiahorizon.com/billing',
   ...overrides
 })
 

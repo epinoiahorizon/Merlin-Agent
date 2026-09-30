@@ -2009,7 +2009,7 @@ export const frOverrides = {
       sshErrHostKey:
         "La clé de l'hôte a changé depuis votre dernière connexion. Vérifiez que ce changement est attendu, puis exécutez ssh-keygen -R <host> et reconnectez-vous.",
       sshErrNotInstalled:
-        "Merlin n'est pas installé sur l'hôte distant. Installez-le là-bas (curl -fsSL https://merlin-agent.aexagent.site/install.sh | sh) ou définissez le chemin Merlin.",
+        "Merlin n'est pas installé sur l'hôte distant. Installez-le là-bas (curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | sh) ou définissez le chemin Merlin.",
       sshErrPlatform:
         'Plateforme distante non prise en charge. Le mode SSH de Merlin Desktop supporte les hôtes distants Linux, macOS et Windows.',
       sshErrTimeout: "Expiration de la connexion SSH. L'hôte peut être inaccessible ou en veille.",

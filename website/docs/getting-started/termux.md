@@ -14,7 +14,7 @@ does not run.
 
 The Termux package runs Merlin on **aarch64 (arm64-v8a)** Android devices.
 Two APT channels are published under
-`https://merlin-assets.aexagent.site/releases/termux/<channel>`:
+`https://merlin-assets.epinoiahorizon.com/releases/termux/<channel>`:
 
 | Channel | APT suite | Contents |
 | --- | --- | --- |
@@ -51,7 +51,7 @@ Do not use the desktop/server `install.sh` or a glibc Linux archive on this targ
    ```bash
    mkdir -p "$PREFIX/etc/apt/keyrings"
    curl -fsSL \
-     https://merlin-assets.aexagent.site/releases/termux/stable/key.asc \
+     https://merlin-assets.epinoiahorizon.com/releases/termux/stable/key.asc \
      -o "$PREFIX/etc/apt/keyrings/merlin-agent.asc"
    ```
 
@@ -73,7 +73,7 @@ Do not use the desktop/server `install.sh` or a glibc Linux archive on this targ
 
    ```bash
    printf '%s\n' \
-     "deb [signed-by=$PREFIX/etc/apt/keyrings/merlin-agent.asc] https://merlin-assets.aexagent.site/releases/termux/stable merlin-stable main" \
+     "deb [signed-by=$PREFIX/etc/apt/keyrings/merlin-agent.asc] https://merlin-assets.epinoiahorizon.com/releases/termux/stable merlin-stable main" \
      > "$PREFIX/etc/apt/sources.list.d/merlin-agent.list"
    ```
 

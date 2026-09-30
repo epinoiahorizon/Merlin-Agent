@@ -37,7 +37,7 @@ Key capabilities:
 ## Setup
 
 :::tip Atlas Subscribers
-If you have a paid [Atlas Portal](https://portal.aexagent.site) subscription, you can use browser automation through the **[Tool Gateway](tool-gateway.md)** without any separate API keys. New installs can run `merlin setup --portal` to log in and turn on every gateway tool at once; existing installs can pick **Atlas Subscription** as the browser provider via `merlin model` or `merlin tools`.
+If you have a paid [Atlas Portal](https://portal.epinoiahorizon.com) subscription, you can use browser automation through the **[Tool Gateway](tool-gateway.md)** without any separate API keys. New installs can run `merlin setup --portal` to log in and turn on every gateway tool at once; existing installs can pick **Atlas Subscription** as the browser provider via `merlin model` or `merlin tools`.
 :::
 
 ### Browser Use cloud mode

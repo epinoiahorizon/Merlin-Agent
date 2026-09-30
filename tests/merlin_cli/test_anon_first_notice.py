@@ -25,7 +25,7 @@ def _seed_guest() -> None:
         store.setdefault("providers", {})["atlas"] = {
             "auth_method": anon_auth.ANON_AUTH_METHOD, "account_tier": "anonymous", "anon_token": "anon_0001",
             "client_id": "nas-anonymous", "access_token": _jwt(), "expires_at": "2999-01-01T00:00:00+00:00",
-            "inference_base_url": "https://welcome-api.aexagent.site/v1"}
+            "inference_base_url": "https://welcome-api.epinoiahorizon.com/v1"}
         _save_auth_store(store)
 
 

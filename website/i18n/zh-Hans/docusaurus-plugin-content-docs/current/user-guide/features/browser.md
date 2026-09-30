@@ -34,7 +34,7 @@ Merlin Agent 内置完整的浏览器自动化工具集，支持多种后端选�
 ## 配置
 
 :::tip Atlas 订阅用户
-如果您拥有付费 [Atlas Portal](https://portal.aexagent.site) 订阅，可通过 **[Tool Gateway](tool-gateway.md)** 使用浏览器自动化功能，无需单独的 API 密钥。新安装可运行 `merlin setup --portal` 登录并一次性开启所有 gateway 工具；已有安装可通过 `merlin model` 或 `merlin tools` 选择 **Atlas Subscription** 作为浏览器提供商。
+如果您拥有付费 [Atlas Portal](https://portal.epinoiahorizon.com) 订阅，可通过 **[Tool Gateway](tool-gateway.md)** 使用浏览器自动化功能，无需单独的 API 密钥。新安装可运行 `merlin setup --portal` 登录并一次性开启所有 gateway 工具；已有安装可通过 `merlin model` 或 `merlin tools` 选择 **Atlas Subscription** 作为浏览器提供商。
 :::
 
 ### Browserbase 云端模式

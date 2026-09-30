@@ -200,7 +200,7 @@ class TestIsGenuineAtlasRateLimit:
         record_atlas_rate_limit(headers=headers)
         assert atlas_rate_limit_remaining() > 0
         verdict, _buffered, statuses = TestWelcomeRouteCopy._drive_guard(
-            "https://welcome-api.aexagent.site/v1", monkeypatch
+            "https://welcome-api.epinoiahorizon.com/v1", monkeypatch
         )
         assert verdict.action == "return"
         assert "/login" in statuses[0]
@@ -284,7 +284,7 @@ class TestWelcomeRouteCopy:
         from merlin_cli import anon_auth
 
         verdict, buffered, statuses = self._drive_guard(
-            "https://welcome-api.aexagent.site/v1", monkeypatch
+            "https://welcome-api.epinoiahorizon.com/v1", monkeypatch
         )
 
         expected = anon_auth.FREE_TIER_RATE_LIMIT_CHAT.format(reset=anon_auth.friendly_wait(600))

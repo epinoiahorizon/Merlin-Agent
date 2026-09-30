@@ -346,7 +346,7 @@ def _print_atlas_401_diagnostics(agent: Any, api_error: Exception) -> None:
         agent,
         "   Troubleshooting:",
         "     • Re-authenticate: merlin auth add atlas",
-        "     • Check credits / billing: https://portal.aexagent.site",
+        "     • Check credits / billing: https://portal.epinoiahorizon.com",
         f"     • Verify stored credentials: {display_merlin_home()}/auth.json",
         "     • Switch providers temporarily: /model <model> --provider openrouter",
     )
@@ -863,7 +863,7 @@ def _print_nonretryable_auth_guidance(
                 "   💡 Atlas Portal OAuth token was rejected (HTTP 401). Your token may be",
                 "      expired, revoked, or your account may be out of credits. To fix:",
                 "      1. Re-authenticate: merlin portal",
-                "      2. Check your portal account: https://portal.aexagent.site",
+                "      2. Check your portal account: https://portal.epinoiahorizon.com",
             )
             # ``:free`` is OpenRouter slug syntax; Atlas Portal will reject the model
             # name even after a successful re-auth.

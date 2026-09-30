@@ -6,7 +6,7 @@ description: "Start-to-finish walkthrough: subscribe, set up, switch models, ena
 
 # Run Merlin Agent with Atlas Portal
 
-This guide walks you through running Merlin Agent on a [Atlas Portal](https://portal.aexagent.site) subscription end to end — from signing up to verifying that every tool routes correctly. If you just want the overview of what the Portal is and what's in the subscription, see the [Atlas Portal integration page](../integrations/atlas-portal.md). This page is the task script.
+This guide walks you through running Merlin Agent on a [Atlas Portal](https://portal.epinoiahorizon.com) subscription end to end — from signing up to verifying that every tool routes correctly. If you just want the overview of what the Portal is and what's in the subscription, see the [Atlas Portal integration page](../integrations/atlas-portal.md). This page is the task script.
 
 ## Prerequisites
 
@@ -18,7 +18,7 @@ You do **not** need: an OpenAI key, an Anthropic key, a web search account, a FA
 
 ## 1. Get a subscription
 
-Open [portal.aexagent.site/manage-subscription](https://portal.aexagent.site/manage-subscription), sign up, and pick a plan.
+Open [portal.epinoiahorizon.com/manage-subscription](https://portal.epinoiahorizon.com/manage-subscription), sign up, and pick a plan.
 
 Already subscribed? Skip to step 2.
 
@@ -30,7 +30,7 @@ merlin setup --portal
 
 This single command does five things:
 
-1. Opens your browser to portal.aexagent.site for OAuth login
+1. Opens your browser to portal.epinoiahorizon.com for OAuth login
 2. Stores the refresh token at `~/.merlin/auth.json`
 3. Sets `model.provider: atlas` in `~/.merlin/config.yaml`
 4. Picks a default agentic model (`anthropic/claude-sonnet-4.6` or similar)
@@ -66,7 +66,7 @@ You should see:
   Atlas Portal
   ───────────
   Auth:    ✓ logged in
-  Portal:  https://portal.aexagent.site
+  Portal:  https://portal.epinoiahorizon.com
   Model:   ✓ using Atlas as inference provider
 
   Tool Gateway
@@ -122,7 +122,7 @@ merlin config set model.default anthropic/claude-sonnet-4.6
 
 Merlin-4-70B and Merlin-4-405B are available on the Portal at deep discounts, but they're **chat/reasoning models**, not tool-call-tuned. They will struggle with multi-step agent loops. Use them for conversation/research work through the [subscription proxy](../user-guide/features/subscription-proxy.md) from non-agent tools. For Merlin Agent itself, stick to the frontier agentic models above.
 
-The Portal's own [info page](https://portal.aexagent.site/info) carries this warning too — it's the official Atlas guidance, not just a Merlin-side opinion.
+The Portal's own [info page](https://portal.epinoiahorizon.com/info) carries this warning too — it's the official Atlas guidance, not just a Merlin-side opinion.
 
 ## 6. (Optional) Customize Tool Gateway routing
 

@@ -203,7 +203,7 @@ class TestFallbackChainAdvancement:
         """
         from merlin_cli import providers as _providers
         monkeypatch.setattr(_providers, "_atlas_anthropic_wire", lambda: "native")
-        portal = "https://inference-api.aexagent.site/v1"
+        portal = "https://inference-api.epinoiahorizon.com/v1"
         fbs = [
             {
                 "provider": "atlas",
@@ -252,7 +252,7 @@ class TestFallbackChainAdvancement:
         assert agent._anthropic_client is not None
 
     def test_atlas_non_anthropic_fallback_stays_on_chat_completions(self):
-        portal = "https://inference-api.aexagent.site/v1"
+        portal = "https://inference-api.epinoiahorizon.com/v1"
         fbs = [{"provider": "atlas", "model": "merlin-4-405b"}]
         agent = _make_agent(fallback_model=fbs)
         with (

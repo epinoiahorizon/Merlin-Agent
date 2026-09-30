@@ -106,10 +106,10 @@ def _is_deepseek_anthropic_endpoint(base_url: str | None) -> bool:
 
 def _is_atlas_portal_endpoint(base_url: str | None) -> bool:
     """Atlas Portal's Anthropic Messages route (Bearer JWT, verbatim catalog ids, native
-    thinking-signature replay). Trusted hosts only: prod ``inference-api.aexagent.site`` or the
+    thinking-signature replay). Trusted hosts only: prod ``inference-api.epinoiahorizon.com`` or the
     operator-set ``ATLAS_INFERENCE_BASE_URL`` host (exact hostname equality, so neither lookalike
     domains nor sibling hosts of the override match)."""
-    if base_url_host_matches(base_url or "", "inference-api.aexagent.site"):
+    if base_url_host_matches(base_url or "", "inference-api.epinoiahorizon.com"):
         return True
     try:
         from merlin_cli.auth import _atlas_inference_env_override

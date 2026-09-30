@@ -36,8 +36,8 @@ _PRE_UPDATE_SNAPSHOT_MAX_FILE_SIZE = 1 << 30  # 1 GiB
 #: Reinstalling through the official installer swaps in a Python whose SQLite is safe; the
 #: one-liner differs per OS (mirrors ``uninstall._REINSTALL_HINT``). windows -> command
 _REINSTALL_ONE_LINER = {
-    True: "iex (irm https://merlin-agent.aexagent.site/install.ps1)",
-    False: "curl -fsSL https://merlin-agent.aexagent.site/install.sh | bash",
+    True: "iex (irm https://merlin-agent.epinoiahorizon.com/install.ps1)",
+    False: "curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash",
 }
 
 
@@ -102,7 +102,7 @@ def _print_curator_first_run_notice() -> None:
     )
     print("  Preview now:  merlin curator run --dry-run")
     print("  Pause it:     merlin curator pause")
-    print("  Docs:         https://merlin-agent.aexagent.site/docs/user-guide/features/curator")
+    print("  Docs:         https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/curator")
 
 
 def _print_fts_optimize_available_notice() -> None:

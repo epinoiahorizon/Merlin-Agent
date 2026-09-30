@@ -26,6 +26,6 @@ def test_auxiliary_wire_drops_reasoning_details_only_for_non_replaying_routes():
 
 def test_openrouter_and_atlas_routes_keep_reasoning_details():
     transport = get_transport("chat_completions")
-    for base_url in ("https://openrouter.ai/api/v1", "https://inference-api.aexagent.site/v1"):
+    for base_url in ("https://openrouter.ai/api/v1", "https://inference-api.epinoiahorizon.com/v1"):
         kwargs = transport.build_kwargs("m", _HISTORY, base_url=base_url)
         assert any("reasoning_details" in m for m in kwargs["messages"]), base_url

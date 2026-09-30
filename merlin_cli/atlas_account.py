@@ -143,7 +143,7 @@ def atlas_portal_billing_url(account_info: Optional[AtlasPortalAccountInfo] = No
     try:
         from merlin_cli.auth import DEFAULT_ATLAS_PORTAL_URL
     except Exception:
-        DEFAULT_ATLAS_PORTAL_URL = "https://portal.aexagent.site"
+        DEFAULT_ATLAS_PORTAL_URL = "https://portal.epinoiahorizon.com"
 
     base = account_info.portal_base_url if account_info is not None else None
     if not _nonblank(base):
@@ -469,7 +469,7 @@ def _pool_entry_is_portal_oauth(entry: Any) -> bool:
 
 
 def _fetch_atlas_account_info(access_token: str, portal_base_url: Optional[str] = None) -> dict[str, Any]:
-    base = (portal_base_url or "https://portal.aexagent.site").rstrip("/")
+    base = (portal_base_url or "https://portal.epinoiahorizon.com").rstrip("/")
     headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
     req = urllib.request.Request(f"{base}/api/oauth/account", headers=headers)
     with urllib.request.urlopen(req, timeout=8) as resp:

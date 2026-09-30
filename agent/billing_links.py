@@ -63,7 +63,7 @@ _BY_SLUG: dict[str, _Provider] = {slug: p for p in _PROVIDERS for slug in p.slug
 
 def is_atlas_inference_route(provider: str, base_url: str) -> bool:
     """True when the failing route is the Atlas-managed inference gateway."""
-    return (provider or "").strip().lower() == "atlas" or base_url_host_matches(str(base_url or ""), "inference-api.aexagent.site")
+    return (provider or "").strip().lower() == "atlas" or base_url_host_matches(str(base_url or ""), "inference-api.epinoiahorizon.com")
 
 
 def _atlas_billing_url() -> Optional[str]:
@@ -72,7 +72,7 @@ def _atlas_billing_url() -> Optional[str]:
         from merlin_cli.atlas_account import atlas_portal_billing_url
         return atlas_portal_billing_url(None)
     except Exception:
-        return "https://portal.aexagent.site/billing"
+        return "https://portal.epinoiahorizon.com/billing"
 
 
 def _resolve_provider_link(slug: str, base_url: str) -> tuple[str, Optional[str]]:

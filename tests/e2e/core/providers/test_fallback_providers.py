@@ -123,8 +123,8 @@ def _expired_atlas_auth() -> dict:
     past = int(time.time()) - 3600
     iso = time.strftime("%Y-%m-%dT%H:%M:%S+00:00", time.gmtime(past))
     return {"version": 1, "active_provider": "atlas", "providers": {"atlas": {
-        "portal_base_url": "https://portal.aexagent.site",
-        "inference_base_url": "https://inference-api.aexagent.site/v1",
+        "portal_base_url": "https://portal.epinoiahorizon.com",
+        "inference_base_url": "https://inference-api.epinoiahorizon.com/v1",
         "client_id": "merlin-cli", "token_type": "Bearer", "scope": "inference:invoke",
         "access_token": _jwt({"sub": "e2e-user", "scope": "inference:invoke", "exp": past}),
         "refresh_token": "refresh-e2e", "obtained_at": iso, "expires_in": 3600, "expires_at": iso,

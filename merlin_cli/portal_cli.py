@@ -7,9 +7,9 @@ import webbrowser
 from merlin_cli.colors import Colors, color
 from merlin_cli.config import load_config
 
-DEFAULT_PORTAL_URL = "https://portal.aexagent.site"
-SUBSCRIPTION_URL = "https://portal.aexagent.site/manage-subscription"
-DOCS_URL = "https://merlin-agent.aexagent.site/docs/user-guide/features/tool-gateway"
+DEFAULT_PORTAL_URL = "https://portal.epinoiahorizon.com"
+SUBSCRIPTION_URL = "https://portal.epinoiahorizon.com/manage-subscription"
+DOCS_URL = "https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/tool-gateway"
 # Static `portal tools` catalog — the partners Tool Gateway routes to today: (key, label, partner).
 _CATALOG = [
     ("web", "Web search & extract", "Atlas-managed"),

@@ -49,7 +49,7 @@ class TestDiscordToolPreviewFormatting:
         from agent.display import ToolPreview
 
         adapter = _make_discord_adapter()
-        url = "https://merlin-agent.aexagent.site/docs/gateway/discord/tool-progress"
+        url = "https://merlin-agent.epinoiahorizon.com/docs/gateway/discord/tool-progress"
         visible = "https://merlin-agent.aexagent..."
 
         out = adapter.format_tool_preview(ToolPreview(visible, truncated=True, url=url))
@@ -89,7 +89,7 @@ class TestDiscordToolPreviewFormatting:
         from gateway.stream_events import ToolCallChunk
 
         adapter = _make_discord_adapter()
-        url = "https://merlin-agent.aexagent.site/docs/gateway/discord/tool-progress"
+        url = "https://merlin-agent.epinoiahorizon.com/docs/gateway/discord/tool-progress"
         visible = url[:37] + "..."
 
         out = adapter.format_tool_event(

@@ -13,7 +13,7 @@ After a dependency change, reactivate the checkout and restart Merlin.
 Merlin Agent supports both text-to-speech output and voice message transcription across all messaging platforms.
 
 :::tip Atlas Subscribers
-If you have a paid [Atlas Portal](https://portal.aexagent.site) subscription, OpenAI TTS is available through the **[Tool Gateway](tool-gateway.md)** without a separate OpenAI API key. New installs can run `merlin setup --portal` to log in and turn on every gateway tool at once; existing installs can pick **Atlas Subscription** for just TTS via `merlin model` or `merlin tools`.
+If you have a paid [Atlas Portal](https://portal.epinoiahorizon.com) subscription, OpenAI TTS is available through the **[Tool Gateway](tool-gateway.md)** without a separate OpenAI API key. New installs can run `merlin setup --portal` to log in and turn on every gateway tool at once; existing installs can pick **Atlas Subscription** for just TTS via `merlin model` or `merlin tools`.
 :::
 
 ## Text-to-Speech

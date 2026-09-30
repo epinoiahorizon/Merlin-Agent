@@ -14,7 +14,7 @@ from providers.base import ProviderProfile
 # Attribution headers (same values as OpenRouter / Vercel / Fireworks); via
 # default_headers so they survive model switches and credential rotation.
 _ATTRIBUTION_HEADERS = {
-    "HTTP-Referer": "https://merlin-agent.aexagent.site",
+    "HTTP-Referer": "https://merlin-agent.epinoiahorizon.com",
     "X-Title": "Merlin Agent",
     "User-Agent": f"MerlinAgent/{get_version_info().base_version}",
 }

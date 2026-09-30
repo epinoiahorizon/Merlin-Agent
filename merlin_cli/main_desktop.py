@@ -1766,7 +1766,7 @@ def cmd_gui(args: argparse.Namespace):
             print(
                 "  This Merlin came from Homebrew, which does not ship the desktop app's\n"
                 "  source tree, so it cannot be built from this install.\n"
-                "  Install the desktop app from https://merlin-agent.aexagent.site,\n"
+                "  Install the desktop app from https://merlin-agent.epinoiahorizon.com,\n"
                 "  or run `merlin desktop` from a source checkout."
             )
         sys.exit(1)

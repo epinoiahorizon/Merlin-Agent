@@ -1,7 +1,7 @@
 # Merlin CLI Reference
 
 Live sources when anything looks stale: `merlin --help`, `merlin <command> --help`,
-https://merlin-agent.aexagent.site/docs/reference/cli-commands
+https://merlin-agent.epinoiahorizon.com/docs/reference/cli-commands
 
 ### Global Flags
 
@@ -79,7 +79,7 @@ merlin gateway run|install|start|stop|restart|status|setup
 ```
 
 20+ platforms: Telegram, Discord, Slack, WhatsApp (Baileys + Business Cloud API), iMessage (Photon — `merlin photon setup`), Signal, Email, SMS, Matrix, Mattermost, Teams, LINE, SimpleX, ntfy, Google Chat, Home Assistant, DingTalk, Feishu, WeCom, Weixin, API Server, Webhooks. Open WebUI connects via the API Server adapter. Most adapters ship under `plugins/platforms/`.
-Docs: https://merlin-agent.aexagent.site/docs/user-guide/messaging/
+Docs: https://merlin-agent.epinoiahorizon.com/docs/user-guide/messaging/
 
 ### Sessions
 
@@ -142,10 +142,10 @@ Plugin- and provider-supplied subcommands (e.g. `merlin photon setup`) only appe
 
 | Looking for... | Location |
 |---|---|
-| Config options | `merlin config edit` · [Configuration docs](https://merlin-agent.aexagent.site/docs/user-guide/configuration) |
-| Tools / toolsets | `merlin tools list` · [Tools reference](https://merlin-agent.aexagent.site/docs/reference/tools-reference) |
-| Skills catalog | `merlin skills browse` · [Skills catalog](https://merlin-agent.aexagent.site/docs/reference/skills-catalog) |
-| Provider setup | `merlin model` · [Providers guide](https://merlin-agent.aexagent.site/docs/integrations/providers) |
-| Env variables | `merlin config env-path` · [Env vars reference](https://merlin-agent.aexagent.site/docs/reference/environment-variables) |
+| Config options | `merlin config edit` · [Configuration docs](https://merlin-agent.epinoiahorizon.com/docs/user-guide/configuration) |
+| Tools / toolsets | `merlin tools list` · [Tools reference](https://merlin-agent.epinoiahorizon.com/docs/reference/tools-reference) |
+| Skills catalog | `merlin skills browse` · [Skills catalog](https://merlin-agent.epinoiahorizon.com/docs/reference/skills-catalog) |
+| Provider setup | `merlin model` · [Providers guide](https://merlin-agent.epinoiahorizon.com/docs/integrations/providers) |
+| Env variables | `merlin config env-path` · [Env vars reference](https://merlin-agent.epinoiahorizon.com/docs/reference/environment-variables) |
 | Gateway logs | `~/.merlin/logs/gateway.log` (or `merlin logs`) |
 | Sessions | `merlin sessions browse` (reads state.db) |

@@ -1,7 +1,7 @@
 {
   "client_id": "https://epinoiahorizon.github.io/merlin-agent/docs/oauth/client-metadata.json",
   "client_name": "Merlin Agent",
-  "client_uri": "https://merlin-agent.aexagent.site",
+  "client_uri": "https://merlin-agent.epinoiahorizon.com",
   "logo_uri": "https://epinoiahorizon.github.io/merlin-agent/docs/img/logo.png",
   "application_type": "native",
   "grant_types": ["authorization_code", "refresh_token"],

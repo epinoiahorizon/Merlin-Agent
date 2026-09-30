@@ -2,7 +2,7 @@
 
 Set via `merlin model` (picker) or `merlin setup`. 35+ provider profiles ship as
 plugins under `plugins/model-providers/`; user plugins of the same name override.
-Full docs: https://merlin-agent.aexagent.site/docs/integrations/providers
+Full docs: https://merlin-agent.epinoiahorizon.com/docs/integrations/providers
 
 ### Providers
 

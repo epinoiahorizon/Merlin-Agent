@@ -17,7 +17,7 @@ from agent import secret_scope
 from gateway import run as gateway_run
 from gateway.run_startup import GatewayStartupMixin
 
-PORTAL = "https://portal.staging-aexagent.site"
+PORTAL = "https://portal.staging-epinoiahorizon.com"
 
 
 @pytest.fixture

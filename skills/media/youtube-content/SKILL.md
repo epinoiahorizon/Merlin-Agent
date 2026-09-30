@@ -26,7 +26,7 @@ Use `terminal` with the Python from a PM-prepared Merlin source checkout. The
 Merlin with raw pip or project-discovering `uv run`.
 
 From that checkout, first follow the isolated development-home setup in
-[Package Management](https://merlin-agent.aexagent.site/docs/reference/package-management#developer-workflow),
+[Package Management](https://merlin-agent.epinoiahorizon.com/docs/reference/package-management#developer-workflow),
 then prepare the extra and reactivate before running the helper:
 
 ```bash

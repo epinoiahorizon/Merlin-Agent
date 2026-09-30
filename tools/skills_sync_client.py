@@ -60,7 +60,7 @@ def resolve_identity() -> Dict[str, Any]:
 # Configuration -- env-first so Merlin Cloud can enable sync via environment alone. Every knob:
 # MERLIN_SYNC_<KEY> env -> config.yaml ``sync.<key>`` -> default (base_url = the sync plane, NOT
 # the inference URL; enabled; default_opt_in; org_auto_propose).
-DEFAULT_SYNC_BASE_URL = "https://gateway-gateway.aexagent.site"
+DEFAULT_SYNC_BASE_URL = "https://gateway-gateway.epinoiahorizon.com"
 
 _TRUE, _FALSE = {"1", "true", "yes", "on"}, {"0", "false", "no", "off", ""}
 

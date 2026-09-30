@@ -21,7 +21,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
-STAGING = "https://telemetry.staging-aexagent.site/v1/telemetry"
+STAGING = "https://telemetry.staging-epinoiahorizon.com/v1/telemetry"
 
 
 def main() -> int:

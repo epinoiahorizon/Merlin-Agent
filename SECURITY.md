@@ -7,7 +7,7 @@ scope for vulnerability reports.
 ## 1. Reporting a Vulnerability
 
 Report privately via [GitHub Security Advisories](https://github.com/epinoiahorizon/Merlin-Agent/security/advisories/new)
-or **security@aexagent.site**. Do not open public issues for
+or **security@epinoiahorizon.com**. Do not open public issues for
 security vulnerabilities. **Merlin Agent does not operate a bug
 bounty program.**
 
@@ -330,6 +330,6 @@ that:
 - **Coordinated disclosure window:** 90 days from report, or until a
   fix is released, whichever comes first.
 - **Channel:** the GHSA thread or email correspondence with
-  security@aexagent.site.
+  security@epinoiahorizon.com.
 - **Credit:** reporters are credited in release notes unless
   anonymity is requested.

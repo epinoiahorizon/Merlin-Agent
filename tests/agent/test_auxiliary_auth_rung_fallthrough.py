@@ -43,7 +43,7 @@ import agent.auxiliary_client as aux
 
 AUX_MODEL = "z-ai/glm-5.3-flash"
 FALLBACK_MODEL = "fallback-model"
-ATLAS_HOST = "inference-api.aexagent.site"
+ATLAS_HOST = "inference-api.epinoiahorizon.com"
 
 
 class _ApiError(Exception):

@@ -34,7 +34,7 @@ fireworks = FireworksProfile(
     # Attribution headers (canonical Merlin set); via default_headers so they
     # survive switch_model and credential rotation.
     default_headers={
-        "HTTP-Referer": "https://merlin-agent.aexagent.site",
+        "HTTP-Referer": "https://merlin-agent.epinoiahorizon.com",
         "X-Title": "Merlin Agent",
         "User-Agent": f"MerlinAgent/{get_version_info().base_version}",
     },

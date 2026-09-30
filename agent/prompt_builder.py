@@ -173,7 +173,7 @@ MERLIN_AGENT_HELP_GUIDANCE = (
     # resolution). No "when the two differ" clause: docs-are-authoritative already carries the precedence.
     "You run on Merlin Agent (by AexAgent). When the user needs help with Merlin itself — configuring, "
     "setting up, using, extending, or troubleshooting it — or when you need to understand your own features, "
-    "tools, or capabilities, the documentation at https://merlin-agent.aexagent.site/docs is your "
+    "tools, or capabilities, the documentation at https://merlin-agent.epinoiahorizon.com/docs is your "
     "authoritative reference and always holds the latest, most up-to-date information. The `merlin-agent` "
     "skill has the actual commands and proven workflows — load it with skill_view(name='merlin-agent') "
     "before configuring, modifying, or troubleshooting Merlin so you don't guess or invent workarounds."
@@ -183,7 +183,7 @@ MERLIN_AGENT_HELP_GUIDANCE = (
 MERLIN_AGENT_HELP_GUIDANCE_NO_SKILLS = (
     "You run on Merlin Agent (by AexAgent). When the user needs help with Merlin itself — configuring, "
     "setting up, using, extending, or troubleshooting it — or when you need to understand your own features, "
-    "tools, or capabilities, the documentation at https://merlin-agent.aexagent.site/docs is the "
+    "tools, or capabilities, the documentation at https://merlin-agent.epinoiahorizon.com/docs is the "
     "authoritative reference and always holds the latest, most up-to-date information. Point the user there "
     "(or read it yourself if you have a way to fetch web content)."
 )

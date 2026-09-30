@@ -1451,7 +1451,7 @@ export const ru = defineLocale({
       sshErrHostKey:
         'Ключ хоста ИЗМЕНИЛСЯ с последнего подключения. Убедитесь, что это ожидаемо, затем выполните ssh-keygen -R <host> и переподключитесь.',
       sshErrNotInstalled:
-        'Merlin не установлен на удалённой машине. Установите его там (curl -fsSL https://merlin-agent.aexagent.site/install.sh | sh) или задайте путь к Merlin.',
+        'Merlin не установлен на удалённой машине. Установите его там (curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | sh) или задайте путь к Merlin.',
       sshErrPlatform:
         'Неподдерживаемая удалённая платформа. SSH-режим Merlin Desktop поддерживает удалённые хосты Linux, macOS и Windows.',
       sshErrTimeout: 'SSH-соединение истекло. Хост может быть недоступен или «спит».',
