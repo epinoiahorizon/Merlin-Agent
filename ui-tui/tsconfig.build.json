@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@merlin/ink": ["src/types/merlin-ink.d.ts"]
+    }
+  }
+}
