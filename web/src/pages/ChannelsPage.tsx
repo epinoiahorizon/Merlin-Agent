@@ -16,15 +16,15 @@ import {
   X,
 } from "lucide-react";
 import * as QRCode from "qrcode";
-import { Badge } from "@atlas-research/ui/ui/components/badge";
-import { Button } from "@atlas-research/ui/ui/components/button";
-import { Card, CardContent } from "@atlas-research/ui/ui/components/card";
-import { Input } from "@atlas-research/ui/ui/components/input";
-import { Label } from "@atlas-research/ui/ui/components/label";
-import { Spinner } from "@atlas-research/ui/ui/components/spinner";
-import { Switch } from "@atlas-research/ui/ui/components/switch";
-import { Toast } from "@atlas-research/ui/ui/components/toast";
-import { useToast } from "@atlas-research/ui/hooks/use-toast";
+import { Badge } from "@nous-research/ui/ui/components/badge";
+import { Button } from "@nous-research/ui/ui/components/button";
+import { Card, CardContent } from "@nous-research/ui/ui/components/card";
+import { Input } from "@nous-research/ui/ui/components/input";
+import { Label } from "@nous-research/ui/ui/components/label";
+import { Spinner } from "@nous-research/ui/ui/components/spinner";
+import { Switch } from "@nous-research/ui/ui/components/switch";
+import { Toast } from "@nous-research/ui/ui/components/toast";
+import { useToast } from "@nous-research/ui/hooks/use-toast";
 import { api } from "@/lib/api";
 import type {
   MessagingPlatform,
