@@ -400,6 +400,56 @@ class CLITuiMixin:
             widgets.extend(self._grimoire_widgets())
         return widgets
 
+    def _register_extra_tui_keybindings(self, kb, *, input_area) -> None:
+        """Extension hook: wrapper CLIs add bindings to ``kb`` (``input_area`` is the main TextArea)."""
+
+    def _build_tui_layout_children(
+        self,
+        *,
+        sudo_widget,
+        secret_widget,
+        connection_widget=None,
+        approval_widget,
+        slash_confirm_widget=None,
+        clarify_widget,
+        model_picker_widget=None,
+        command_palette_widget=None,
+        spinner_widget=None,
+        spacer,
+        status_bar,
+        input_rule_top,
+        image_bar,
+        input_area,
+        input_rule_bot,
+        voice_status_bar,
+        completions_menu) -> list:
+        """Ordered children of the root ``HSplit``; override only for full control over ordering
+        (wrappers normally override ``_get_extra_tui_widgets`` instead)."""
+        ordered = [
+            Window(height=0),
+            sudo_widget,
+            secret_widget,
+            connection_widget,
+            approval_widget,
+            slash_confirm_widget,
+            clarify_widget,
+            model_picker_widget,
+            command_palette_widget,
+            spinner_widget,
+            spacer,
+            *self._get_extra_tui_widgets(),
+            getattr(self, "_pet_widget", None),
+            getattr(self, "_stash_panel_widget", None),
+            getattr(self, "_subagent_dock_widget", None),
+            status_bar,
+            input_rule_top,
+            image_bar,
+            input_area,
+            input_rule_bot,
+            voice_status_bar,
+            completions_menu]
+        return [item for item in ordered if item is not None]
+
     def _grimoire_widgets(self) -> list:
         """Arcane Grimoire chrome: SPELLBOOK STATUS block + QUICK SLOTS rail + footer."""
         try:
