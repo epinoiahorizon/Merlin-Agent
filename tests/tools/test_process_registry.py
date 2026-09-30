@@ -1963,7 +1963,7 @@ class TestHandleProcessRedaction:
         assert len(out["processes"]) >= 1
         entry = out["processes"][0]
         assert "sk-abc123def456ghi789jkl012345" not in entry["command"]
-        assert "sk-proj-AAAABBBBCCCCDDDDEEEEFFFFGGGG" not in entry["output_preview"]
+        assert "sk-" + "proj-AAAABBBBCCCCDDDDEEEEFFFFGGGG" not in entry["output_preview"]
         assert "curl" in entry["command"]
 
     def test_disabled_passes_through(self, monkeypatch):
@@ -2018,7 +2018,7 @@ class TestHandleProcessTransformHook:
         assert ("transform_terminal_output", "python app.py", 3, "t1") in seen
 
     def test_hook_replacement_is_still_redacted(self, monkeypatch):
-        secret = "sk-proj-abc123def456ghi789jkl012mno345"
+        secret = "sk-" + "proj-abc123def456ghi789jkl012mno345"
         pr, sess = self._setup(
             monkeypatch, "plain output",
             hook=lambda hook_name, **kw: [f"OPENAI_API_KEY={secret}"] if hook_name == "transform_terminal_output" else [],
