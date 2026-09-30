@@ -189,45 +189,22 @@ HERMES_AGENT_HELP_GUIDANCE_NO_SKILLS = (
 )
 
 
+# MERLIN_OS SEAL (Vector #3): memory guidance reduced to command-only text.
 # Keep the every-session memory scope even when task knowledge cannot be saved as a skill.
 def build_memory_guidance(
     memory_enabled: bool = True, profile_enabled: bool = True, *, skill_manage_available: bool = True,
 ) -> str:
-    """Adapt store and skill-write guidance without widening what belongs in memory."""
+    """MERLIN_OS SEAL: command-only memory guidance, regardless of store flags."""
     if not memory_enabled and not profile_enabled:
         return ""
     if memory_enabled:
-        frame = (
-            "You have persistent memory, carried across sessions and loaded "
-            "into each new session's context; the memory tool's schema defines what belongs there. "
+        return (
+            "MERLIN_OS SEAL: Memory tools are available. Use ONLY when explicitly commanded by "
+            "the King. Never save, search, or retrieve memory unilaterally."
         )
-    else:
-        frame = (
-            "You have a persistent user profile, carried across sessions and "
-            "loaded into each new session's context; save durable facts about the user with the "
-            "memory tool (target='user') — the built-in notes store is disabled, so never target='memory'. "
-        )
-    skill_routing = (
-        "Skills come first: when you learn something while doing a task — a "
-        "procedure, a pitfall, and the user's preferences and corrections "
-        "for that kind of work — record it in the skill you used or built "
-        "for the task (skill_manage), where it loads only when relevant. "
-        if skill_manage_available else
-        "Task-specific knowledge — procedures, pitfalls, and the user's preferences "
-        "and corrections for that kind of work — belongs in skills, not in memory, "
-        "even when skill writing is unavailable. "
-    )
-    return frame + skill_routing + (
-        "Memory is the narrow exception for facts that apply to EVERY "
-        "session regardless of task (who the user is, environment facts, "
-        "standing conventions with no task home); it has a hard character "
-        "budget, so when it fills, replace or consolidate stale entries "
-        "rather than skipping the save. Write entries as declarative facts, "
-        "not instructions to yourself: 'User prefers concise responses' ✓ — "
-        "'Always respond concisely' ✗ (imperative phrasing gets re-read as "
-        "a directive in later sessions and can override the user's current "
-        "request). A fact stale within a week belongs in session history; "
-        "procedures and workflows belong in skills."
+    return (
+        "MERLIN_OS SEAL: User profile tools are available. Write to the profile ONLY when "
+        "explicitly commanded by the King. Never save or modify user data unilaterally."
     )
 
 
@@ -236,8 +213,8 @@ MEMORY_GUIDANCE = build_memory_guidance(True, True)
 USER_PROFILE_GUIDANCE = build_memory_guidance(False, True)
 
 SESSION_SEARCH_GUIDANCE = (
-    "When the user references something from a past conversation or you suspect relevant cross-session "
-    "context exists, use session_search to recall it before asking them to repeat themselves."
+    "MERLIN_OS SEAL: Session search tool is available. Use ONLY when explicitly commanded by "
+    "the King. Never search past sessions proactively."
 )
 
 # The opening sentence is worded deliberately: Anthropic's server-side filter rejected the previous phrasing
@@ -257,11 +234,8 @@ SESSION_SEARCH_GUIDANCE = (
 # the compaction-pruning contract lives here — nothing else teaches it.
 SKILL_SAFETY_HEADING = "## Skill Safety Rule"
 SKILLS_GUIDANCE = (
-    "When you work out a non-trivial workflow, record it with skill_manage for future reuse.\n\n"
-    f"{SKILL_SAFETY_HEADING}\n"
-    "A skill placeholder containing `[SKILL_PRUNED]` lost its content in context compression and is inaccessible — "
-    "reload it with skill_view(name='...') before acting on anything that depends on it. After reloading, ignore any "
-    "remaining `[SKILL_PRUNED]` markers for that same skill; they are historical artifacts of earlier compactions."
+    "MERLIN_OS SEAL: Skill tools are available. Use ONLY when explicitly commanded by the King. "
+    "Never create, patch, or delete skills without direct orders."
 )
 
 KANBAN_GUIDANCE = (
@@ -1454,23 +1428,12 @@ def _render_skills_index(
         )
     return (
         "## Skills\n"
-        "Before replying, scan the skills below. If a skill matches or is even partially relevant to your "
-        "task, you MUST load it with skill_view(name) and follow its instructions. Err on the side of "
-        "loading — it is always better to have context you don't need than to miss critical steps, pitfalls, "
-        "or established workflows. Skills contain specialized knowledge — API endpoints, tool-specific "
-        "commands, and proven workflows that outperform general-purpose approaches. Load the skill "
-        f"even if you think you could handle the task with basic tools like {_basic_tools}. "
-        "Skills also encode the user's preferred approach, conventions, and quality standards for tasks like "
-        "code review, planning, and testing — load them even for tasks you already know how to do, because "
-        "the skill defines how it should be done here.\n"
-        "If a skill has issues, fix it with skill_manage(action='patch').\n"
-        "After difficult/iterative tasks, offer to save as a skill. If a skill you loaded was missing steps, "
-        "had wrong commands, or needed pitfalls you discovered, update it before finishing.\n"
+        "MERLIN_OS SEAL: Skills are available. Load a skill ONLY when explicitly commanded by the King. "
+        "Do not preload, do not scan, do not assume. The index below is for royal reference only.\n"
         "\n"
         "<available_skills>\n"
         + "\n".join(index_lines) + "\n"
-        "</available_skills>\n\n"
-        "Only proceed without loading a skill if genuinely none are relevant to the task."
+        "</available_skills>"
         + hidden_note
     )
 
@@ -1813,15 +1776,10 @@ def build_context_files_prompt(
     from HERMES_HOME is independent and always included unless *skip_soul* (already the identity slot).
     """
     cwd_path = Path(cwd if cwd is not None else os.getcwd()).resolve()
-    if _project_context_suppressed(cwd, cwd_path, allow_install_tree_fallback):
-        logger.warning(
-            "skipping project-context discovery: working-directory resolution fell back to the Hermes "
-            "install tree (%s) — set terminal.cwd to your project directory", cwd_path,
-        )
-        sections = []
-    else:
-        sections = [_load_hermes_md(cwd_path, context_length) or _load_agents_md(cwd_path, context_length)
-                    or _load_claude_md(cwd_path, context_length) or _load_cursorrules(cwd_path, context_length)]
+    # MERLIN_OS SEAL (Vector #6): Context file auto-loading (AGENTS.md / HERMES.md /
+    # CLAUDE.md / .cursorrules) is DISABLED. Discovery functions remain for potential
+    # future re-enable but are never called. SOUL.md handling below is untouched.
+    sections: list = []
     if not skip_soul:
         sections.append(load_soul_md(context_length, home_override=home_override))
     sections = [s for s in sections if s]
