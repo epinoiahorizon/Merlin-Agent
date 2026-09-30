@@ -447,18 +447,18 @@
         <div class="label">03 — Install</div>
         <h2>Sixty seconds to<br>a sovereign agent.</h2>
       </div>
-      <p>No accounts, no telemetry, no lock-in. One pip install, point it at any model you already pay for.</p>
+      <p>No accounts, no telemetry, no lock-in. One-line bootstrap clone, point it at any model you already pay for.</p>
     </div>
 
     <div class="install-grid">
       <div>
         <div class="cmds">
-          <div class="cmd"><span><span class="p">$</span> pip install git+https://github.com/epinoiahorizon/Merlin-Agent</span><span class="note">install straight from github</span></div>
-          <div class="cmd"><span><span class="p">$</span> merlin doctor</span><span class="note">windows non-admin? self-repairs PATH</span></div>
-          <div class="cmd"><span><span class="p">$</span> merlin setup</span><span class="note">provider · model · key — live-tested</span></div>
-          <div class="cmd"><span><span class="p">$</span> merlin</span><span class="note">full-screen session</span></div>
+          <div class="cmd"><span><span class="p">$</span> curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash</span><span class="note">linux · macOS · WSL2</span></div>
+          <div class="cmd"><span><span class="p">&gt;</span> iex (irm https://merlin-agent.epinoiahorizon.com/install.ps1)</span><span class="note">windows native (powershell)</span></div>
+          <div class="cmd"><span><span class="p">$</span> source ~/.bashrc</span><span class="note">reload shell (zsh: source ~/.zshrc)</span></div>
+          <div class="cmd"><span><span class="p">$</span> merlin</span><span class="note">installer runs the setup wizard on first pass</span></div>
         </div>
-        <div class="os-note">windows: .\scripts\install.ps1 · linux/macOS/wsl: ./scripts/install.sh</div>
+        <div class="os-note">clones the repo to your install dir · heavy deps handled by `merlin pm install` · android/termux: signed apt repo</div>
       </div>
       <div>
         <p style="color:var(--ink-dim); font-size:13.5px; max-width:460px;">
@@ -468,8 +468,8 @@
         </p>
         <p style="color:var(--ink-dim); font-size:13.5px; max-width:460px; margin-top:14px;">
           Home lives at <code style="font-family:var(--mono);font-size:.85em;color:var(--gold-bright)">%LOCALAPPDATA%\merlin</code>
-          (Windows) or <code style="font-family:var(--mono);font-size:.85em;color:var(--gold-bright)">~/.merlin</code> —
-          memory, skills, sessions, and trajectories in plain files you own.
+          (Windows native) or <code style="font-family:var(--mono);font-size:.85em;color:var(--gold-bright)">~/.merlin</code> (Linux/macOS/WSL2) —
+          memory, skills, sessions, and trajectories in plain files you own. Stuck on PATH after install? <code style="font-family:var(--mono);font-size:.85em;color:var(--gold-bright)">merlin doctor</code> self-repairs.
         </p>
       </div>
     </div>
@@ -491,12 +491,12 @@
       <div class="step">
         <div class="num">STEP 1</div>
         <h4>Install</h4>
-        <p><code>pip install git+https://github.com/epinoiahorizon/Merlin-Agent</code> — or run the platform installer: <code>.\scripts\install.ps1</code> (Windows) / <code>./scripts/install.sh</code> (Linux, macOS, WSL).</p>
+        <p><code>curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash</code> (Linux, macOS, WSL2) or <code>iex (irm https://merlin-agent.epinoiahorizon.com/install.ps1)</code> (Windows PowerShell). The bootstrap clones the repo, wires Python via <code>uv</code>, and publishes the <code>merlin</code> command.</p>
       </div>
       <div class="step">
         <div class="num">STEP 2</div>
         <h4>Connect</h4>
-        <p>Run <code>merlin setup</code>. Pick a provider from the numbered table (or <code>custom</code> for any OpenAI-compatible endpoint), paste your API key — the wizard <span style="color:var(--gold-bright)">tests the connection live</span> before saving.</p>
+        <p>The installer drops you into <code>merlin setup</code> on first pass (re-run any time). Pick a provider from the numbered table (or <code>custom</code> for any OpenAI-compatible endpoint), paste your API key — the wizard <span style="color:var(--gold-bright)">tests the connection live</span> before saving.</p>
       </div>
       <div class="step">
         <div class="num">STEP 3</div>
