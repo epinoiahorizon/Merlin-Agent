@@ -25,7 +25,7 @@ import {
 } from '@/store/updates'
 
 const RELEASE_NOTES_URL = 'https://github.com/epinoiahorizon/Merlin-Agent/releases'
-const INSTALLER_URL = 'https://merlin-agent.arthovlabs.com/'
+const INSTALLER_URL = 'https://merlin-agent.aexagent.site/'
 
 export type UpdateStatusTone = 'idle' | 'available' | 'error' | 'unsupported'
 

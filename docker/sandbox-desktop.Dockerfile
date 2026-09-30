@@ -5,9 +5,9 @@
 # Bot Screen, computer_use and the browser can live INSIDE the sandbox instead of
 # on the gateway host. No Merlin runtime in here; the gateway shells in.
 #
-#   docker build -f docker/sandbox-desktop.Dockerfile -t arthovlabs/merlin-sandbox:desktop .
+#   docker build -f docker/sandbox-desktop.Dockerfile -t aexagent/merlin-sandbox:desktop .
 #
-# Published as arthovlabs/merlin-sandbox:desktop by .github/workflows/sandbox-image.yml
+# Published as aexagent/merlin-sandbox:desktop by .github/workflows/sandbox-image.yml
 # on releases and manual dispatch only: it carries no Merlin code, so it does not track main.
 # The tag lives in the ARG so CI and a local build read one place; hadolint cannot
 # see through the substitution, hence the inline ignore.

@@ -117,7 +117,7 @@ const state = (overrides: Partial<SubscriptionStateResponse> = {}): Subscription
   role: 'OWNER',
   current: null,
   tiers: [],
-  portal_url: 'https://portal.arthovlabs.com/billing',
+  portal_url: 'https://portal.aexagent.site/billing',
   ...overrides
 })
 

@@ -36,7 +36,7 @@ _IN_NIX_BUILD = os.environ.get("MERLIN_NIX_BUILD") == "1"
 _BLOCK_MESSAGE = (
     "Building wheels or sdists for merlin-agent is not supported.\n"
     "Merlin is distributed via the shell installer, Docker image, or Nix.\n"
-    "See: https://merlin-agent.arthovlabs.com/docs/getting-started/installation\n"
+    "See: https://merlin-agent.aexagent.site/docs/getting-started/installation\n"
     "\n"
     "If you are developing, use an editable install instead:\n"
     "  source ./activate  # PowerShell: . .\\activate.ps1\n"

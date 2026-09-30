@@ -21,7 +21,7 @@ function makeFakeDesktop(version) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'msix-ident-'))
   fs.writeFileSync(
     path.join(dir, 'product-identity.cjs'),
-    "module.exports = { store: false, light: false, displayName: 'Merlin', appId: 'com.arthovlabs.merlin-bundled', channel: 'latest', artifactNamePascal: 'MerlinBundled', msixAppIdWithOrg: 'AtlasResearch.MerlinBundled' }\n"
+    "module.exports = { store: false, light: false, displayName: 'Merlin', appId: 'com.aexagent.merlin-bundled', channel: 'latest', artifactNamePascal: 'MerlinBundled', msixAppIdWithOrg: 'AtlasResearch.MerlinBundled' }\n"
   )
   fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'merlin-desktop', version }))
   return dir

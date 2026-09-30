@@ -8,7 +8,7 @@ from types import SimpleNamespace
 def _agent(tmp_path, monkeypatch):
     monkeypatch.setenv("MERLIN_HOME", str(tmp_path))
     from run_agent import AIAgent
-    return AIAgent(api_key="k", base_url="https://inference-api.arthovlabs.com/v1", provider="atlas",
+    return AIAgent(api_key="k", base_url="https://inference-api.aexagent.site/v1", provider="atlas",
                    api_mode="chat_completions", model="anthropic/claude-fable-5.1", session_id="t", platform="cli",
                    quiet_mode=True, skip_context_files=True, skip_memory=True, save_trajectories=False, enabled_toolsets=["file"])
 

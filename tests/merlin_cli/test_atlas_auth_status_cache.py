@@ -2,7 +2,7 @@
 
 The cache avoids re-validating Atlas credentials on every menu paint —
 `merlin tools` → "All Platforms" used to fire ~31 OAuth refresh POSTs
-against portal.arthovlabs.com during one render. The cache is keyed
+against portal.aexagent.site during one render. The cache is keyed
 on auth.json path + mtime so profile switches stay isolated while
 login/logout flows invalidate naturally; tests and other writers can
 also call invalidate_atlas_auth_status_cache().

@@ -17,8 +17,8 @@ use, web search, and 22 messaging platforms were absent from the index every
 LLM reads to learn what Merlin does.
 
 Both publish at:
-  https://merlin-agent.arthovlabs.com/docs/llms.txt
-  https://merlin-agent.arthovlabs.com/docs/llms-full.txt
+  https://merlin-agent.aexagent.site/docs/llms.txt
+  https://merlin-agent.aexagent.site/docs/llms-full.txt
 
 The `/docs/` prefix is not a mistake — Docusaurus serves `website/static/`
 at the `docs/` base path. Clients and IDE plugins that probe the classic
@@ -39,7 +39,7 @@ WEBSITE = SCRIPT_DIR.parent
 DOCS = WEBSITE / "docs"
 STATIC = WEBSITE / "static"
 
-SITE_BASE = "https://merlin-agent.arthovlabs.com/docs"
+SITE_BASE = "https://merlin-agent.aexagent.site/docs"
 
 # The product story: which pages lead, and in what order. Everything not named
 # here is still indexed — ABSORB decides where it lands — so this list is safe
@@ -295,7 +295,7 @@ def emit_llms_index() -> str:
     lines.append("# Merlin Agent")
     lines.append("")
     lines.append(
-        "> The self-improving AI agent built by Arthov Labs. A terminal-native "
+        "> The self-improving AI agent built by AexAgent. A terminal-native "
         "autonomous coding and task agent with persistent memory, agent-created skills, "
         "and a messaging gateway that lives on 21+ messaging platforms — 19 native to "
         "the gateway plus IRC and Microsoft Teams via plugins (Telegram, Discord, Slack, "
@@ -344,8 +344,8 @@ def emit_llms_full() -> str:
             "Started, Using Merlin, Features, Messaging, Integrations, Guides, "
             "Developer Guide, Reference, then everything else.\n"
         ),
-        "Canonical site: https://merlin-agent.arthovlabs.com/docs\n",
-        "Short index: https://merlin-agent.arthovlabs.com/docs/llms.txt\n",
+        "Canonical site: https://merlin-agent.aexagent.site/docs\n",
+        "Short index: https://merlin-agent.aexagent.site/docs/llms.txt\n",
         "\n---\n\n",
     ]
 

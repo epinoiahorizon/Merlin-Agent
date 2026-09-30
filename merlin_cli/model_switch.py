@@ -98,12 +98,12 @@ def _bare_custom_provider_def(current_base_url: str) -> Optional[ProviderDef]:
 # --- Non-agentic model warning
 
 _MERLIN_MODEL_WARNING = (
-    "Arthov Labs Merlin 3 & 4 models are NOT agentic and are not designed "
+    "AexAgent Merlin 3 & 4 models are NOT agentic and are not designed "
     "for use with Merlin Agent. They lack the tool-calling capabilities "
     "required for agent workflows. Consider using an agentic model instead "
     "(Claude, GPT, Gemini, DeepSeek, etc.).")
 
-# Match only the real Arthov Labs Merlin 3 / 4 chat families; a bare substring check
+# Match only the real AexAgent Merlin 3 / 4 chat families; a bare substring check
 # false-positived on tool-capable local Modelfiles like ``merlin-brain:qwen3-14b-ctx16k``.
 #   match:    epinoiahorizon/Merlin-3-Llama-3.1-70B, merlin-4-405b, openrouter/merlin3:70b
 #   no match: merlin-brain:qwen3-14b-ctx16k, qwen3:14b, claude-opus-4-6
@@ -1681,7 +1681,7 @@ def _atlas_api_mode(provider: str, model: str, api_key: str) -> str:
 _PROVIDER_API_MODE_OVERRIDES: dict[str, Any] = {
     **dict.fromkeys(("copilot", "github-copilot"), _copilot_api_mode),
     **dict.fromkeys(("opencode-zen", "opencode-go", "opencode"), _opencode_api_mode),
-    **dict.fromkeys(("atlas", "atlas-portal", "arthovlabs"), _atlas_api_mode)}
+    **dict.fromkeys(("atlas", "atlas-portal", "aexagent"), _atlas_api_mode)}
 
 
 def model_derived_api_mode(provider: str, model: str, api_key: str = "") -> Optional[str]:

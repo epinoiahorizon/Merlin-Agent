@@ -52,7 +52,7 @@ class TestResolveOpenaiAudioClientConfig:
         config = {"openai": {"api_key": "cfg-key", "base_url": "http://localhost:4003/v1"}}
         managed = SimpleNamespace(
             atlas_user_token="managed-token",
-            gateway_origin="https://openai-audio-gateway.arthovlabs.com",
+            gateway_origin="https://openai-audio-gateway.aexagent.site",
         )
 
         with patch.object(tts_tool, "_load_tts_config", return_value=config), \
@@ -61,7 +61,7 @@ class TestResolveOpenaiAudioClientConfig:
              patch.object(tts_tool_openai, "resolve_managed_tool_gateway", return_value=managed):
             assert tts_tool_openai._resolve_openai_audio_client_config() == (
                 "managed-token",
-                "https://openai-audio-gateway.arthovlabs.com/v1",
+                "https://openai-audio-gateway.aexagent.site/v1",
                 True,
             )
 

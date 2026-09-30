@@ -9,7 +9,7 @@ import pytest
 from merlin_cli import providers as _providers
 from merlin_cli import runtime_provider as rp
 
-PORTAL = "https://inference-api.arthovlabs.com/v1"
+PORTAL = "https://inference-api.aexagent.site/v1"
 
 
 def _cfg(tmp_path, body: str, monkeypatch):

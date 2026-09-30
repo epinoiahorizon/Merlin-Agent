@@ -14,7 +14,7 @@ from tools.tool_backend_helpers import managed_atlas_tools_enabled
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_TOOL_GATEWAY_DOMAIN = "arthovlabs.com"
+_DEFAULT_TOOL_GATEWAY_DOMAIN = "aexagent.site"
 _DEFAULT_TOOL_GATEWAY_SCHEME = "https"
 _ATLAS_ACCESS_TOKEN_REFRESH_SKEW_SECONDS = 120
 

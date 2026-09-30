@@ -147,7 +147,7 @@ def test_staging_portal_does_not_read_productions_mirror(
     )
 
     cold_process()
-    monkeypatch.setenv("ATLAS_INFERENCE_BASE_URL", "https://staging.arthovlabs.com")
+    monkeypatch.setenv("ATLAS_INFERENCE_BASE_URL", "https://staging.aexagent.site")
     monkeypatch.setattr(models_mod, "_urlopen_model_catalog_request", offline)
 
     assert models_reasoning_caps.atlas_model_reasoning_capabilities(
@@ -199,7 +199,7 @@ def test_pricing_fetch_seeds_the_mirror(cold_process, offline, monkeypatch):
         lambda req, *, timeout: _response(_CATALOG),
     )
     models_pricing.fetch_models_with_pricing(
-        base_url="https://inference-api.arthovlabs.com"
+        base_url="https://inference-api.aexagent.site"
     )
 
     cold_process()

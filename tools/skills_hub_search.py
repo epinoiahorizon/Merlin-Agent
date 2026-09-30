@@ -24,7 +24,7 @@ from tools.skills_hub_sources import BrowseShSource, LobeHubSource, UrlSource, W
 # Log-record parity with the origin module.
 logger = logging.getLogger("tools.skills_hub")
 
-MERLIN_INDEX_URL = "https://merlin-agent.arthovlabs.com/docs/api/skills-index.json"
+MERLIN_INDEX_URL = "https://merlin-agent.aexagent.site/docs/api/skills-index.json"
 MERLIN_INDEX_TTL = 6 * 3600  # 6 hours
 
 

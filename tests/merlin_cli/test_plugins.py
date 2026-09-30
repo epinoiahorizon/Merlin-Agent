@@ -170,7 +170,7 @@ class TestPluginDiscovery:
             json.dumps({
                 "$schema": PLUGIN_SCHEMA_V1,
                 "name": "portable.test",
-                "extensions": {"com.arthovlabs.merlin": {"servers": {"worker": {
+                "extensions": {"com.aexagent.merlin": {"servers": {"worker": {
                     "app": {"darwin": {"presence": "executable", "location": str(app)}},
                     "requires": {"app": True},
                     "liveness": {"kind": "static"},

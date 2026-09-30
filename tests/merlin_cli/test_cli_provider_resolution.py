@@ -476,7 +476,7 @@ def test_model_flow_atlas_does_not_restore_stale_custom_api_key(tmp_path, monkey
     monkeypatch.setattr(
         "merlin_cli.auth.resolve_atlas_runtime_credentials",
         lambda *args, **kwargs: {
-            "base_url": "https://inference-api.arthovlabs.com/v1",
+            "base_url": "https://inference-api.aexagent.site/v1",
             "api_key": "atlas-key",
         },
     )
@@ -505,7 +505,7 @@ def test_model_flow_atlas_does_not_restore_stale_custom_api_key(tmp_path, monkey
     model = config.get("model")
     assert model["provider"] == "atlas"
     assert model["default"] == selected_model
-    assert model["base_url"] == "https://inference-api.arthovlabs.com/v1"
+    assert model["base_url"] == "https://inference-api.aexagent.site/v1"
     assert "api_key" not in model
     assert "api_mode" not in model
 
@@ -784,8 +784,8 @@ def test_cmd_model_forwards_atlas_login_tls_options(monkeypatch):
 
     merlin_main.cmd_model(
         SimpleNamespace(
-            portal_url="https://portal.arthovlabs.com",
-            inference_url="https://inference.arthovlabs.com/v1",
+            portal_url="https://portal.aexagent.site",
+            inference_url="https://inference.aexagent.site/v1",
             client_id="merlin-local",
             scope="openid profile",
             no_browser=True,
@@ -796,8 +796,8 @@ def test_cmd_model_forwards_atlas_login_tls_options(monkeypatch):
     )
 
     assert captured == {
-        "portal_url": "https://portal.arthovlabs.com",
-        "inference_url": "https://inference.arthovlabs.com/v1",
+        "portal_url": "https://portal.aexagent.site",
+        "inference_url": "https://inference.aexagent.site/v1",
         "client_id": "merlin-local",
         "scope": "openid profile",
         "no_browser": True,

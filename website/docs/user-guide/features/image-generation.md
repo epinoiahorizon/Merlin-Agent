@@ -30,7 +30,7 @@ Prices are FAL's pricing at time of writing; check [fal.ai](https://fal.ai/) for
 ## Setup
 
 :::tip Atlas Subscribers
-If you have a paid [Atlas Portal](https://portal.arthovlabs.com) subscription, you can use image generation through the **[Tool Gateway](tool-gateway.md)** without a FAL API key. Your model selection persists across both paths. New installs can run `merlin setup --portal` to log in and turn on every gateway tool at once; existing installs can pick **Atlas Subscription** as the image-gen backend via `merlin tools`.
+If you have a paid [Atlas Portal](https://portal.aexagent.site) subscription, you can use image generation through the **[Tool Gateway](tool-gateway.md)** without a FAL API key. Your model selection persists across both paths. New installs can run `merlin setup --portal` to log in and turn on every gateway tool at once; existing installs can pick **Atlas Subscription** as the image-gen backend via `merlin tools`.
 
 The **Atlas Subscription** row is the only managed row. Its model picker spans every gateway the subscription runs — the FAL catalog above, native **Krea 2** (`krea-2-medium`, `krea-2-large`, `krea-2-medium-turbo`) and any Atlas Portal image models — each model listed once, and the model you pick decides which gateway serves the request. Free tool-pool accounts see the FAL models only; Krea and Portal models are paid-subscription.
 

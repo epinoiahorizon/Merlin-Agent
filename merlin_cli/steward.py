@@ -41,7 +41,7 @@ STEWARD_UPDATE_MESSAGES = {
         "\n"
         "Manage updates from within the desktop app.\n"
         "Prefer a self-managed source install? See:\n"
-        "  https://merlin-agent.arthovlabs.com/docs/user-guide/switching-to-source"
+        "  https://merlin-agent.aexagent.site/docs/user-guide/switching-to-source"
     ),
     STEWARD_NIX: (
         "✗ This Merlin runs from the Nix store.\n"
@@ -90,7 +90,7 @@ _STEWARD_UNINSTALL_MESSAGES = {
         "✗ This Merlin runs from a Docker image.\n"
         "\n"
         "There is no code to uninstall — remove the container and image:\n"
-        "  docker rm <container> && docker rmi arthovlabs/merlin-agent\n"
+        "  docker rm <container> && docker rmi aexagent/merlin-agent\n"
         "\n" +
         _STEWARD_DELETE_DATA_PREAMBLE +
         _STEWARD_DELETE_DATA_CLI

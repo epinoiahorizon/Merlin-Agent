@@ -5,7 +5,7 @@ Prior to this check, the warning fired on any model whose name contained
 local Modelfiles such as ``merlin-brain:qwen3-14b-ctx16k`` — a tool-capable
 Qwen3 wrapper that happens to live under the "merlin" tag namespace.
 
-``is_atlas_merlin_non_agentic`` should only match the actual Arthov Labs
+``is_atlas_merlin_non_agentic`` should only match the actual AexAgent
 Merlin-3 / Merlin-4 chat family.
 """
 
@@ -31,7 +31,7 @@ from merlin_cli.model_switch import (
         "merlin-4-405b",
         "merlin_4_70b",
         "openrouter/merlin3:70b",
-        "openrouter/arthovlabs/merlin-4-405b",
+        "openrouter/aexagent/merlin-4-405b",
         "AtlasResearch/Merlin3",
         "merlin-3.1",
     ],

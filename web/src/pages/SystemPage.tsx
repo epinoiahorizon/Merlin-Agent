@@ -1049,7 +1049,7 @@ export default function SystemPage() {
                 </span>
               )}
               <a
-                href={portal?.subscription_url || "https://portal.arthovlabs.com/manage-subscription"}
+                href={portal?.subscription_url || "https://portal.aexagent.site/manage-subscription"}
                 target="_blank"
                 rel="noreferrer"
                 className="ml-auto text-xs text-primary underline"

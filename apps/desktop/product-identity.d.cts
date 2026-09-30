@@ -5,7 +5,7 @@ interface ProductIdentity {
   store: boolean
   /** Display name. e.g. "Merlin Light" */
   displayName: string
-  /** OS-level app identity. e.g. "com.arthovlabs.merlin-light" */
+  /** OS-level app identity. e.g. "com.aexagent.merlin-light" */
   appId: string
   /** app name in pascal case. e.g. "MerlinLight" */
   appNamePascal: string

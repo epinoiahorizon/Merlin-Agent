@@ -462,7 +462,7 @@ _ROUTING_FILTER_DEFAULTS = (
     ("provider_require_parameters", False), ("provider_data_collection", ""),
 )
 
-_ATLAS_PROVIDERS = frozenset({"atlas", "atlas-portal", "arthovlabs"})
+_ATLAS_PROVIDERS = frozenset({"atlas", "atlas-portal", "aexagent"})
 
 
 def _resolve_child_fallback_chain(parent_agent, routing_cfg: Any, pinned: bool) -> Optional[List[Dict[str, Any]]]:

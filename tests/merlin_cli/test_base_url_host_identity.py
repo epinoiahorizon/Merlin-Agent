@@ -85,10 +85,10 @@ def test_local_endpoint_hostname_detection():
 def test_atlas_portal_host_detection():
     from utils import base_url_host_matches
 
-    assert base_url_host_matches("https://inference-api.arthovlabs.com/v1", "arthovlabs.com")
-    assert base_url_host_matches("https://portal.arthovlabs.com", "arthovlabs.com")
-    assert not base_url_host_matches("https://arthovlabs.com.evil.io/v1", "arthovlabs.com")
-    assert not base_url_host_matches("https://proxy.example/arthovlabs.com/v1", "arthovlabs.com")
+    assert base_url_host_matches("https://inference-api.aexagent.site/v1", "aexagent.site")
+    assert base_url_host_matches("https://portal.aexagent.site", "aexagent.site")
+    assert not base_url_host_matches("https://aexagent.site.evil.io/v1", "aexagent.site")
+    assert not base_url_host_matches("https://proxy.example/aexagent.site/v1", "aexagent.site")
 
 
 # ── Widened class coverage (follow-up to #85737) ─────────────────────────────

@@ -14,7 +14,7 @@ from urllib.parse import urlsplit
 from agent.skill_utils import yaml_load
 from merlin_platform.declaration import Declaration, parse_declaration
 
-_MERLIN_EXTENSION = "com.arthovlabs.merlin"
+_MERLIN_EXTENSION = "com.aexagent.merlin"
 _LIVENESS: Dict[str, dict] = {}
 
 

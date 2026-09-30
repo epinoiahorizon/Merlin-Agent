@@ -70,7 +70,7 @@ class TestCollectInventory:
         monkeypatch.setattr("merlin_cli.config.detect_install_method", lambda *a, **k: "docker")
         monkeypatch.setattr(
             "merlin_cli.config.recommended_update_command_for_method",
-            lambda m: "docker pull arthovlabs/merlin-agent:latest",
+            lambda m: "docker pull aexagent/merlin-agent:latest",
         )
         plan = ui.collect_runtime_inventory()
         assert plan.install_method == "docker"

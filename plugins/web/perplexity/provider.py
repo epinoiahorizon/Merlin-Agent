@@ -52,7 +52,7 @@ _KEY_URL = "https://www.perplexity.ai/account/api"
 # OpenCode, plus Perplexity's integration header. No per-user identifier and no separate
 # request; the call already carries the user's own API key.
 _HEADERS = {
-    "HTTP-Referer": "https://merlin-agent.arthovlabs.com",
+    "HTTP-Referer": "https://merlin-agent.aexagent.site",
     "X-Title": "Merlin Agent",
     "User-Agent": f"MerlinAgent/{get_version_info().base_version}",
     "X-Pplx-Integration": "merlin-agent",

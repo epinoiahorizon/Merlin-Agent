@@ -744,7 +744,7 @@
     "date": "2026",
     "category": "integrations",
     "headline": "Hindsight Cloud memory, connected",
-    "quote": "Connect your Arthov Labs Merlin Agent to Hindsight Cloud, the best-performing AI Agent memory, in a few easy steps!",
+    "quote": "Connect your AexAgent Merlin Agent to Hindsight Cloud, the best-performing AI Agent memory, in a few easy steps!",
     "size": "sm"
   },
   {
@@ -1689,7 +1689,7 @@
     "date": "2026-04-04",
     "category": "privacy",
     "headline": "I'm using Merlin — same applies to all agents, sandbox it",
-    "quote": "I'm using Merlin. The same applies to all agents, don't give it free reign over all your stuff. Run it within a sandbox. https://github.com/arthovlabs/merlin-agent",
+    "quote": "I'm using Merlin. The same applies to all agents, don't give it free reign over all your stuff. Run it within a sandbox. https://github.com/aexagent/merlin-agent",
     "size": "sm",
     "id": "hn-flere-imsaho-im-using-merlin"
   },
@@ -1712,7 +1712,7 @@
     "date": "2026",
     "category": "integrations",
     "headline": "Firecrawl for scrape/search/browse",
-    "quote": "Merlin Agent by Arthov Labs can now scrape, search, and interact with the web using Firecrawl. Enable it during setup to give Merlin the ability.",
+    "quote": "Merlin Agent by AexAgent can now scrape, search, and interact with the web using Firecrawl. Enable it during setup to give Merlin the ability.",
     "size": "sm"
   },
   {
@@ -2522,7 +2522,7 @@
     "id": "reddit-windows-wrapper",
     "source": "reddit",
     "author": "r/SideProject",
-    "url": "https://www.reddit.com/r/SideProject/comments/1sdaojm/i_took_the_arthovlabs_merlin_agent_and_built_a/",
+    "url": "https://www.reddit.com/r/SideProject/comments/1sdaojm/i_took_the_aexagent_merlin_agent_and_built_a/",
     "date": "2026",
     "category": "meta",
     "headline": "Native Windows app wrapper for Merlin",
@@ -2581,7 +2581,7 @@
     "date": "2026",
     "category": "integrations",
     "headline": "Vessel Browser: agent-native browser born at the Merlin hackathon",
-    "quote": "I recently participated in Arthov Labs's Merlin Agent Hackathon, which is where this project was born. Every tool out there assumes a human operator with automation bolted on. I wanted to flip that — make the agent the primary driver and give the human a supervisory role.",
+    "quote": "I recently participated in AexAgent's Merlin Agent Hackathon, which is where this project was born. Every tool out there assumes a human operator with automation bolted on. I wanted to flip that — make the agent the primary driver and give the human a supervisory role.",
     "size": "md"
   },
   {
@@ -2896,7 +2896,7 @@
     "id": "reddit-hermify",
     "source": "reddit",
     "author": "r/vibecoding",
-    "url": "https://www.reddit.com/r/vibecoding/comments/1slhhj1/i_took_the_arthovlabs_merlin_agent_and_built_a/",
+    "url": "https://www.reddit.com/r/vibecoding/comments/1slhhj1/i_took_the_aexagent_merlin_agent_and_built_a/",
     "date": "2026",
     "category": "meta",
     "headline": "Hermify: managed hosting for Merlin",

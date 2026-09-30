@@ -433,7 +433,7 @@ Inspect Atlas Portal auth, Tool Gateway routing, and reach the subscription page
 | Subcommand | Description |
 |------------|-------------|
 | `status` (default) | Portal auth state + per-tool Tool Gateway routing summary. Also shown when no subcommand is given. |
-| `open` | Open `portal.arthovlabs.com/manage-subscription` in your default browser. |
+| `open` | Open `portal.aexagent.site/manage-subscription` in your default browser. |
 | `tools` | List every Tool Gateway partner (Firecrawl, FAL, OpenAI TTS, Browser Use, Modal) and which are routed via Atlas. |
 
 For configuration of the gateway itself, see [Tool Gateway](../user-guide/features/tool-gateway.md). For the one-shot setup path, see `merlin setup --portal` above.

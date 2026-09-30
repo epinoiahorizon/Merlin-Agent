@@ -138,7 +138,7 @@ class TestFallbackChain:
     releases (opus 4.8, etc.) never reach the picker.
     """
 
-    PRIMARY = "https://merlin-agent.arthovlabs.com/docs/api/model-catalog.json"
+    PRIMARY = "https://merlin-agent.aexagent.site/docs/api/model-catalog.json"
     FALLBACK = (
         "https://raw.githubusercontent.com/epinoiahorizon/Merlin-Agent"
         "/main/website/static/api/model-catalog.json"

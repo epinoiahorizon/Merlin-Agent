@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/releases"><img src="https://img.shields.io/badge/Download-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-FFD700?style=for-the-badge" alt="Download"></a>
-  <a href="https://merlin-agent.arthovlabs.com/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.arthovlabs.com-FFD700?style=for-the-badge" alt="Documentation"></a>
+  <a href="https://merlin-agent.aexagent.site/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.aexagent.site-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
 </p>
@@ -41,7 +41,7 @@ It builds and launches the GUI against your existing install — same config, ke
 
 ### Prebuilt installers
 
-Prebuilt installers are built and distributed via [the Merlin Desktop website.](https://merlin-agent.arthovlabs.com/).
+Prebuilt installers are built and distributed via [the Merlin Desktop website.](https://merlin-agent.aexagent.site/).
 
 ---
 
@@ -239,7 +239,7 @@ rm "$HOME/.merlin/merlin-agent/.merlin-bootstrap-complete"
 # Rebuild a broken Python venv
 rm -rf "$HOME/.merlin/merlin-agent/venv"
 # Reset a stuck macOS microphone prompt (macOS only)
-tccutil reset Microphone com.arthovlabs.merlin
+tccutil reset Microphone com.aexagent.merlin
 ```
 
 **Windows (PowerShell):**
@@ -258,7 +258,7 @@ Remove-Item -Recurse -Force "$env:LOCALAPPDATA\merlin\merlin-agent\venv"
 ## Community
 
 - 💬 [Discord](https://discord.gg/merlin-agent)
-- 📖 [Documentation](https://merlin-agent.arthovlabs.com/docs/)
+- 📖 [Documentation](https://merlin-agent.aexagent.site/docs/)
 - 🐛 [Issues](https://github.com/epinoiahorizon/Merlin-Agent/issues)
 
 ---

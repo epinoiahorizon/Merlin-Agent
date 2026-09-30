@@ -502,7 +502,7 @@ def _merge_atlas_portal_messages_extra_body(agent, anthropic_kwargs: dict) -> di
     """Merge Portal ``tags`` / ``session_id`` onto an Anthropic Messages kwargs dict.
     The Atlas profile is only consulted by the OpenAI-wire transport; ``session_id``
     only — never ``provider_preferences`` (an OpenAI-wire routing object)."""
-    if getattr(agent, "provider", None) not in {"atlas", "atlas-portal", "arthovlabs"}:
+    if getattr(agent, "provider", None) not in {"atlas", "atlas-portal", "aexagent"}:
         return anthropic_kwargs
     try:
         from providers import get_provider_profile
@@ -1515,7 +1515,7 @@ def _build_chat_completions_kwargs(agent, api_messages, tools_for_api, reasoning
         **_common,
         model_lower=(agent.model or "").lower(),
         is_openrouter=_is_or,
-        is_atlas=base_url_host_matches(_host, "arthovlabs.com"),
+        is_atlas=base_url_host_matches(_host, "aexagent.site"),
         is_qwen_portal=_is_qwen,
         is_github_models=_is_gh,
         is_nvidia_nim=base_url_host_matches(_host, "integrate.api.nvidia.com"),
@@ -1875,7 +1875,7 @@ def _fallback_api_mode_resolved(agent, fb_provider: str, fb_model: str, fb_base_
         # (minimax, qwen) and chat_completions models behind one provider; the primary /model path
         # already re-derives per model — the fallback wire must agree (#102148).
         return opencode_model_api_mode(opencode_family, fb_model)
-    if fb_provider in {"atlas", "atlas-portal", "arthovlabs"}:
+    if fb_provider in {"atlas", "atlas-portal", "aexagent"}:
         # Portal is dual-wire: anthropic/* must land on /v1/messages (the swap rebuilds the native client).
         from merlin_cli.providers import atlas_api_mode
         return atlas_api_mode(fb_model)

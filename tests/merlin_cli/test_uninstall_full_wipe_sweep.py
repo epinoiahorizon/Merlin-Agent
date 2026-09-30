@@ -33,7 +33,7 @@ def test_remove_dashboard_launchd_jobs_boots_out_and_deletes_matching_plists(
                     agents_dir)
     serve = job("com.user.merlin-serve", ["merlin", "serve"], agents_dir)
     unrelated = job("com.user.keep", ["/usr/bin/say", "hello"], agents_dir)
-    daemon = job("io.arthovlabs.merlin-agent.dashboard", ["merlin_cli.main", "dashboard"],
+    daemon = job("io.aexagent.merlin-agent.dashboard", ["merlin_cli.main", "dashboard"],
                  daemons_dir)
 
     booted = []
@@ -79,8 +79,8 @@ def test_full_uninstall_sweeps_macos_caches_and_dashboard_launchd(monkeypatch, t
 
     removed_caches, removed_jobs = [], []
     cache_dirs = [tmp_path / "caches" / name for name in
-                  ("Merlin", "com.arthovlabs.merlin", "merlin-setup",
-                   "com.arthovlabs.merlin.setup")]
+                  ("Merlin", "com.aexagent.merlin", "merlin-setup",
+                   "com.aexagent.merlin.setup")]
     for d in cache_dirs:
         d.mkdir(parents=True)
         (d / "Cache").write_text("x", encoding="utf-8")

@@ -555,8 +555,8 @@ def test_publish_attempt_writes_the_receipt_retargets_and_copies_no_bytes(tmp_pa
         if argv[:3] == ["docker", "buildx", "imagetools"]:
             inspected_images.append(argv[4])
             assert argv[4] in {
-                "arthovlabs/merlin-agent:rc.2-v1.2.3",
-                "arthovlabs/merlin-agent:rc.2-v1.2.3-desktop",
+                "aexagent/merlin-agent:rc.2-v1.2.3",
+                "aexagent/merlin-agent:rc.2-v1.2.3-desktop",
             }
             return json.dumps(docker_desktop_digest if argv[4].endswith("-desktop") else docker_digest)
         if argv[:3] == ["gh", "api", "--method"]:
@@ -594,8 +594,8 @@ def test_publish_attempt_writes_the_receipt_retargets_and_copies_no_bytes(tmp_pa
     assert receipt["candidateManifestSha256"] == manifest_digest
     assert receipt["dockerManifestDigest"] == docker_digest
     assert inspected_images == [
-        "arthovlabs/merlin-agent:rc.2-v1.2.3",
-        "arthovlabs/merlin-agent:rc.2-v1.2.3-desktop",
+        "aexagent/merlin-agent:rc.2-v1.2.3",
+        "aexagent/merlin-agent:rc.2-v1.2.3-desktop",
     ]
     assert receipt["releaseId"] == 42
     remote = subprocess.check_output(

@@ -1629,7 +1629,7 @@ def _plugin_server_rows(
     if not portable or plugin_dir is None:
         return []
     package = _tools_mod("merlin_cli.agent_plugins").load_agent_plugin(plugin_dir, plugin_dir)
-    namespace = package.manifest.get("extensions", {}).get("com.arthovlabs.merlin", {})
+    namespace = package.manifest.get("extensions", {}).get("com.aexagent.merlin", {})
     declared = namespace.get("servers", {})
     if not isinstance(declared, dict):
         return []

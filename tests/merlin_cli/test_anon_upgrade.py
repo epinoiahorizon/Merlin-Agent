@@ -19,8 +19,8 @@ import pytest
 from merlin_cli import anon_auth
 from merlin_cli.auth import _auth_file_path, _load_auth_store
 
-WELCOME = "https://welcome-api.arthovlabs.com/v1"
-INFERENCE = "https://inference-api.arthovlabs.com/v1"
+WELCOME = "https://welcome-api.aexagent.site/v1"
+INFERENCE = "https://inference-api.aexagent.site/v1"
 PORTAL = "https://portal.example.test"
 REFRESH_TOKEN = "rt-upgraded-1"
 EMAIL = "sid@example.test"

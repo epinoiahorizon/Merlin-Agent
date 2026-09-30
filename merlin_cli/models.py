@@ -375,7 +375,7 @@ def fetch_atlas_recommended_models(
     process restarts. ``force_refresh`` bypasses both caches. Stale disk data remains a fallback
     on live failure; reading it never renews its freshness.
     """
-    base = (portal_base_url or "https://portal.arthovlabs.com").rstrip("/")
+    base = (portal_base_url or "https://portal.aexagent.site").rstrip("/")
     now = time.monotonic()
     cache_key = (_pricing_profile_key(), base)
     cached = _atlas_recommended_cache.get(cache_key)
@@ -412,7 +412,7 @@ def _resolve_atlas_portal_url() -> str:
         portal = str(state.get("portal_base_url") or "").strip()
         return (portal or str(DEFAULT_ATLAS_PORTAL_URL)).rstrip("/")
     except Exception:
-        return "https://portal.arthovlabs.com"
+        return "https://portal.aexagent.site"
 
 
 def _extract_model_name(entry: Any) -> Optional[str]:

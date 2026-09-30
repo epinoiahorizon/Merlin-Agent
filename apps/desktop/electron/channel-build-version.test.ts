@@ -29,7 +29,7 @@ function request(sequence: number = 65536, token: string = 'ab12cd34ef56ab78'): 
     identity: {
       token,
       displayName: 'Merlin no-registry-needed',
-      appId: `com.arthovlabs.merlin-channel-${token}`,
+      appId: `com.aexagent.merlin-channel-${token}`,
       appNamePascal: `MerlinChannel${token}`,
       artifactNamePascal: `MerlinChannel${token}`,
       cliName: 'merlin-no-registry-needed',

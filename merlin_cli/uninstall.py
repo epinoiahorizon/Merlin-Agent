@@ -295,12 +295,12 @@ def _remove_systemd_gateway() -> bool:
 
 
 # Both gateway LaunchAgent naming schemes: the current ``ai.merlin.gateway*``
-# label and the ``io.arthovlabs.merlin-agent.gateway*`` label older builds
+# label and the ``io.aexagent.merlin-agent.gateway*`` label older builds
 # installed. An uninstall must sweep BOTH — a stale agent keeps respawning the
 # gateway after the code tree is gone (#62209).
 _LAUNCHD_GATEWAY_PLIST_PATTERNS = (
     "ai.merlin.gateway*.plist",
-    "io.arthovlabs.merlin-agent.gateway*.plist",
+    "io.aexagent.merlin-agent.gateway*.plist",
 )
 
 
@@ -915,9 +915,9 @@ def _macos_cache_leftover_dirs() -> "list[Path]":
     caches = Path.home() / "Library" / "Caches"
     return [
         caches / "Merlin",
-        caches / "com.arthovlabs.merlin",
+        caches / "com.aexagent.merlin",
         caches / "merlin-setup",
-        caches / "com.arthovlabs.merlin.setup",
+        caches / "com.aexagent.merlin.setup",
     ]
 
 
@@ -1134,8 +1134,8 @@ def _perform_uninstall(
 
 
 _REINSTALL_HINT = {
-    True: "  iex (irm https://merlin-agent.arthovlabs.com/install.ps1)",
-    False: "  curl -fsSL https://merlin-agent.arthovlabs.com/install.sh | bash"}
+    True: "  iex (irm https://merlin-agent.aexagent.site/install.ps1)",
+    False: "  curl -fsSL https://merlin-agent.aexagent.site/install.sh | bash"}
 # windows -> [(line, color or None)]
 _RELOAD_HINT = {
     True: [("Open a new terminal (PowerShell / Windows Terminal) to pick up", Colors.YELLOW),

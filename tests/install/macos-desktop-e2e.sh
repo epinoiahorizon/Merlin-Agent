@@ -49,7 +49,7 @@ PHASE="all"
 UPDATE_METHOD=""
 INSTALL_REF=""
 UPDATE_REF=""
-DMG_URL="https://merlin-assets.arthovlabs.com/Merlin-Setup.dmg"
+DMG_URL="https://merlin-assets.aexagent.site/Merlin-Setup.dmg"
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --phase)

@@ -254,10 +254,10 @@ def test_agent_without_session_id_falls_back_to_prior_behavior(monkeypatch):
 
 # ── background seed: the pricing warm the free-model gate depends on ─────────
 
-_ATLAS_BASE = "https://inference-api.arthovlabs.com/v1"
+_ATLAS_BASE = "https://inference-api.aexagent.site/v1"
 # One subscription-billed row, keyed on the pre-/v1 root the picker caches under.
 _SUBSCRIPTION_CATALOG = {
-    "https://inference-api.arthovlabs.com": {
+    "https://inference-api.aexagent.site": {
         "openai/gpt-5.6-luna": {
             "prompt": "0.0000002000", "completion": "0.0000012000", "billing_mode": "subscription",
         },

@@ -78,7 +78,7 @@ def _classify(exc: BaseException, rules: Sequence[_Rule], other: str) -> str:
 
 
 def sign_in_failure_lines(
-    exc: BaseException, *, service_host: str = "portal.arthovlabs.com", retry_command: str = "merlin portal",
+    exc: BaseException, *, service_host: str = "portal.aexagent.site", retry_command: str = "merlin portal",
 ) -> list:
     """Lines to print when a device-code / browser sign-in fails for any non-timeout reason."""
     from merlin_cli.observability.shared_metrics_setup import note_sign_in_failure

@@ -35,7 +35,7 @@ from tests.fakes.providers.catalog_oauth import ATLAS_INVOKE_SCOPE, OAuthFake, m
 pytestmark = pytest.mark.skipif(sys.platform == "win32", reason="POSIX harness")
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-PROD_ATLAS_INFERENCE = "https://inference-api.arthovlabs.com/v1"
+PROD_ATLAS_INFERENCE = "https://inference-api.aexagent.site/v1"
 TURN_TIMEOUT = 120.0
 # Public, credential-free model-metadata catalog (pricing/context lookups); never carries a vendor token.
 CREDENTIAL_FREE_HOSTS = frozenset({"models.dev:443"})
@@ -46,7 +46,7 @@ KNOWN: dict[str, Known] = {
         r"^device poll gap \d+\.\d+s < server interval",
         "#121163 Atlas device-code login polls at 1s, ignoring the server's interval"),
     "atlas_401_retry_route": Known(
-        r"^401 recovery retry left ATLAS_INFERENCE_BASE_URL: egress to \[[^\]]*'inference-api\.arthovlabs\.com:443'",
+        r"^401 recovery retry left ATLAS_INFERENCE_BASE_URL: egress to \[[^\]]*'inference-api\.aexagent\.com:443'",
         "#121323 Atlas 401 pool recovery retries on the stored production host, "
         "dropping the ATLAS_INFERENCE_BASE_URL override"),
 }

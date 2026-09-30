@@ -21,7 +21,7 @@ def _assert_merlin_identity_headers(headers):
     plus Perplexity's integration header."""
     from merlin_cli.version_info import get_version_info
 
-    assert headers["HTTP-Referer"] == "https://merlin-agent.arthovlabs.com"
+    assert headers["HTTP-Referer"] == "https://merlin-agent.aexagent.site"
     assert headers["X-Title"] == "Merlin Agent"
     assert headers["User-Agent"] == f"MerlinAgent/{get_version_info().base_version}"
     assert headers["X-Pplx-Integration"] == "merlin-agent"

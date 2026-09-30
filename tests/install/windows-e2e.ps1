@@ -109,7 +109,7 @@ param(
 
     [string]$WorkRoot = $(if ($env:MERLIN_E2E_WORKROOT) { $env:MERLIN_E2E_WORKROOT } else { Join-Path $env:TEMP "merlin-desktop-gui-e2e" }),
 
-    [string]$SetupExeUrl = "https://merlin-assets.arthovlabs.com/Merlin-Setup.exe",
+    [string]$SetupExeUrl = "https://merlin-assets.aexagent.site/Merlin-Setup.exe",
 
     # Driver dependencies come from the current checkout lockfile.
     [string]$DriverNode = $env:MERLIN_E2E_NODE

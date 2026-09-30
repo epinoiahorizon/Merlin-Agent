@@ -1641,12 +1641,12 @@ Menu.setApplicationMenu(null)
 // Windows toast notifications silently no-op unless an AppUserModelID is set:
 // `new Notification().show()` returns without error and nothing appears. The
 // AUMID must match the installed Start Menu shortcut's AUMID, which
-// electron-builder derives from the build `appId` (com.arthovlabs.merlin) —
+// electron-builder derives from the build `appId` (com.aexagent.merlin) —
 // keep this string in sync with package.json `build.appId`. macOS/Linux don't
 // need this, so gate it on Windows. (Fixes: desktop approval/turn notifications
 // never firing on Windows.)
 if (IS_WINDOWS) {
-  app.setAppUserModelId(IDENTITY_APP_NAME ? PRODUCT_IDENTITY.appId : 'com.arthovlabs.merlin')
+  app.setAppUserModelId(IDENTITY_APP_NAME ? PRODUCT_IDENTITY.appId : 'com.aexagent.merlin')
 }
 
 // Seed the native About panel with the best-known Merlin version. This is
@@ -1658,7 +1658,7 @@ if (IS_WINDOWS) {
 app.setAboutPanelOptions({
   applicationName: APP_NAME,
   applicationVersion: nativeAboutVersion(appVersionInfo(INSTALL_STAMP, '', app.getVersion())),
-  copyright: 'Copyright © 2026 Arthov Labs'
+  copyright: 'Copyright © 2026 AexAgent'
 })
 
 // Custom scheme for streaming audio/video into the renderer. Local paths read
@@ -7511,7 +7511,7 @@ function installMediaPermissions() {
 // OAuth remote-gateway auth.
 //
 // Hosted Merlin gateways gate the dashboard behind an OAuth provider (e.g.
-// Arthov Labs) instead of a static session token. The auth model is
+// AexAgent) instead of a static session token. The auth model is
 // fundamentally different from the token path:
 //
 //   * REST is authed by HttpOnly session cookies (``merlin_session_at``),
@@ -8385,7 +8385,7 @@ async function freshGatewayWsUrl(profile) {
 // Canonical Atlas portal base URL, overridable for staging/dev. Mirrors the CLI
 // convention (merlin_cli/auth.py DEFAULT_ATLAS_PORTAL_URL + the same env names)
 // so a single override flips every Merlin surface to the same portal.
-const DEFAULT_ATLAS_PORTAL_URL = 'https://portal.arthovlabs.com'
+const DEFAULT_ATLAS_PORTAL_URL = 'https://portal.aexagent.site'
 
 function resolvePortalBaseUrl() {
   const raw = process.env.MERLIN_PORTAL_BASE_URL || process.env.ATLAS_PORTAL_BASE_URL || DEFAULT_ATLAS_PORTAL_URL
@@ -10876,7 +10876,7 @@ async function probeRemoteAuthMode(rawUrl) {
 
   if (authRequired) {
     // Best-effort: a gated gateway exposes the registered providers so the
-    // button can read "Sign in with Arthov Labs" instead of a generic
+    // button can read "Sign in with AexAgent" instead of a generic
     // label, and so a username/password provider can be distinguished from
     // an OAuth-redirect one (``supports_password``). A failure here doesn't
     // change the auth mode, so swallow it.
@@ -18660,7 +18660,7 @@ function showAboutPanelFresh(): void {
     app.setAboutPanelOptions({
       applicationName: APP_NAME,
       applicationVersion: skew.outOfSync ? `${display} — app build out of date, update the desktop app` : display,
-      copyright: 'Copyright © 2026 Arthov Labs'
+      copyright: 'Copyright © 2026 AexAgent'
     })
     app.showAboutPanel()
   })
