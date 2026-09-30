@@ -70,12 +70,15 @@ def _skin_color(key: str, fallback: str) -> str:
 from merlin_cli import __release_date__ as RELEASE_DATE
 from merlin_cli.version_info import get_version_info
 
-MERLIN_AGENT_LOGO = """[bold #FFD700]██╗  ██╗███████╗██████╗ ███╗   ███╗███████╗███████╗       █████╗  ██████╗ ███████╗███╗   ██╗████████╗[/]
-[bold #FFD700]██║  ██║██╔════╝██╔══██╗████╗ ████║██╔════╝██╔════╝      ██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝[/]
-[#FFBF00]███████║█████╗  ██████╔╝██╔████╔██║█████╗  ███████╗█████╗███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║[/]
-[#FFBF00]██╔══██║██╔══╝  ██╔══██╗██║╚██╔╝██║██╔══╝  ╚════██║╚════╝██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║[/]
-[#CD7F32]██║  ██║███████╗██║  ██║██║ ╚═╝ ██║███████╗███████║      ██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║[/]
-[#CD7F32]╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚══════╝      ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝[/]"""
+MERLIN_AGENT_LOGO = r"""[#e6c04a]                                           ___[/]
+[#e6c04a]  /╲,/╲,             ,,                 -   -_,                     ,[/]
+[#b58900] /| || ||              ||  '             (  ~/||    _                ||[/]
+[#b58900] || || ||   _-_  ,._-_ || ╲ ╲/╲       (  / ||   / ╲  _-_  ╲/╲ =||=[/]
+[#b58900] ||=|= ||  || ╲  ||   || || || ||        ╲/==||  || || || ╲ || ||  ||[/]
+[#8a6508]~|| || ||  ||/    ||   || || || ||        /_ _||  || || ||/   || ||  ||[/]
+[#8a6508] |, ╲,╲, ╲,/   ╲,  ╲ ╲ ╲ ╲       (  - ╲, ╲_-| ╲,/  ╲ ╲  ╲,[/]
+[#8a6508]_-                                                 /   ╲[/]
+[#586e75]                                                  '----`[/]"""
 
 MERLIN_HERO = """
 [#CD7F32]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
@@ -239,8 +242,8 @@ def format_banner_version_label() -> str:
     upstream, local = state["upstream"], state["local"]
     ahead = int(state.get("ahead") or 0)
     if ahead <= 0 or upstream == local:
-        return f"{base} · upstream {upstream}"
-    return f"{base} · upstream {upstream} · local {local} (+{ahead} carried {_plural(ahead, 'commit')})"
+        return f"{base} · origin {upstream}"
+    return f"{base} · origin {upstream} · local {local} (+{ahead} carried {_plural(ahead, 'commit')})"
 
 
 # === Non-blocking update check ===

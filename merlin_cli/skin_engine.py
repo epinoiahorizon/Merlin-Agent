@@ -58,7 +58,7 @@ def _wings(*glyphs) -> List[List[str]]:
 
 # Branding shared by every Merlin-named built-in (mono/daylight override help_header).
 _MERLIN_BRANDING: Dict[str, str] = _branding(
-    "Merlin", "☤", "Goodbye! ☤", prompt="❯", help_header="(^_^)? Available Commands")
+    "Merlin", "ᛟ", "Goodbye! ᛟ", prompt="❯", help_header="(^_^)? Available Commands")
 
 _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
     "default": {
@@ -634,7 +634,7 @@ def get_active_help_header(fallback: str = "(^_^)? Available Commands") -> str:
     return _active_branding("help_header", fallback)
 
 
-def get_active_goodbye(fallback: str = "Goodbye! ☤") -> str:
+def get_active_goodbye(fallback: str = "Goodbye! ᛟ") -> str:
     return _active_branding("goodbye", fallback)
 
 

@@ -559,7 +559,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             {sessions_html}
             
             <footer>
-                Built with ☤ Merlin Agent • Generated on {generated_at}
+                Built with ᛟ Merlin Agent • Generated on {generated_at}
             </footer>
         </div>
     </div>

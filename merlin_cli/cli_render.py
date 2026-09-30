@@ -917,7 +917,7 @@ def _build_compact_banner() -> str:
     dim_color = _color("banner_dim", "#B8860B")
 
     if (getattr(_skin, "name", "default") if _skin else "default") == "default":
-        tiny_line = "☤ ATLAS MERLIN"
+        tiny_line = "ᛟ ATLAS MERLIN"
     else:
         tiny_line = _skin.get_branding("agent_name", "Merlin Agent") if _skin else "Merlin Agent"
     line1 = t("cli.render.banner_tagline", name=tiny_line)

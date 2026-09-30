@@ -57,7 +57,7 @@ def _run_atlas_flow(config: dict, *, context: str, cancel_exc: tuple, cancel_lin
 def _run_portal_one_shot(config: dict) -> None:
     """One-shot Atlas Portal setup (``merlin setup --portal`` / ``merlin portal``)."""
     from merlin_cli.setup import _info, _print_banner, _record_setup_completed, print_error, print_info, print_success
-    _print_banner("│     ☤ Merlin Setup — Atlas Portal (one-shot)             │")
+    _print_banner("│     ᛟ Merlin Setup — Atlas Portal (one-shot)             │")
     _info(None, "  One subscription, 300+ models, plus the Tool Gateway:",
           "    web search, image generation, TTS, browser automation",
           "    — all routed through your Atlas Portal sub.", None,
