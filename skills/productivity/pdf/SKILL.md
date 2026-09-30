@@ -2,7 +2,7 @@
 name: pdf
 description: "PDF files: create, read, merge, fill, OCR, edit text."
 version: 1.1.0
-author: Arthov Labs
+author: Epinoia Horizon
 license: MIT
 platforms: [linux, macos, windows]
 metadata:

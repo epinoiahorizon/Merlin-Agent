@@ -55,7 +55,7 @@ export const ga: Translations = {
     closeNavigation: "Dún an nascleanúint",
     closeModelTools: "Dún an samhail agus na huirlisí",
     footer: {
-      org: "Arthov Labs",
+      org: "Epinoia Horizon",
     },
     activeSessionsLabel: "Seisiúin gníomhacha:",
     gatewayStatusLabel: "Stádas an gateway:",

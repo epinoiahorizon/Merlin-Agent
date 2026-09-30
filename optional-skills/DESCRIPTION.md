@@ -1,6 +1,6 @@
 # Optional Skills
 
-Official skills maintained by Arthov Labs that are **not activated by default**.
+Official skills maintained by Epinoia Horizon that are **not activated by default**.
 
 These skills ship with the merlin-agent repository but are not copied to
 `~/.merlin/skills/` during setup. They are discoverable via the Skills Hub:

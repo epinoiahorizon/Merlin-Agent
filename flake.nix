@@ -1,5 +1,5 @@
 {
-  description = "Merlin Agent - AI agent framework by Arthov Labs";
+  description = "Merlin Agent - AI agent framework by Epinoia Horizon";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

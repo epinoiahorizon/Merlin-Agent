@@ -7,7 +7,7 @@ description: >
   Connects to an IRC server and relays messages between an IRC channel
   (or DMs) and the Merlin agent.  No external dependencies — uses
   Python's stdlib asyncio for the IRC protocol.
-author: Arthov Labs
+author: Epinoia Horizon
 # ``requires_env`` entries are surfaced in ``merlin config`` UI via the
 # platform-plugin env var injector in ``merlin_cli/config.py``.
 requires_env:

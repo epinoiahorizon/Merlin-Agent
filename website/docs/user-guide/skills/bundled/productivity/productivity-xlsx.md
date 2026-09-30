@@ -17,7 +17,7 @@ Create, read, edit Excel .xlsx workbooks and CSVs.
 | Source | Bundled (installed by default) |
 | Path | `skills/productivity/xlsx` |
 | Version | `1.1.0` |
-| Author | Arthov Labs |
+| Author | Epinoia Horizon |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `excel`, `spreadsheet`, `xlsx`, `csv`, `openpyxl`, `productivity` |

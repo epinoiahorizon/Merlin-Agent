@@ -17,7 +17,7 @@ Build explorable isometric architecture atlases as HTML.
 | Source | Optional — install with `merlin skills install official/creative/system-atlas` |
 | Path | `optional-skills/creative/system-atlas` |
 | Version | `1.0.0` |
-| Author | Harshyt Goel (adapted by Arthov Labs) |
+| Author | Harshyt Goel (adapted by Epinoia Horizon) |
 | License | MIT |
 | Platforms | linux, macos |
 | Tags | `architecture`, `diagrams`, `isometric`, `documentation` |

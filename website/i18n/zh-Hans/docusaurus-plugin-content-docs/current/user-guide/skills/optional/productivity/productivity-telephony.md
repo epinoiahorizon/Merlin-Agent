@@ -17,7 +17,7 @@ description: "无需修改核心工具即可赋予 Merlin 电话能力"
 | 来源 | 可选 — 使用 `merlin skills install official/productivity/telephony` 安装 |
 | 路径 | `optional-skills/productivity/telephony` |
 | 版本 | `1.0.0` |
-| 作者 | Arthov Labs |
+| 作者 | Epinoia Horizon |
 | 许可证 | MIT |
 | 平台 | linux, macos, windows |
 | 标签 | `telephony`, `phone`, `sms`, `mms`, `voice`, `twilio`, `bland.ai`, `vapi`, `calling`, `texting` |

@@ -55,7 +55,7 @@ export const ko: Translations = {
     closeNavigation: "내비게이션 닫기",
     closeModelTools: "모델 및 도구 닫기",
     footer: {
-      org: "Arthov Labs",
+      org: "Epinoia Horizon",
     },
     activeSessionsLabel: "활성 세션:",
     gatewayStatusLabel: "게이트웨이 상태:",

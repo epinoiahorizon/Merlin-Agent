@@ -9,7 +9,7 @@ description: >
   channels/DMs and the Merlin agent. Relay operations shell out to the
   buzz CLI binary (JSON in/out); verified inbound media uses Merlin' bundled
   HTTP client.
-author: Arthov Labs
+author: Epinoia Horizon
 # ``requires_env`` entries are surfaced in ``merlin config`` UI via the
 # platform-plugin env var injector in ``merlin_cli/config.py``.
 requires_env:

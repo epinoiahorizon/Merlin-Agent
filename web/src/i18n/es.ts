@@ -55,7 +55,7 @@ export const es: Translations = {
     closeNavigation: "Cerrar navegación",
     closeModelTools: "Cerrar modelo y herramientas",
     footer: {
-      org: "Arthov Labs",
+      org: "Epinoia Horizon",
     },
     activeSessionsLabel: "Sesiones activas:",
     gatewayStatusLabel: "Estado del Gateway:",

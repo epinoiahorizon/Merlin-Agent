@@ -4,7 +4,7 @@
   "private": true,
   "version": "0.0.0",
   "description": "Native desktop shell for Merlin Agent.",
-  "author": "Arthov Labs",
+  "author": "Epinoia Horizon",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/epinoiahorizon/Merlin-Agent.git"

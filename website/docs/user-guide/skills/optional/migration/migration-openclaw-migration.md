@@ -17,7 +17,7 @@ Import an OpenClaw setup (memories, skills) into Merlin.
 | Source | Optional — install with `merlin skills install official/migration/openclaw-migration` |
 | Path | `optional-skills/migration/openclaw-migration` |
 | Version | `1.0.0` |
-| Author | Merlin Agent (Arthov Labs) |
+| Author | Merlin Agent (Epinoia Horizon) |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `Migration`, `OpenClaw`, `Merlin`, `Memory`, `Persona`, `Import` |

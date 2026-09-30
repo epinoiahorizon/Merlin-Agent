@@ -17,7 +17,7 @@ Provision Twilio numbers, SMS/MMS, and AI outbound calls.
 | Source | Optional — install with `merlin skills install official/productivity/telephony` |
 | Path | `optional-skills/productivity/telephony` |
 | Version | `1.0.0` |
-| Author | Arthov Labs |
+| Author | Epinoia Horizon |
 | License | MIT |
 | Platforms | linux, macos, windows |
 | Tags | `telephony`, `phone`, `sms`, `mms`, `voice`, `twilio`, `bland.ai`, `vapi`, `calling`, `texting` |
