@@ -116,7 +116,8 @@ jobs:
               print(f"invalid skills index JSON: {exc}", file=sys.stderr)
               sys.exit(1)
           skills = data.get("skills")
-          if not isinstance(skills, list) or len(skills) < 1500:
+          # Merlin Agent in-tree catalog scale (bundled + optional), not upstream registry scale.
+          if not isinstance(skills, list) or len(skills) < 150:
               count = len(skills) if isinstance(skills, list) else "missing"
               print(f"skills index too small: {count}", file=sys.stderr)
               sys.exit(1)
