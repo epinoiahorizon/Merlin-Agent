@@ -481,48 +481,60 @@ class CLITuiMixin:
             skill_count = "grimoire loaded"
 
         def status_text():
-            # ᚨ Mana row: live context meter (the hidden status bar's data, skinned)
-            # in 16 cells with the filled share ▰ + percent, ᛫ rail when empty.
-            frags = [
-                ("fg:" + c_title, "✧━ ⟨ SPELLBOOK STATUS ⟩ ━✧"),
-                ("fg:" + c_dim, "\nᛟ Incantation : "), ("fg:" + c_text, str(model)),
-                ("fg:" + c_dim, "  (Arcane Intelligence)"),
-                ("fg:" + c_dim, "\nᛞ Runes Loaded: "), ("fg:" + c_text, skill_count),
-                ("fg:" + c_dim, "\nᚨ Mana        : "),
-            ]
+            # Template band: title + key hints on ONE row, then a single inline
+            # status line — ᛟ Incantation ᛞ Runes ᚨ Mana ᛝ Response.
+            mana_part = ""
+            mstyle = "fg:" + c_dim
+            response_state = "warming"
             try:
                 snap = self._get_status_bar_snapshot()
                 tokens = int(snap.get("context_tokens") or 0)
                 length = int(snap.get("context_length") or 0)
                 est = bool(snap.get("context_estimated"))
                 if length > 0:
-                    pct = round((tokens / length) * 100)
-                    pct = max(0, min(100, pct))
-                    width = 16
-                    filled = round((pct / 100) * width)
-                    bar = ("▰" * max(0, filled)) + ("▱" * max(0, width - filled))
-                    style = "fg:" + (c_good if pct < 70 else (c_dim if pct < 90 else c_title))
-                    frags.append((style, f"[{bar}] {pct}%"))
+                    pct = max(0, min(100, round((tokens / length) * 100)))
+                    filled = round((pct / 100) * 16)
+                    bar = ("▰" * max(0, filled)) + ("▱" * max(0, 16 - filled))
+                    mana_part = f"[{bar}] {pct}%"
                     if est and tokens:
-                        frags.append(("fg:" + c_dim, " ~"))
-                else:
-                    frags.append(("fg:" + c_dim, f"[{'᛫' * 16}] warming"))
+                        mana_part += "~"
+                    mstyle = "fg:" + (c_good if pct < 70 else (c_dim if pct < 90 else c_title))
+                    if getattr(self, "_prompt_start_time", None) is not None:
+                        response_state = "casting..."
+                    else:
+                        _pe = str(snap.get("prompt_elapsed") or "")
+                        if _pe:
+                            response_state = f"idle · last {_pe}"
             except Exception:
-                frags.append(("fg:" + c_dim, f"[{'᛫' * 16}] warming"))
-            frags.append(("fg:" + c_dim, "\nᛝ Response    : casting..."))
-            return frags
+                pass
+            if not mana_part:
+                mana_part = f"[{'᛫' * 16}] warming"
+                mstyle = "fg:" + c_dim
+
+            return [
+                ("fg:" + c_title, "✧━ ⟨ SPELLBOOK STATUS ⟩ ━✧ "),
+                ("fg:" + c_dim, "| [ESC] banish ── [/] runes ── [CTRL+C] terminate"),
+                ("fg:" + c_dim, "\n"),
+                ("fg:" + c_title, "ᛟ Incantation: "),
+                ("fg:" + c_text, str(model)),
+                ("fg:" + c_dim, "  ᛞ Runes: "),
+                ("fg:" + c_text, skill_count),
+                ("fg:" + c_dim, "  ᚨ Mana: "),
+                (mstyle, mana_part),
+                ("fg:" + c_dim, "  ᛝ Response: "),
+                ("fg:" + c_text, response_state),
+            ]
 
         def slots_text():
             slots = [("ᛋ", "web-search"), ("ᛗ", "code-exec"), ("ᚠ", "file-read"), ("ᚦ", "tools")]
             frag = [("fg:" + c_title, "ᚨ QUICK SLOTS  ")]
             for i, (rune, label) in enumerate(slots, 1):
                 frag += [("fg:" + c_title, f"[{i}] {rune} "), ("fg:" + c_text, f"{label}  ")]
-            frag += [("fg:" + c_dim, "\n[ESC] banish · [/] runes · [CTRL+C] terminate")]
             return frag
 
         return [
-            Window(FormattedTextControl(status_text), height=4, dont_extend_height=True),
-            Window(FormattedTextControl(slots_text), height=3, dont_extend_height=True),
+            Window(FormattedTextControl(status_text), height=2, dont_extend_height=True),
+            Window(FormattedTextControl(slots_text), height=1, dont_extend_height=True),
         ]
 
     def _tui_spinner_loop(self):
