@@ -390,6 +390,7 @@ class CLITuiMixin:
         """Extension hook: wrapper CLIs return widgets inserted between the spacer and status bar."""
         widgets = []
         arcane = False
+
         try:
             from merlin_cli.skin_engine import get_active_skin
             skin = get_active_skin()

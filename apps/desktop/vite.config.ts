@@ -220,6 +220,7 @@ export default defineConfig(({ command }) => ({
       '@': path.resolve(__dirname, './src'),
       '@merlin/plugin-sdk': path.resolve(__dirname, './src/sdk/index.ts'),
       '@merlin/shared/billing': path.resolve(__dirname, '../shared/src/billing-types.ts'),
+
       '@merlin/shared/color': path.resolve(__dirname, '../shared/src/color.ts'),
       '@merlin/shared': path.resolve(__dirname, '../shared/src'),
       // The tour tool's preview surface injects driver.js's prebuilt IIFE into
