@@ -14,6 +14,11 @@
 #                         off a terminal and in CI)
 set -u
 
+# Some minimal VPS images (e.g. `su` shells) launch without HOME set; default it
+# before `set -u` flags it as unbound.
+: "${HOME:=$(getent passwd "$(id -u)" 2>/dev/null | cut -d: -f6)}"
+: "${HOME:=$(eval cd ~; pwd)}"
+
 # Prevent uv from discovering config files (uv.toml, pyproject.toml) from the
 # wrong user's home directory when running under sudo -u <user>.  See #21269.
 # pm's own venv sync re-isolates (pm/environment.py), so this bootstrap
