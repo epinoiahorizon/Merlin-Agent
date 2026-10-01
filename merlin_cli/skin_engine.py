@@ -248,6 +248,91 @@ _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
 [#93a1a1]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
 [#586e75]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]"""
     },
+    "solarized": {
+        "name": "solarized", "description": "Solarized dark - canonical Ethan Schoonover palette on the Grimoire chrome",
+        "colors": {
+            "banner_border": "#b58900",
+            "banner_title": "#b58900",
+            "banner_accent": "#2aa198",
+            "banner_dim": "#586e75",
+            "banner_text": "#93a1a1",
+            "ui_accent": "#2aa198",
+            "ui_label": "#268bd2",
+            "ui_ok": "#859900",
+            "ui_error": "#dc322f",
+            "ui_warn": "#cb4b16",
+            "prompt": "#93a1a1",
+            "input_rule": "#586e75",
+            "response_border": "#586e75",
+            "status_bar_bg": "#073642",
+            "status_bar_text": "#93a1a1",
+            "status_bar_strong": "#b58900",
+            "status_bar_dim": "#839496",
+            "status_bar_good": "#859900",
+            "status_bar_warn": "#cb4b16",
+            "status_bar_bad": "#dc322f",
+            "status_bar_critical": "#dc322f",
+            "session_label": "#268bd2",
+            "session_border": "#073642",
+            "completion_menu_bg": "#073642",
+            "completion_menu_current_bg": "#0d4250",
+            "selection_bg": "#0d4250",
+            "shell_dollar": "#268bd2",
+            "voice_status_bg": "#002b36"},
+        # Light terminals keep the solarized-light sheet the grimoire skin already tuned.
+        "light_colors": {
+            "banner_title": "#8a6508",
+            "banner_accent": "#0a7e7e",
+            "banner_dim": "#839496",
+            "banner_text": "#3a4b52",
+            "ui_accent": "#0a7e7e",
+            "ui_label": "#1a6fb0",
+            "ui_ok": "#5c7c00",
+            "ui_error": "#c62828",
+            "ui_warn": "#b53d0c",
+            "prompt": "#3a4b52",
+            "response_border": "#8a6508",
+            "session_label": "#1a6fb0",
+            "status_bar_text": "#4a5b62",
+            "status_bar_strong": "#8a6508",
+            "status_bar_dim": "#93a1a1",
+            "status_bar_good": "#5c7c00",
+            "status_bar_warn": "#b53d0c",
+            "status_bar_bad": "#c62828",
+            "status_bar_critical": "#b71c1c",
+            "shell_dollar": "#1a6fb0",
+            "completion_menu_bg": "#fdf6e3",
+            "completion_menu_current_bg": "#eee8d5",
+            "selection_bg": "#d8d0bb",
+            "status_bar_bg": "#fdf6e3",
+            "voice_status_bg": "#fdf6e3"},
+        "spinner": {
+            "waiting_faces": ["(ᛟ)", "(ᛞ)", "(ᚨ)", "(ᛝ)", "(ᛉ)"],
+            "thinking_faces": ["(ᚨ)", "(ᛟ)", "(ᛞ)", "(ᛝ)", "(ᛉ)"],
+            "thinking_verbs": [
+                "consulting the grimoire", "binding runes", "casting", "scrying",
+                "stirring the cauldron", "reading the stars", "tracing ley lines", "channeling"],
+            "wings": [["⟪✧", "✧⟫"], ["⟪ᛟ", "·⟫"], ["⟪·", "ᛝ⟫"]]},
+        "branding": {
+            "agent_name": "Merlin Agent",
+            "welcome": "The Grimoire opens. Type your message or /help for commands.",
+            "goodbye": "The Grimoire closes — memory persists. ✧",
+            "response_label": " ᛟ Merlin ",
+            "user_label": "ᛞ Archmage",
+            "assistant_label": "ᛟ Merlin",
+            "reasoning_label": "ᛝ scrying — reasoning",
+            "prompt_symbol": "ᛟ cast",
+            "help_header": "✧━ ⟨ GRIMOIRE ⟩ ━✧ Available Commands",
+            "agent_tui_title": "✧ MERLIN ARCANE AGENT TUI"},
+        "tool_prefix": "┃",
+        "banner_logo": (
+            "[bold #2aa198]███╗   ███╗███████╗██████╗ ██╗     ██╗███╗   ██╗[/]\n"
+            "[bold #268bd2]████╗ ████║██╔════╝██╔══██╗██║     ██║████╗  ██║[/]\n"
+            "[bold #2aa198]██╔████╔██║█████╗  ██████╔╝██║     ██║██╔██╗ ██║[/]\n"
+            "[bold #268bd2]██║╚██╔╝██║██╔══╝  ██╔══██╗██║     ██║██║╚██╗██║[/]\n"
+            "[bold #2aa198]██║ ╚═╝ ██║███████╗██║  ██║███████╗██║██║ ╚████║[/]\n"
+            "[bold #268bd2]╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝[/]")
+    },
     "ares": {
         "name": "ares", "description": "War-god theme — crimson and bronze",
         "colors": {

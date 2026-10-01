@@ -839,6 +839,24 @@ MIGRATIONS: Tuple[Tuple[int, Callable[[Dict[str, Any], bool], None]], ...] = (
     # (user account deleted). A saved value still equal to one of them is the template copied,
     # not a choice: drop the key so the file follows the GHCR default (see LEGACY_AEX_SANDBOX_IMAGES).
     (50, _migrate_to_50),
+    # 50 → 51: display.compact and display.skin defaults flip (compact banner + the solarized
+    # skin). A saved value still equal to the OLD default is the template seeder copied, not a
+    # choice: drop the key so the file follows the new default (see _migrate_to_48). A compact=true
+    # value predates the skin flip yet is identical to the new default, so it is dropped too — the
+    # key disappearing is the schema's way of saying "unpinned". An explicit skin other than
+    # "default" and any OTHER compact value are user choices and stay.
+    (51, _rewrite_stale_default(
+        section="display", key="compact", old=False, new=None,
+        added="display.compact unset (follows the new default: true)",
+        message=(
+            "  ✓ display.compact: was the old default (false); now follows the new default "
+            "(true — tidy startup). Set it back to false to keep the full banner."))),
+    (51, _rewrite_stale_default(
+        section="display", key="skin", old="default", new=None,
+        added="display.skin unset (follows the new default: solarized)",
+        message=(
+            "  ✓ display.skin: was the old default; now follows the new default (solarized). "
+            "Run /skin <name> or set display.skin in config.yaml to pin a different skin."))),
 )
 
 #: Steps triggered by a legacy key or identifier (a renamed or retired key, a removed plugin or

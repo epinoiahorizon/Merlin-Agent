@@ -181,7 +181,7 @@ def _mirror_config_to_env(defaults, _file_has_terminal_config):
 
 def _cli_config_defaults():
     """Built-in defaults for every config key the CLI reads (the file overlays these)."""
-    from merlin_cli.config_defaults import DEFAULT_SANDBOX_IMAGE as img
+    from merlin_cli.config_defaults import DEFAULT_CONFIG as _DC, DEFAULT_SANDBOX_IMAGE as img
     return {
         "model": {"default": "", "base_url": "", "provider": "auto"},
         "terminal": {
@@ -203,7 +203,10 @@ def _cli_config_defaults():
             "personalities": {},  # user overrides merged by name over merlin_cli.personality builtins
         },
         "display": {
-            "compact": False,
+            # Single source of truth: derive from DEFAULT_CONFIG so a default flip there cannot
+            # silently diverge here again (the v51 flip shipped in 634a2e66 missed this copy and
+            # `--tui`/CLI kept the old FULL banner while `merlin config` reported the new one).
+            "compact": _DC["display"]["compact"],
             # /resume recap tuning and show_reasoning: keep in sync with merlin_cli/config.py DEFAULT_CONFIG
             "resume_display": "full", "resume_exchanges": 10, "resume_max_user_chars": 300,
             "resume_max_assistant_chars": 200, "resume_max_assistant_lines": 3, "resume_skip_tool_only": True,
@@ -212,7 +215,7 @@ def _cli_config_defaults():
             # Also clear scrollback on redraw/resize recovery; off because users prefer history.
             "cli_rebuild_scrollback_on_redraw": False,
             "persist_prompts": True,  # one-line summary of resolved modal prompts into scrollback
-            "skin": "default",
+            "skin": _DC["display"]["skin"],
         },
         "code_execution": {"timeout": 300, "max_tool_calls": 50},
         "auxiliary": {"vision": {"provider": "auto", "model": "", "base_url": "", "api_key": ""}},
