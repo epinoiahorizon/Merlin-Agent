@@ -481,13 +481,36 @@ class CLITuiMixin:
             skill_count = "grimoire loaded"
 
         def status_text():
-            return [
+            # ᚨ Mana row: live context meter (the hidden status bar's data, skinned)
+            # in 16 cells with the filled share ▰ + percent, ᛫ rail when empty.
+            frags = [
                 ("fg:" + c_title, "✧━ ⟨ SPELLBOOK STATUS ⟩ ━✧"),
                 ("fg:" + c_dim, "\nᛟ Incantation : "), ("fg:" + c_text, str(model)),
                 ("fg:" + c_dim, "  (Arcane Intelligence)"),
                 ("fg:" + c_dim, "\nᛞ Runes Loaded: "), ("fg:" + c_text, skill_count),
-                ("fg:" + c_dim, "\nᛝ Response    : "), ("fg:" + c_dim, "casting..."),
+                ("fg:" + c_dim, "\nᚨ Mana        : "),
             ]
+            try:
+                snap = self._get_status_bar_snapshot()
+                tokens = int(snap.get("context_tokens") or 0)
+                length = int(snap.get("context_length") or 0)
+                est = bool(snap.get("context_estimated"))
+                if length > 0:
+                    pct = round((tokens / length) * 100)
+                    pct = max(0, min(100, pct))
+                    width = 16
+                    filled = round((pct / 100) * width)
+                    bar = ("▰" * max(0, filled)) + ("▱" * max(0, width - filled))
+                    style = "fg:" + (c_good if pct < 70 else (c_dim if pct < 90 else c_title))
+                    frags.append((style, f"[{bar}] {pct}%"))
+                    if est and tokens:
+                        frags.append(("fg:" + c_dim, " ~"))
+                else:
+                    frags.append(("fg:" + c_dim, f"[{'᛫' * 16}] warming"))
+            except Exception:
+                frags.append(("fg:" + c_dim, f"[{'᛫' * 16}] warming"))
+            frags.append(("fg:" + c_dim, "\nᛝ Response    : casting..."))
+            return frags
 
         def slots_text():
             slots = [("ᛋ", "web-search"), ("ᛗ", "code-exec"), ("ᚠ", "file-read"), ("ᚦ", "tools")]
