@@ -37,5 +37,5 @@ export interface HeaderProps {
     themeLabel?: string;
     themeToggle?: boolean;
 }
-/** @deprecated Use `SocialLink` from `@nous-research/ui`. Same shape. */
+/** @deprecated Use `SocialLink` from `@merlin/ui`. Same shape. */
 export type HeaderSocial = SocialLink;
