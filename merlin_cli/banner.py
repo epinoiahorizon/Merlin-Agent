@@ -785,13 +785,6 @@ def build_welcome_banner(
     layout_table.add_column("left", justify="left")
     layout_table.add_column("right", justify="left")
     layout_table.add_row("\n".join(left_lines), "\n".join(right_lines))
-<<<<<<< Updated upstream
-=======
-    version_label = format_banner_version_label()
-    release_info = get_latest_release_tag()
-    if release_info:
-        version_label = f"[link={release_info[1]}]{version_label}[/link]"
->>>>>>> Stashed changes
     build_welcome_panel(console, layout_table)
     console.print()
     if shutil.get_terminal_size().columns >= 95:
