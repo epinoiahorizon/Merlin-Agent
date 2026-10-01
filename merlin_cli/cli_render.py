@@ -916,11 +916,13 @@ def _build_compact_banner() -> str:
     title_color = _color("banner_title", "#FFBF00")
     dim_color = _color("banner_dim", "#B8860B")
 
-    if (getattr(_skin, "name", "default") if _skin else "default") == "default":
-        tiny_line = "ᛟ MERLIN"
+    tiny_line = _skin.get_branding("agent_name", "Merlin Agent") if _skin else "Merlin Agent"
+    # Template title: '✧ <name> ARCANE AGENT TUI' skinned; tagline stays the fallback.
+    _tui_title = _skin.get_branding("agent_tui_title", "") if _skin else ""
+    if _tui_title:
+        line1 = _tui_title.ljust(0)  # plain, no padding
     else:
-        tiny_line = _skin.get_branding("agent_name", "Merlin Agent") if _skin else "Merlin Agent"
-    line1 = t("cli.render.banner_tagline", name=tiny_line)
+        line1 = "✧ " + tiny_line + " ARCANE AGENT TUI"
 
     if os.environ.get("MERLIN_FAST_STARTUP_BANNER") == "1":
         from merlin_cli import __release_date__ as _release_date
@@ -947,8 +949,9 @@ def _build_compact_banner() -> str:
             if _wm_w + 2 <= _cols:
                 _wordmark_block = "\n".join(_rows) + "\n\n"
 
+    # Rounded single-line box to match the container rails (╭╮╰╯ everywhere).
     inner = w - 2  # inside the box border
-    bar = "═" * w
+    bar = "─" * w
     content_width = inner - 2
 
     line1 = line1[:content_width].ljust(content_width)
@@ -956,10 +959,10 @@ def _build_compact_banner() -> str:
 
     return (
         f"\n{_wordmark_block}"
-        f"[bold {border_color}]╔{bar}╗[/]\n"
-        f"[bold {border_color}]║[/] [{title_color}]{line1}[/] [bold {border_color}]║[/]\n"
-        f"[bold {border_color}]║[/] [dim {dim_color}]{line2}[/] [bold {border_color}]║[/]\n"
-        f"[bold {border_color}]╚{bar}╝[/]\n"
+        f"[bold {border_color}]╭{bar}╮[/]\n"
+        f"[bold {border_color}]│[/] [{title_color}]{line1}[/] [bold {border_color}]│[/]\n"
+        f"[bold {border_color}]│[/] [dim {dim_color}]{line2}[/] [bold {border_color}]│[/]\n"
+        f"[bold {border_color}]╰{bar}╯[/]\n"
     )
 
 

@@ -274,6 +274,11 @@ class CLITuiRuntimeMixin:
             _welcome_color = _welcome_skin.get_color("banner_text", _welcome_color)
         except Exception:
             pass
+        try:
+            _band_accent = _welcome_skin.get_color("banner_title", "#e6c04a") if _welcome_skin else "#e6c04a"
+        except Exception:
+            _band_accent = "#e6c04a"
+        self._console_print(f"[bold {_band_accent}]✧━ ⟨ Available Skills ⟩ ━✧[/]")
         self._console_print(f"[{_welcome_color}]{_welcome_text}[/]")
 
         self._tui_startup_prewarm_and_warnings(_welcome_skin)
