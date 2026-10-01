@@ -232,15 +232,33 @@ class CLISessionMixin:
         except Exception:
             separator_color, accent_color, label_color = "#B8860B", "#FFBF00", "cyan"
         sep = f" [dim {separator_color}]·[/] "
+        band = f"[bold {accent_color}]✧━ ⟨ Available Tools ⟩ ━✧[/]"
         toolsets_info = ""
         if self.enabled_toolsets and "all" not in self.enabled_toolsets:
-            toolsets_info = f"{sep}[{label_color}]{_escape(t('cli.session.status_toolsets', toolsets=', '.join(self.enabled_toolsets)))}[/]"
-        provider_info = f"{sep}[dim]{_escape(t('cli.session.status_provider', provider=self.provider))}[/]"
+            _names = self.enabled_toolsets
+            _ts = ", ".join(_names[:5]) + (f" … +{len(_names) - 5} more" if len(_names) > 5 else "")
+            toolsets_info = (
+                f"\n  [dim {separator_color}]{_escape('toolsets: ' + _ts)}"
+                f"  {sep}{_escape('provider: %s' % self.provider)}[/]")
+        provider_info = ""
         if self._provider_source:
-            provider_info += f"{sep}[dim]{_escape(t('cli.session.status_auth', source=self._provider_source))}[/]"
+            provider_info = f"{sep}[dim]{_escape(t('cli.session.status_auth', source=self._provider_source))}[/]"
         self._console_print(
-            f"  {api_indicator} [{accent_color}]{model_short}[/]{sep}"
-            f"[bold {label_color}]{tool_status}[/]{toolsets_info}{provider_info}")
+            f"{band}\n  {api_indicator} [{accent_color}]{model_short}[/]{sep}"
+            f"[bold {label_color}]{tool_status}[/]{provider_info}{toolsets_info}")
+        # MCP band — only when servers are configured, so a bare install stays clean.
+        try:
+            from tools.mcp_tool_discovery import get_mcp_status as _gms
+            _mcp = _gms() or []
+            if _mcp:
+                _names2 = ', '.join(str(e.get('name') or '?') for e in _mcp[:4])
+                _count = len(_mcp)
+                self._console_print(
+                    f"\n[bold {accent_color}]✧━ ⟨ MCP Servers ⟩ ━✧[/]\n"
+                    f"  [bold {label_color}]{_count} server(s)[/]{sep}[dim]{_escape(_names2)}"
+                    f"{' …' if _count > 4 else ''}[/]")
+        except Exception:
+            pass
 
     def _show_session_status(self):
         """Show gateway-style status for the current CLI session."""
