@@ -59,6 +59,7 @@ class CLIChatTurnMixin:
         the concise voice-response prefix, #65827)
         """
         from cli import ChatConsole, _ChatTurn, _DIM, _RST, _accent_hex, _cprint, set_secret_capture_callback
+        from rich.markup import escape as _escape
         from tools.process_registry_notifications import TimelineNotification
         # Single-query and direct chat callers do not go through run().
         set_secret_capture_callback(self._secret_capture_callback)
@@ -94,8 +95,19 @@ class CLIChatTurnMixin:
         if isinstance(message, TimelineNotification):
             message = str(message)  # UI metadata is on the staged row, never in model content.
 
-        ChatConsole().print(f"[{_accent_hex()}]{'─' * 40}[/]")
-        _cprint("")
+        # Turn rail header instead of the bare 40-dash rule: skinned user label
+        # ('ᛞ Archmage') with the message on the same line, rail rules around it.
+        try:
+            from merlin_cli.skin_engine import get_active_skin as _gas
+            _ulab = _gas().get_branding("user_label", "")
+        except Exception:
+            _ulab = ""
+        if _ulab and not isinstance(message, TimelineNotification):
+            ChatConsole().print(f"[{_accent_hex()}]{'─' * 40}[/]")
+            ChatConsole().print(f"[bold {_accent_hex()}]{_ulab}[/] [bold]❯[/] [bold]{_escape(str(message))}[/]")
+        else:
+            ChatConsole().print(f"[{_accent_hex()}]{'─' * 40}[/]")
+            _cprint("")
 
         from agent.notification_presentation import notification_config_snapshot, notification_policy_snapshot
         with notification_policy_snapshot(agent, "cli", notification_config_snapshot()):
@@ -649,7 +661,14 @@ class CLIChatTurnMixin:
             reasoning = turn.result.get("last_reasoning")
             if reasoning:
                 w = self._scrollback_box_width()
-                r_label = f" {t('cli.chat.reasoning_label')} "
+                from rich.markup import escape as _resc
+                try:
+                    from merlin_cli.skin_engine import get_active_skin as _rgas
+                    r_label = _rgas().get_branding("reasoning_label", "") or t("cli.chat.reasoning_label")
+                except Exception:
+                    r_label = t("cli.chat.reasoning_label")
+                r_label = f" {_resc(r_label)} "
+                # Width math in display cells: runes stay 1-cell monospace in practice.
                 r_top = f"{_DIM}┌─{r_label}{'─' * max(w - 3 - len(r_label), 0)}┐{_RST}"
                 r_bot = f"{_DIM}└{'─' * (w - 2)}┘{_RST}"
                 # First 10 lines unless the user opted into /reasoning full.
@@ -671,7 +690,7 @@ class CLIChatTurnMixin:
             try:
                 from merlin_cli.skin_engine import get_active_skin
                 _skin = get_active_skin()
-                label = _skin.get_branding("response_label", "ᛟ Merlin")
+                label = _skin.get_branding("assistant_label") or _skin.get_branding("response_label", "ᛟ Merlin")
                 _resp_color = _maybe_remap_for_light_mode(_skin.get_color("response_border", "#CD7F32"))
                 _resp_text = _maybe_remap_for_light_mode(_skin.get_color("banner_text", "#FFF8DC"))
             except Exception:
@@ -702,8 +721,9 @@ class CLIChatTurnMixin:
             else:
                 ChatConsole().print(Panel(
                     _render_final_assistant_content(response, mode=self.final_response_markdown),
-                    title=f"[{_resp_color} bold]{label}[/]", title_align="left", border_style=_resp_color,
-                    style=_resp_text, box=rich_box.HORIZONTALS, padding=(1, 0),
+                    title=f"[{_resp_color} bold]{label.strip()}[/]", title_align="left",
+                    border_style=_resp_color,
+                    style=_resp_text, box=rich_box.HORIZONTALS, padding=(0, 1),
                     width=self._scrollback_box_width(),
                 ))
 

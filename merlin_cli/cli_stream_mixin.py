@@ -235,10 +235,20 @@ class CLIStreamMixin:
             render_notification(lambda: ChatConsole().print(f"[dim]◈ {_escape(user_input.display_text)}[/dim]"),
                                 platform="cli", diagnostic=user_input.notification_category == "diagnostic")
             return
-        ChatConsole().print(f"[{_accent_hex()}]{'─' * 40}[/]")
+        # De-Hermes turn rail: skinned label + glyph arrow; single-line turns
+        # render as "[ᛞ Archmage] ❯ message" on one line like the assistant rail.
+        try:
+            from merlin_cli.skin_engine import get_active_skin
+            _ulabel = get_active_skin().get_branding("user_label", "")
+        except Exception:
+            _ulabel = ""
         text = str(user_input or "")
+        prefix = f"[bold {_accent_hex()}]{_ulabel}[/] [bold]{_escape('❯')}[/]  " if _ulabel else None
         if "\n" in text:
-            ChatConsole().print(self._format_submitted_user_message_preview(text))
+            multi = self._format_submitted_user_message_preview(text)
+            ChatConsole().print(f"[bold {_accent_hex()}]{_ulabel}[/] {multi}" if _ulabel else multi)
+        elif prefix:
+            ChatConsole().print(f"{prefix}[bold]{_escape(text)}[/]")
         else:
             ChatConsole().print(f"[bold {_accent_hex()}]●[/] [bold]{_escape(text)}[/]")
 
@@ -258,9 +268,15 @@ class CLIStreamMixin:
         if not getattr(self, "_reasoning_box_opened", False):
             self._reasoning_box_opened = True
             w = self._scrollback_box_width()
-            r_label = f" {t('cli.chat.reasoning_label')} "
-            r_fill = w - 2 - len(r_label)
-            _cprint(f"\n{_DIM}┌─{r_label}{'─' * max(r_fill - 1, 0)}┐{_RST}")
+            try:
+                from merlin_cli.skin_engine import get_active_skin as _rgas
+                r_text = _rgas().get_branding("reasoning_label", "") or t("cli.chat.reasoning_label")
+            except Exception:
+                r_text = t("cli.chat.reasoning_label")
+            from rich.markup import escape as _resc
+            r_label = f" {_resc(r_text)} "
+            r_fill = w - 3 - len(r_label)
+            _cprint(f"\n{_DIM}┌─{r_label}{'─' * max(r_fill, 0)}┐{_RST}")
 
         self._reasoning_buf = getattr(self, "_reasoning_buf", "") + text
         # Emit complete lines; force-flush long partial lines so reasoning is visible in
@@ -439,7 +455,7 @@ class CLIStreamMixin:
             try:
                 from merlin_cli.skin_engine import get_active_skin
                 _skin = get_active_skin()
-                label = _skin.get_branding("response_label", "ᛟ Merlin")
+                label = _skin.get_branding("assistant_label") or _skin.get_branding("response_label", "ᛟ Merlin")
                 _text_hex = _skin.get_color("banner_text", "#FFF8DC")
             except Exception:
                 label = "ᛟ Merlin"
@@ -452,8 +468,9 @@ class CLIStreamMixin:
             if self.show_timestamps:
                 label = f"{label} {datetime.now().strftime(getattr(self, 'timestamp_format', '%H:%M'))}"
             w = self._scrollback_box_width()
-            fill = w - 2 - MerlinCLI._status_bar_display_width(label)
-            _cprint(f"\n{_ACCENT}╭─{label}{'─' * max(fill - 1, 0)}╮{_RST}")
+            label = label.strip()  # flush with border like the final panel
+            fill = w - 3 - MerlinCLI._status_bar_display_width(label)
+            _cprint(f"\n{_ACCENT}╭─ {label} {'─' * max(fill, 0)}╮{_RST}")
 
         # Turn-level record of what actually reached the screen; survives _reset_stream_state at
         # tool-call boundaries so an interrupted reply isn't re-rendered as a Panel (#65666).
