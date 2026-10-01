@@ -103,8 +103,7 @@ class CLIChatTurnMixin:
         except Exception:
             _ulab = ""
         if _ulab and not isinstance(message, TimelineNotification):
-            ChatConsole().print(f"[{_accent_hex()}]{'─' * 40}[/]")
-            ChatConsole().print(f"[bold {_accent_hex()}]{_ulab}[/] [bold]❯[/] [bold]{_escape(str(message))}[/]")
+            self._open_conversation_container(_ulab, str(message))
         else:
             ChatConsole().print(f"[{_accent_hex()}]{'─' * 40}[/]")
             _cprint("")
@@ -561,6 +560,8 @@ class CLIChatTurnMixin:
         except Exception:
             pass
 
+        self._close_conversation_container()
+
         self._ring_bell(context=t("cli.modal.bell_turn_complete"))  # propagates over SSH
         if turn.result and not turn.result.get("completed") and not turn.result.get("interrupted"):
             _api_calls = turn.result.get("api_calls", 0)
@@ -652,6 +653,48 @@ class CLIChatTurnMixin:
                 pass
         return pending_message, _show_interrupt_marker
 
+    def _container_frame(self, glyph: str, label: str, close: bool = False):
+        """One conversation-container edge line (skinned rail)."""
+        from cli import ChatConsole, _cprint
+        try:
+            from merlin_cli.skin_engine import get_active_skin as _gas
+            from cli import _accent_hex
+            _hex = _gas().get_color("session_border", "#586e75")
+        except Exception:
+            _hex = "#586e75"
+        try:
+            w = self._scrollback_box_width()
+        except Exception:
+            w = 78
+        if close:
+            from rich.markup import escape as _esc
+            ChatConsole().print(f"[{_hex}]└{'─' * max(w - 2, 1)}┘[/]")
+            return
+        from rich.markup import escape as _esc
+        lab = f"─ {glyph} {label} "
+        pad = max(w - 4 - len(lab), 0)
+        ChatConsole().print(f"[{_hex}]┌──{lab}{'─' * pad}┐[/]")
+
+    def _open_conversation_container(self, ulabel: str, message: str):
+        """User turn header: container top + labeled message line."""
+        from cli import ChatConsole, _accent_hex
+        from rich.markup import escape as _esc
+        self._turn_container_open = True
+        try:
+            self._container_frame("ᛏ", "MATRIX OF CONVERSATION")
+        except Exception:
+            pass
+        ChatConsole().print(f"│ [bold {_accent_hex()}]{_esc(ulabel)}[/] [bold]❯[/] [bold]{_esc(message)}[/]")
+
+    def _close_conversation_container(self):
+        """Close the open turn container footer (no-op when never opened / already closed)."""
+        if getattr(self, "_turn_container_open", False):
+            self._turn_container_open = False
+            try:
+                self._container_frame("", "", close=True)
+            except Exception:
+                pass
+
     def _chat_print_reasoning_box(self, turn):
         """Collapsed reasoning box when show_reasoning is on and streaming did not already show it."""
         from cli import _DIM, _RST, _cprint
@@ -669,7 +712,7 @@ class CLIChatTurnMixin:
                     r_label = t("cli.chat.reasoning_label")
                 r_label = f" {_resc(r_label)} "
                 # Width math in display cells: runes stay 1-cell monospace in practice.
-                r_top = f"{_DIM}┌─{r_label}{'─' * max(w - 3 - len(r_label), 0)}┐{_RST}"
+                r_top = f"{_DIM}┌─{r_label}{'─' * max(w - 4 - len(r_label), 0)}┐{_RST}"
                 r_bot = f"{_DIM}└{'─' * (w - 2)}┘{_RST}"
                 # First 10 lines unless the user opted into /reasoning full.
                 lines = reasoning.strip().splitlines()
