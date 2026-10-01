@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { Check, ShieldCheck, Trash2, Users, X } from "lucide-react";
-import { Badge } from "@nous-research/ui/ui/components/badge";
-import { Button } from "@nous-research/ui/ui/components/button";
-import { Spinner } from "@nous-research/ui/ui/components/spinner";
-import { H2 } from "@nous-research/ui/ui/components/typography/h2";
+import { Badge } from "@merlin/ui/ui/components/badge";
+import { Button } from "@merlin/ui/ui/components/button";
+import { Spinner } from "@merlin/ui/ui/components/spinner";
+import { H2 } from "@merlin/ui/ui/components/typography/h2";
 import { api } from "@/lib/api";
 import type { PairingResponse, PairingUser } from "@/lib/api";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
-import { useToast } from "@nous-research/ui/hooks/use-toast";
-import { useConfirmDelete } from "@nous-research/ui/hooks/use-confirm-delete";
-import { Toast } from "@nous-research/ui/ui/components/toast";
-import { Card, CardContent } from "@nous-research/ui/ui/components/card";
+import { useToast } from "@merlin/ui/hooks/use-toast";
+import { useConfirmDelete } from "@merlin/ui/hooks/use-confirm-delete";
+import { Toast } from "@merlin/ui/ui/components/toast";
+import { Card, CardContent } from "@merlin/ui/ui/components/card";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { errorMessage } from "@/lib/api-error";
 
