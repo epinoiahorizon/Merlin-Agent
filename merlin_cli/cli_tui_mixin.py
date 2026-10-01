@@ -396,7 +396,9 @@ class CLITuiMixin:
             arcane = skin.get_branding("response_label", "").strip().startswith("ᛟ") or                      skin.get_branding("help_header", "").startswith("✧━")
         except Exception:
             arcane = False
-        if arcane and not getattr(self, "compact", False):
+        if arcane:
+            # Grimoire chrome is the skin's identity: show it regardless of the
+            # compact banner choice (compact only trims the startup banner).
             widgets.extend(self._grimoire_widgets())
         return widgets
 
