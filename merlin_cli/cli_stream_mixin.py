@@ -469,7 +469,7 @@ class CLIStreamMixin:
                 label = f"{label} {datetime.now().strftime(getattr(self, 'timestamp_format', '%H:%M'))}"
             w = self._scrollback_box_width()
             label = label.strip()  # flush with border like the final panel
-            fill = w - 3 - MerlinCLI._status_bar_display_width(label)
+            fill = w - 5 - MerlinCLI._status_bar_display_width(label)
             _cprint(f"\n{_ACCENT}╭─ {label} {'─' * max(fill, 0)}╮{_RST}")
 
         # Turn-level record of what actually reached the screen; survives _reset_stream_state at

@@ -934,6 +934,19 @@ def _build_compact_banner() -> str:
     if w < 30:
         return f"\n[{title_color}]{tiny_line}[/] [dim {dim_color}]- Epinoia Horizon[/]\n"
 
+    # Skin wordmark (banner_logo) above the box when the terminal fits it. The
+    # markup is kept as-is: this returns into a Console that interprets markup.
+    _wordmark = getattr(_skin, "banner_logo", "") if _skin else ""
+    _wordmark_block = ""
+    if _wordmark:
+        import re as _re
+        _plain = _re.sub(r"\[[^\]]*\]", "", _wordmark)
+        _wm_w = max((_len := sum(1 for _ in r.strip())) for r in _plain.splitlines() if r.strip())
+        _cols = shutil.get_terminal_size().columns
+        if _rows := [_r for _r in _wordmark.splitlines() if _r.strip()]:
+            if _wm_w + 2 <= _cols:
+                _wordmark_block = "\n".join(_rows) + "\n\n"
+
     inner = w - 2  # inside the box border
     bar = "═" * w
     content_width = inner - 2
@@ -942,7 +955,8 @@ def _build_compact_banner() -> str:
     line2 = version_line[:content_width].ljust(content_width)
 
     return (
-        f"\n[bold {border_color}]╔{bar}╗[/]\n"
+        f"\n{_wordmark_block}"
+        f"[bold {border_color}]╔{bar}╗[/]\n"
         f"[bold {border_color}]║[/] [{title_color}]{line1}[/] [bold {border_color}]║[/]\n"
         f"[bold {border_color}]║[/] [dim {dim_color}]{line2}[/] [bold {border_color}]║[/]\n"
         f"[bold {border_color}]╚{bar}╝[/]\n"
