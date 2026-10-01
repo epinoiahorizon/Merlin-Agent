@@ -1150,6 +1150,9 @@ streaming:
 # also create new skills after completing complex tasks.
 #
 skills:
+  # Preloaded every session (fully loaded, instructions active from boot).
+  auto_load: [systematic-debugging, github, document-to-action-items, weekly-review-planning]
+
   # Nudge the agent to create skills after complex tasks.
   # Every N tool-calling iterations, remind the model to consider saving a skill.
   # Set to 0 to disable.
@@ -1835,9 +1838,9 @@ delegation:
 # =============================================================================
 display:
   # Use compact banner mode (hides the ASCII-art banner, shows a single line).
-  #   true:  Compact single-line banner
-  #   false: Full ASCII banner with tool/skill summary (default)
-  compact: false
+  #   true:  Compact single-line banner (default — tidy startup)
+  #   false: Full ASCII banner with tool/skill summary
+  compact: true
 
   # Tool progress display level (CLI, gateway, and the TUI/Desktop tool feed)
   #   off:     Silent — no tool activity shown, just the final response
@@ -2016,7 +2019,7 @@ display:
   #     prompt_symbol: "⚔"                  # Prompt symbol (bare token; renderers add trailing space)
   #   tool_prefix: "╎"                       # Tool output line prefix (default: ┊)
   #
-  skin: default
+  skin: solarized
 
 # =============================================================================
 # Model Aliases — short names for /model command

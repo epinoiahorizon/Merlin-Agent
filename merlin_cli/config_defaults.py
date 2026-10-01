@@ -823,7 +823,9 @@ DEFAULT_CONFIG = {
     },
 
     "display": {
-        "compact": False,
+        # compact=True shows the trimmed wordmark banner instead of the ACTIVE RUNES spellbook
+        # panel; the full panel stays available via /banner or by setting display.compact=false.
+        "compact": True,
         "personality": "",
         "resume_display": "full",
         # Recap tuning for /resume and startup resume.
@@ -903,7 +905,7 @@ DEFAULT_CONFIG = {
         # /focus off restores. Never affects what the model sees (focus_view.py).
         "focus_view": False,
         "focus_saved_tool_progress": "all",
-        "skin": "default",
+        "skin": "solarized",
         # UI language for static messages (approval prompts, some gateway slash replies); not agent
         # responses/logs/tool outputs. en, zh, ja, de, es, fr, tr, uk; unknown → en.
         "language": "en",
@@ -1452,6 +1454,9 @@ DEFAULT_CONFIG = {
     # Skills — external skill directories shared across tools/agents. Paths are expanded (~, ${VAR})
     # and resolved; read-only — creation goes to ~/.merlin/skills/ unless create_dir redirects it.
     "skills": {
+        # Preloaded every session so fresh installs ship with working habits (verified names).
+        "auto_load": ["systematic-debugging", "github", "document-to-action-items",
+                      "weekly-review-planning"],
         "external_dirs": [],   # e.g. ["~/.agents/skills", "/shared/team-skills"]
         # Where skill_manage-created skills go (empty = profile-local dir). When set, new skills
         # land here AND agent-facing instructions name this path; expanded (~, ${VAR}), relative to

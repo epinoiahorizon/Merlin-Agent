@@ -130,9 +130,20 @@ _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
             "welcome": "The Grimoire opens. Type your message or /help for commands.",
             "goodbye": "The Grimoire closes - memory persists. ✧",
             "response_label": " ᛟ Merlin ",
-            "prompt_symbol": "❯",
-            "help_header": "✧━ ⟨ GRIMOIRE ⟩ ━✧ Available Commands"},
+            "prompt_symbol": "ᛟ cast",
+            "user_label": "ᛞ Archmage",
+            "assistant_label": "ᛟ Merlin",
+            "reasoning_label": "ᛝ scrying — reasoning",
+            "help_header": "✧━ ⟨ GRIMOIRE ⟩ ━✧ Available Commands",
+            "agent_tui_title": "✧ MERLIN ARCANE AGENT TUI"},
         "tool_prefix": "┃",
+        "banner_logo": (
+            "[bold #2aa198]███╗   ███╗███████╗██████╗ ██╗     ██╗███╗   ██╗[/]\n"
+            "[bold #268bd2]████╗ ████║██╔════╝██╔══██╗██║     ██║████╗  ██║[/]\n"
+            "[bold #2aa198]██╔████╔██║█████╗  ██████╔╝██║     ██║██╔██╗ ██║[/]\n"
+            "[bold #268bd2]██║╚██╔╝██║██╔══╝  ██╔══██╗██║     ██║██║╚██╗██║[/]\n"
+            "[bold #2aa198]██║ ╚═╝ ██║███████╗██║  ██║███████╗██║██║ ╚████║[/]\n"
+            "[bold #268bd2]╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝[/]"),
         "banner_hero": """[#586e75]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
 [#586e75]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
 [#b58900]⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠈⠛⠛⠛⠁⠀⠙⠲⢄⠀⠀⠀⠀⠀⠀⠀⠀[/]
