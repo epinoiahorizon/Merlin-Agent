@@ -226,3 +226,30 @@ def test_merlin_exported_scratch_tmp_is_not_the_test_temp_root(tmp_path):
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "1 passed" in result.stdout
+
+
+def test_metadata_probe_of_home_manifest_json_is_allowed(tmp_path, monkeypatch):
+    """Sealed-payload install probes: pm.environments.payload_venv stats
+    ``<checkout>/../manifest.json`` — with the default install layout that is
+    ``<real-home>/manifest.json``. A metadata probe (is_file/lexists) reads no
+    user state; content access (open/read) of the same file must stay refused.
+    """
+    from tests import conftest
+    from tests.home_io_guard import HomeIOGuard
+
+    root = tmp_path / "protected"
+    root.mkdir()
+    # Create the manifest BEFORE the guard sees this root as protected.
+    (root / "manifest.json").write_text('{"repo": "r", "venv": "v"}', encoding="utf-8")
+    monkeypatch.setattr(conftest, "_REAL_MERLIN_ROOT_CANDIDATES", [root])
+    guard = HomeIOGuard(lambda: conftest._REAL_MERLIN_ROOT_CANDIDATES, lambda: ())
+    guard.install(monkeypatch)
+
+    manifest = root / "manifest.json"
+
+    # Metadata probe: must NOT raise.
+    assert Path(str(manifest)).is_file() is True
+
+    # Content access of the same file: must STILL refuse.
+    with pytest.raises(AssertionError, match="REAL merlin home"):
+        Path(str(manifest)).read_text(encoding="utf-8")
