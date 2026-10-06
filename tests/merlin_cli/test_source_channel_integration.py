@@ -172,6 +172,28 @@ def test_unpublished_main_record_keeps_following_the_git_branch(source, monkeypa
         source_releases.resolve_source_target("stable", ["git"], source.root)
 
 
+def test_unreachable_channel_host_keeps_main_on_the_git_branch(source, monkeypatch):
+    """A dead/unreachable channel host (e.g. the R2 domain expiring) is
+    operationally identical to an unpublished main record: the checkout keeps
+    following the main branch via git instead of stranding source installs on
+    a hard ChannelError. Retirement-bearing channels (stable/canary) stay
+    fatal — their records are authoritative, never guessed."""
+    from merlin_cli import source_check
+    from merlin_cli.release_channels import ChannelError
+
+    set_install_channel("main", source.root)
+    def unreachable(name, repository):
+        raise ChannelError("Channel read unavailable")
+    monkeypatch.setattr(source_releases, "_resolve_channel", unreachable)
+    target = source_releases.resolve_source_target("main", ["git"], source.root)
+    assert target.branch == "main" and target.commit is None
+    status = source_check.check_for_updates(install_root=source.root, home=source.home, force=True)
+    assert "error" not in status, status
+    assert status["targetSha"] == source.commits[2]
+    with pytest.raises(ChannelError):
+        source_releases.resolve_source_target("stable", ["git"], source.root)
+
+
 def test_passive_check_reports_retirement_without_adopting_it(source, monkeypatch):
     from merlin_cli import source_check, banner
 
