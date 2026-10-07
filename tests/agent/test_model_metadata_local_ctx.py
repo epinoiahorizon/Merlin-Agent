@@ -22,8 +22,13 @@ def _clear_local_ctx_probe_cache():
     import agent.model_metadata as _mm
 
     _mm._LOCAL_CTX_PROBE_CACHE.clear()
+    # The blackhole registry is process-global state too: a test that lets a real
+    # connection fail marks the host:port dead, and later mocked tests would
+    # early-return None before even reaching their mocks (detect.call_count == 0).
+    _mm._endpoint_blackhole_cache.clear()
     yield
     _mm._LOCAL_CTX_PROBE_CACHE.clear()
+    _mm._endpoint_blackhole_cache.clear()
 
 
 
