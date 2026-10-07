@@ -86,6 +86,17 @@ class HomeIOGuard:
             # probe) reads no state; only its contents are guarded.
             if metadata and absolute in roots:
                 return
+            # Sealed-payload install probe: pm.environments.payload_venv stats
+            # ``<checkout>/../manifest.json`` to find the environment a payload
+            # ships beside its tree. Under the default install layout (checkout
+            # inside the home, install.sh: INSTALL_DIR=$MERLIN_HOME/merlin-agent)
+            # that probe lands on ``<real-home>/manifest.json``. The stat is a
+            # metadata probe of install machinery, not user state — reading the
+            # file's CONTENT still hits the refuse loop below.
+            if metadata and os.path.basename(absolute) == "manifest.json":
+                for root in roots:
+                    if _within(absolute, root) and absolute == _normcase(os.path.join(root, "manifest.json")):
+                        return
             # ``shutil.which`` stats/accesses ``<PATH entry>/<name>``. A developer shell puts
             # PM's tool store (~/.merlin/tools/...) on PATH; probing an executable there is
             # command lookup, not reading Merlin state. CI has no such entries.
