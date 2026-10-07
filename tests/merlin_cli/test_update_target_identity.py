@@ -63,6 +63,14 @@ def update_tree(tmp_path, monkeypatch):
     monkeypatch.setattr(cli_main, '_resume_windows_gateways_after_update', lambda state: resumed.append(state))
     monkeypatch.setattr(cli_main, '_install_hangup_protection', lambda **_: {'installed': False})
     monkeypatch.setattr(cli_main, '_finalize_update_output', lambda *_: None)
+    # cmd_update re-imports retarget_to_owning_install from its own module, and the
+    # real one keys off sys.prefix: when pytest runs on an in-tree checkout venv
+    # (a dev machine), it "detects" the checkout as the owning install of the
+    # tmp_path clone and re-execs the real updater mid-test. CI venvs sit outside
+    # any checkout so they never see this; pin the no-op so the tmp tree is the
+    # only thing under test.
+    import merlin_cli.update_owning_install as _uoi
+    monkeypatch.setattr(_uoi, 'retarget_to_owning_install', lambda _root: None)
     plans = []
 
     def inventory():
