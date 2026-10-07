@@ -200,10 +200,13 @@ def _build_child_system_prompt(
         # workspace_path comes only from explicit sources (_resolve_workspace_hint, never bare getcwd), so the
         # install-tree-fallback leak doesn't apply. Best-effort.
         _ctx_files = ""
-        with _quiet("subagent: workspace context-files load failed", exc_info=True):
-            # See #64590.
-            from agent.prompt_builder import build_context_files_prompt
-            _ctx_files = build_context_files_prompt(cwd=str(workspace_path), skip_soul=True)
+        try:
+            # See #64590. Seal-exempt loader (Vector #6 seals the MAIN prompt; the child's
+            # workspace contract stands — build_workspace_context_prompt explains why).
+            from agent.prompt_builder import build_workspace_context_prompt
+            _ctx_files = build_workspace_context_prompt(cwd=str(workspace_path))
+        except Exception:  # best-effort: a broken context file never kills the child prompt
+            pass
         if _ctx_files.strip():
             parts.append(_CONTEXT_FILES_INTRO + _ctx_files.strip())
     parts.append(_COMPLETION_INSTRUCTIONS)
