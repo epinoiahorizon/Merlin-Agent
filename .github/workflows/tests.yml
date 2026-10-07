@@ -13,16 +13,23 @@ concurrency:
 
 jobs:
   test:
-    name: Run tests
-    # One 96-core runner for the whole suite. There is no slicing. Slicing
-    # existed to spread the suite over 4-core runners. It cost a matrix job, a
-    # duration cache, a per-slice artifact and a merge job to do it.
-    #
-    # 96 cores clear the floor that the slowest single test file sets (about
-    # 82s). A second slice divides work that is already at that floor, and
-    # adds a second setup.
-    runs-on: ubuntu-latest-96-core
-    timeout-minutes: 30
+    name: Run tests (${{ matrix.slice_index }}/${{ strategy.job-total }})
+    # Free-tier CI: this repository is public, so standard runners are free and
+    # concurrency is unlimited — but larger runners (96/32-core) are a paid
+    # feature. The single 96-core job therefore queued forever on this account
+    # and the required check never ran (17 jobs stuck 18h+, run 37497329176).
+    # The suite is spread over 8 LPT-balanced slices on ubuntu-latest (4 vCPU)
+    # instead: scripts/run_tests_parallel.py --slice I/8 distributes files by
+    # cached per-file duration (count-balanced on the first, cache-less run —
+    # measured 652-655 files/slice) and merges duration data across slices.
+    # Estimated wall per slice: ~15-25 min incl. setup; timeout 120 gives 5-8x
+    # headroom. Cost: zero.
+    strategy:
+      fail-fast: false
+      matrix:
+        slice_index: [1, 2, 3, 4, 5, 6, 7, 8]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -78,37 +85,18 @@ jobs:
         # in its own freshly-spawned `python -m pytest <file>` subprocess
         # with bounded parallelism. No xdist, no shared workers, no
         # module-level state leakage between files.
-        #
-        # No --files: the runner discovers the suite itself. The discovered
-        # set is identical to the list the removed matrix job used to pass in.
         run: |
-          scripts/run_tests.sh
+          scripts/run_tests.sh --slice ${{ matrix.slice_index }}/8
         env:
-          # This is the maximum number of test FILES that run together.
-          # run_tests_parallel.py starts one pytest subprocess for each file
-          # from a single ThreadPoolExecutor, so this value IS the limit. The
-          # default is cpu_count*2, which is 192 here.
-          #
-          # Measured on this runner (96-core EPYC 7763, 377GB). Whole suite,
-          # two repetitions for each value. See run 32549672063:
-          #
-          #     workers   x cores   mean
-          #        48       0.5x    138s
-          #        96       1.0x    126s   <- fastest
-          #       144       1.5x    132s
-          #       192       2.0x    132s
-          #       240       2.5x    140s
-          #       288       3.0x    142s
-          #
-          # One worker for each core wins. The curve is shallow: 126s to 142s
-          # across a 6x range. The suite has sufficient concurrency at this
-          # size. The remaining time is the slowest files plus the setup.
-          # Workers above the core count only add contention.
-          MERLIN_TEST_WORKERS: 96
-          # A healthy 44-test compression file takes ~197s alone and can exceed
-          # the 300s default under 96-worker load before its duration is cached.
-          # Match the runner's 3x known-slow headroom on the first PR run too.
-          MERLIN_TEST_FILE_TIMEOUT: 600
+          # 4 vCPU: 2 worker-files per core matches the measured shallow
+          # curve from the 96-core era (48 workers @ 0.5x = 138s vs 96 @ 1x
+          # = 126s — halving workers cost 10%; contention beyond 2x/core
+          # only loses more).
+          MERLIN_TEST_WORKERS: 8
+          # A healthy 44-test compression file takes ~197s alone; under
+          # 8-worker load on 4 vCPU it can run 3-4x longer before its
+          # duration is cached. Keep the generous first-run cap.
+          MERLIN_TEST_FILE_TIMEOUT: 900
           # Ensure tests don't accidentally call real APIs
           OPENROUTER_API_KEY: ""
           OPENAI_API_KEY: ""
@@ -116,18 +104,22 @@ jobs:
 
       - name: Save per-file duration cache (main only)
         # Only green first-attempt durations are written by the runner, so
-        # a hang on main cannot ratchet its own bound upward.
+        # a hang on main cannot ratchet its own bound upward. Slices merge:
+        # the writer preserves keys recorded by other slices in the same run.
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && hashFiles('test_durations.json') != ''
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: test_durations.json
-          key: test-durations-${{ github.run_id }}
+          key: test-durations-${{ github.run_id }}-${{ matrix.slice_index }}
 
   e2e:
     # The core suites spawn real serve / gateway / tui_gateway / MCP / SQLite
     # writer processes per test; a 4-vCPU runner serialises them into timeouts.
-    runs-on: ubuntu-latest-32-core
-    timeout-minutes: 30
+    # Free tier: ubuntu-latest (4 vCPU) replaces the paid 32-core runner; the
+    # same worker bound (3) the 32-core era converged to still fits 4 vCPU,
+    # with a 90-minute timeout for the slower wall clock.
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -195,7 +187,7 @@ jobs:
           # Multi-process episodes (torture chamber, compaction kill -9,
           # gateway liveness, delivery exactly-once through a real gateway,
           # the cron virtual-clock soak) legitimately run past the 300 s default.
-          MERLIN_TEST_FILE_TIMEOUT: "900"
+          MERLIN_TEST_FILE_TIMEOUT: "1200"
           # No automatic re-run of a failed file: the torture chamber and the
           # exactly-once/compaction suites are race detectors, and a rare
           # corruption that passes on retry is still a corruption.
@@ -244,8 +236,11 @@ jobs:
     # runs ~5-15 min. Sharded by suite directory (see e2e-upgrade-plan).
     name: e2e-upgrade (${{ matrix.shard }})
     needs: e2e-upgrade-plan
-    runs-on: ubuntu-latest-32-core
-    timeout-minutes: 60
+    # Free tier: ubuntu-latest (4 vCPU). Worker bound halved (6 -> 3): each
+    # file drives real installs/updaters (process trees + uv + git I/O) that
+    # starve their deadlines when oversubscribed on 4 vCPU.
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -354,7 +349,8 @@ jobs:
           # Each file drives real installs/updaters (process trees plus uv and
           # git I/O); cpu_count of them at once starves their deadlines. A
           # shard holds at most ~7 files, so this runs each shard in one wave.
-          MERLIN_TEST_WORKERS: "6"
+          # Halved from 6 for 4-vCPU free runners.
+          MERLIN_TEST_WORKERS: "3"
           MERLIN_TEST_FILE_TIMEOUT: "3000"
           OPENROUTER_API_KEY: ""
           OPENAI_API_KEY: ""

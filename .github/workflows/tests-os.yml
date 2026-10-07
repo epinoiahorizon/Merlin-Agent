@@ -61,13 +61,17 @@ jobs:
           - name: macOS-only tests
             runner: macos-latest
             marker: macos
+          # Free tier: standard runners replace the paid 32-core pair.
+          # windows-11-arm is GitHub's free arm64 hosted runner for public
+          # repositories (no paid arm equivalent exists on this plan).
           - name: Windows-only tests
-            runner: windows-latest-32-core
+            runner: windows-latest
             marker: windows
+            timeout: 90
           - name: Windows-only tests (arm64)
-            runner: windows-latest-32-arm-core
+            runner: windows-11-arm
             marker: windows
-            timeout: 60
+            timeout: 120
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -189,11 +193,12 @@ jobs:
     # Windows race that passes on retry is still a race. Tracked Windows bugs are strict
     # xfails (per-file KNOWN tables), so a fix turns this job red until the entry goes.
     name: Windows E2E (real processes)
-    # 32-core like os-tests' Windows row: seven files run in parallel and each spawns
-    # process trees; on the 4-vCPU image the suite step took 153-171 s (job 4.7-5.6 min),
-    # here 124 s (job 3.1 min), with headroom against scheduling-starved timeouts.
-    runs-on: windows-latest-32-core
-    timeout-minutes: 25
+    # Free tier: the 4-vCPU image was ALREADY the measured baseline for this
+    # suite (step 153-171 s, job 4.7-5.6 min per the comment below); the paid
+    # 32-core runner only shaved it to 124 s. Standard runner with a wider
+    # timeout keeps the same coverage at zero cost.
+    runs-on: windows-latest
+    timeout-minutes: 60
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
