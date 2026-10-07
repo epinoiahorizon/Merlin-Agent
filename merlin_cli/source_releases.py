@@ -74,7 +74,7 @@ def _resolve_channel(name: str, repository: str):
 
 def resolve_source_target(channel: str, git_cmd=None, cwd=None, *, repository=None) -> SourceTarget:
     """Resolve every subscription, including default labels, through R2."""
-    from merlin_cli.release_channels import ChannelNotFound, validate_name
+    from merlin_cli.release_channels import ChannelError, ChannelNotFound, validate_name
 
     validate_name(channel)
     repository = repository or source_repository(git_cmd, cwd)
@@ -85,6 +85,16 @@ def resolve_source_target(channel: str, git_cmd=None, cwd=None, *, repository=No
             raise
         # main IS the source branch; its record can only add a retirement.
         # Until one is published, a checkout keeps following the branch via git.
+        return SourceTarget(channel, channel, repository, branch="main")
+    except ChannelError:
+        # An unreachable channel host is operationally identical to an
+        # unpublished main record (the domain expiring and the object being
+        # absent both leave a source install with the same safe answer:
+        # follow the main branch via git). Retirement-bearing channels
+        # (stable/canary) stay fatal — their records are authoritative and
+        # never guessed.
+        if channel != "main":
+            raise
         return SourceTarget(channel, channel, repository, branch="main")
     terminal = resolved.terminal
     if terminal["repository"].lower() != repository.lower():
