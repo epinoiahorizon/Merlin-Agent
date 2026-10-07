@@ -1,7 +1,9 @@
 """Per-file context manifest (``agent/context_file_sources.py``) behind the ``/context`` Rules figure.
 
-The manifest and ``build_context_files_prompt`` share one discovery walk, so the invariant under test is
-parity: a file is reported ``loaded`` iff its content appears in the built prompt.
+The manifest and ``build_context_files_prompt`` share one discovery walk. Under the MERLIN_OS SEAL
+(Vector #6) project context auto-loading is disabled: the builder never loads project context files,
+so the invariants under test are (a) the manifest stays honest about what discovery WOULD load, and
+(b) the built prompt only ever carries SOUL.md — no project file content, whatever the manifest says.
 """
 
 from pathlib import Path
@@ -22,9 +24,8 @@ def _by_label(sources):
     return {s["label"]: s for s in sources}
 
 
-def test_manifest_matches_what_the_prompt_actually_loads(project, tmp_path_factory):
-    """Every context type present at once; the ladder picks .merlin.md, the chain lists both AGENTS files,
-    CLAUDE.md/.cursorrules/.cursor/rules/*.mdc are shadowed, an empty file never wins, SOUL.md rides along."""
+def test_manifest_stays_honest_while_the_sealed_builder_loads_only_soul(project, tmp_path_factory):
+    """Discovery still reports the ladder winner; the sealed builder must not load any project file."""
     (project / ".merlin.md").write_text("merlin rules")
     (project / "AGENTS.md").write_text("root agents rules")
     sub = project / "pkg"
@@ -46,56 +47,40 @@ def test_manifest_matches_what_the_prompt_actually_loads(project, tmp_path_facto
         ".merlin.md": "loaded", "../AGENTS.md": "shadowed", "AGENTS.override.md": "empty", "AGENTS.md": "shadowed",
         "CLAUDE.md": "shadowed", ".cursorrules": "shadowed", ".cursor/rules/a.mdc": "shadowed", "SOUL.md": "loaded",
     }
-    for src in sources:
-        body = Path(src["path"]).read_text().strip() if src["chars"] else ""
-        assert src["loaded"] == (bool(body) and body in prompt), src
+    # SEAL contract: SOUL rides along, project file content never enters the prompt.
+    assert "identity text" in prompt
+    for banned in ("merlin rules", "root agents rules", "pkg agents rules", "claude rules", "cursor rules", "mdc rule a"):
+        assert banned not in prompt, banned
     assert all(s["est_tokens"] > 0 for s in sources if s["chars"])
 
-    # Same walk, other winner: drop .merlin.md and the whole AGENTS chain loads while the rest stays shadowed.
-    (project / ".merlin.md").unlink()
-    statuses = {s["label"]: s["status"] for s in list_context_file_sources(cwd=str(sub), home_override=home)}
-    prompt = build_context_files_prompt(cwd=str(sub), home_override=home)
-    assert statuses["../AGENTS.md"] == statuses["AGENTS.md"] == "loaded" and "root agents rules" in prompt
-    assert statuses["CLAUDE.md"] == "shadowed" and "claude rules" not in prompt
+    # Empty-seal edge: with SOUL disabled too, the prompt is empty even though discovery finds files.
+    assert build_context_files_prompt(cwd=str(sub), skip_soul=True) == ""
 
 
-def test_truncated_and_suppressed_statuses_follow_the_builder(project, monkeypatch, tmp_path_factory):
+def test_sealed_builder_suppresses_even_threat_marked_project_files(project, monkeypatch, tmp_path_factory):
+    """The SEAL outranks the injection scanner too: blocked markers never render because project files never load."""
     import agent.prompt_builder as pb
 
-    monkeypatch.setattr(pb, "_get_context_file_max_chars", lambda *_a: 40)
-    (project / "AGENTS.md").write_text("x" * 100)
-    home = tmp_path_factory.mktemp("home")
-    entry = _by_label(list_context_file_sources(cwd=str(project), home_override=home))["AGENTS.md"]
-    assert entry["status"] == "truncated" and entry["loaded"] is True
-    assert "[...truncated AGENTS.md" in build_context_files_prompt(cwd=str(project), home_override=home)
-
-    # Install-tree guard: a fallback cwd (cwd=None) inside the Merlin tree lists the file but never loads it.
-    monkeypatch.setattr("agent.runtime_cwd._is_install_tree", lambda _p: True)
-    monkeypatch.chdir(project)
-    entry = _by_label(list_context_file_sources(cwd=None, home_override=home))["AGENTS.md"]
-    assert entry["status"] == "suppressed" and entry["loaded"] is False
-    assert build_context_files_prompt(cwd=None, skip_soul=True) == ""
-    assert _by_label(list_context_file_sources(cwd=None, allow_install_tree_fallback=True, home_override=home))[
-        "AGENTS.md"]["status"] == "truncated"
-
-    lines = render_context_file_lines(list_context_file_sources(cwd=None, home_override=home))
-    assert lines[0] == "Context files" and "AGENTS.md" in lines[1] and "install tree" in lines[1]
-    assert render_context_file_lines([]) == []
-
-    # Injection scan: the builder swaps the body for a BLOCKED marker, so the manifest must not say "loaded".
     monkeypatch.setattr(pb, "_get_context_file_max_chars", lambda *_a: 10_000)
     monkeypatch.setattr(pb, "_scan_for_threats", lambda content, scope: ["fake-pattern"] if "evil" in content else [])
     (project / "AGENTS.md").write_text("evil")
+    home = tmp_path_factory.mktemp("home")
+    (home / "SOUL.md").write_text("identity text")
+
+    # The manifest still reports the would-be load honestly (blocked + not loaded).
     entry = _by_label(list_context_file_sources(cwd=str(project), home_override=home))["AGENTS.md"]
     assert entry["status"] == "blocked" and entry["loaded"] is False
-    assert "[BLOCKED: AGENTS.md" in build_context_files_prompt(cwd=str(project), home_override=home)
 
-    # The user's own SOUL.md is flagged but loaded — the manifest must say so and the prompt must carry it.
+    # The sealed builder neither loads the file nor renders a BLOCKED marker for it.
+    prompt = build_context_files_prompt(cwd=str(project), home_override=home)
+    assert "evil" not in prompt and "[BLOCKED: AGENTS.md" not in prompt
+    assert "identity text" in prompt
+
+    # SOUL itself is still scanned: a flagged SOUL is loaded but the manifest says so.
     (home / "SOUL.md").write_text("evil identity text")
     entries = _by_label(list_context_file_sources(cwd=str(project), home_override=home))
     assert entries["SOUL.md"]["status"] == "flagged" and entries["SOUL.md"]["loaded"] is True
-    assert entries["AGENTS.md"]["status"] == "blocked"
     prompt = build_context_files_prompt(cwd=str(project), home_override=home)
-    assert "evil identity text" in prompt and "[BLOCKED: SOUL.md" not in prompt and "[BLOCKED: AGENTS.md" in prompt
+    assert "evil identity text" in prompt and "[BLOCKED: SOUL.md" not in prompt
     assert any("SOUL.md" in line and "review the file" in line
                for line in render_context_file_lines(list(entries.values())))
