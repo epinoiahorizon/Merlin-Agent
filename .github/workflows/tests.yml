@@ -12,20 +12,6 @@ concurrency:
   cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 jobs:
-name: Tests
-
-on:
-  workflow_call:
-
-permissions:
-  contents: read
-
-# Cancel in-progress runs for the same ref
-concurrency:
-  group: tests-${{ github.ref_type == 'tag' && github.run_id || github.ref }}
-  cancel-in-progress: ${{ github.ref_type != 'tag' }}
-
-jobs:
   test:
     name: Run tests (${{ matrix.slice_index }}/${{ strategy.job-total }})
     # Free-tier CI: this repository is public, so standard runners are free and
