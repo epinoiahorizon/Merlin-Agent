@@ -47,16 +47,16 @@ jobs:
           build-mode: none
         - language: c-cpp
           build-mode: none
-        - language: csharp
-          build-mode: none
         - language: javascript-typescript
           build-mode: none
         - language: python
           build-mode: none
-        - language: ruby
-          build-mode: none
         - language: rust
           build-mode: none
+        # Language matrix matches code actually in the tree (measured 2026-10-06:
+        # 13.6k .py, 7.2k .ts/.js, 119 .cpp, 10 .rs). Removed `ruby` — zero .rb
+        # files, every run failed "Perform CodeQL Analysis" and kept the code-scanning
+        # status page red; removed `csharp` — 4 stray .cs files, none load-bearing.
         # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
