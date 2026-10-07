@@ -1765,6 +1765,33 @@ def _load_cursorrules(cwd_path: Path, context_length: Optional[int] = None) -> s
                              read_path=str(cwd_path / ".cursorrules"))
 
 
+def build_workspace_context_prompt(cwd: Optional[str] = None, context_length: Optional[int] = None) -> str:
+    """Context files for a child subagent working in an EXPLICIT workspace.
+
+    The MERLIN_OS SEAL (Vector #6) disables context auto-loading for the MAIN
+    agent's prompt (see build_context_files_prompt). Subagents are different:
+    the parent hands them a concrete workspace_path, the comment contract at
+    delegate_tool_progress (#64590) promises the child the repo's conventions,
+    and without them a child works a repo blind. This loader is therefore
+    seal-exempt: it runs the same discovery/priority/cap ladder the main
+    prompt used pre-seal, minus SOUL.md (identity belongs to the parent).
+    """
+    cwd_path = Path(cwd if cwd is not None else os.getcwd()).resolve()
+    sections = []
+    for loader in (_load_merlin_md, _load_agents_md, _load_claude_md, _load_cursorrules):
+        try:
+            content = loader(cwd_path, context_length)
+        except Exception:  # best-effort: a broken context file never kills the child prompt
+            continue
+        if content:
+            sections.append(content)
+            break  # same one-wins ladder as the pre-seal builder
+    if not sections:
+        return ""
+    return ("# Project Context\n\nThe following project context files have been loaded and should be followed:\n\n"
+            + "\n\n".join(sections))
+
+
 def build_context_files_prompt(
     cwd: Optional[str] = None, skip_soul: bool = False, context_length: Optional[int] = None,
     allow_install_tree_fallback: bool = False, home_override: "Path | None" = None,
