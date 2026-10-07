@@ -20,6 +20,7 @@ from agent.prompt_builder import (
     _strip_yaml_frontmatter,
     build_skills_system_prompt,
     build_context_files_prompt,
+    build_workspace_context_prompt,
     CONTEXT_FILE_MAX_CHARS,
     _get_context_file_max_chars,
     drain_truncation_warnings,
@@ -365,7 +366,7 @@ class TestBuildContextFilesPrompt:
 
     def test_loads_agents_md(self, tmp_path):
         (tmp_path / "AGENTS.md").write_text("Use Ruff for linting.")
-        result = build_context_files_prompt(cwd=str(tmp_path))
+        result = build_workspace_context_prompt(cwd=str(tmp_path))
         assert "Ruff for linting" in result
         assert "Project Context" in result
 
@@ -382,7 +383,7 @@ class TestBuildContextFilesPrompt:
         app = pkg / "webapp"
         app.mkdir()
         (app / "AGENTS.md").write_text("Webapp: React 19 only.")
-        result = build_context_files_prompt(cwd=str(app), skip_soul=True)
+        result = build_workspace_context_prompt(cwd=str(app))
         assert "Root: use Ruff." in result
         assert "Packages: pnpm workspace." in result
         assert "Webapp: React 19 only." in result
@@ -400,7 +401,7 @@ class TestBuildContextFilesPrompt:
         (tmp_path / "AGENTS.md").write_text("Root rules.")
         deep = tmp_path / "a" / "b" / "c"
         deep.mkdir(parents=True)
-        result = build_context_files_prompt(cwd=str(deep), skip_soul=True)
+        result = build_workspace_context_prompt(cwd=str(deep))
         assert "Root rules." in result
         assert result.count("## ") == 1
 
@@ -410,7 +411,7 @@ class TestBuildContextFilesPrompt:
         sub = tmp_path / "sub"
         sub.mkdir()
         (sub / "AGENTS.md").write_text("Same rules everywhere.")
-        result = build_context_files_prompt(cwd=str(sub), skip_soul=True)
+        result = build_workspace_context_prompt(cwd=str(sub))
         assert result.count("Same rules everywhere.") == 1
 
 
@@ -429,21 +430,21 @@ class TestBuildContextFilesPrompt:
     def test_agents_override_md_wins_over_agents_md(self, tmp_path):
         (tmp_path / "AGENTS.md").write_text("Use Ruff for linting.")
         (tmp_path / "AGENTS.override.md").write_text("Use Black instead.")
-        result = build_context_files_prompt(cwd=str(tmp_path))
+        result = build_workspace_context_prompt(cwd=str(tmp_path))
         assert "Use Black instead" in result
         assert "Ruff for linting" not in result
         assert "AGENTS.override.md" in result
 
     def test_agents_override_md_loads_alone(self, tmp_path):
         (tmp_path / "AGENTS.override.md").write_text("Override-only context.")
-        result = build_context_files_prompt(cwd=str(tmp_path))
+        result = build_workspace_context_prompt(cwd=str(tmp_path))
         assert "Override-only context" in result
         assert "Project Context" in result
 
     def test_merlin_md_still_wins_over_agents_override(self, tmp_path):
         (tmp_path / ".merlin.md").write_text("Merlin-first context.")
         (tmp_path / "AGENTS.override.md").write_text("Override context.")
-        result = build_context_files_prompt(cwd=str(tmp_path))
+        result = build_workspace_context_prompt(cwd=str(tmp_path))
         assert "Merlin-first context" in result
         assert "Override context" not in result
 
@@ -491,7 +492,7 @@ class TestBuildContextFilesPrompt:
 
     def test_loads_claude_md(self, tmp_path):
         (tmp_path / "CLAUDE.md").write_text("Use type hints everywhere.")
-        result = build_context_files_prompt(cwd=str(tmp_path))
+        result = build_workspace_context_prompt(cwd=str(tmp_path))
         assert "type hints" in result
         assert "CLAUDE.md" in result
         assert "Project Context" in result
@@ -505,7 +506,7 @@ class TestBuildContextFilesPrompt:
         lowercase.write_text("From lowercase.")
         if uppercase.samefile(lowercase):
             pytest.skip("filesystem is case-insensitive")
-        result = build_context_files_prompt(cwd=str(tmp_path))
+        result = build_workspace_context_prompt(cwd=str(tmp_path))
         assert "From uppercase" in result
         assert "From lowercase" not in result
 
@@ -1018,7 +1019,7 @@ class TestContextFileReadTimeout:
         # Patch the module object build_context_files_prompt actually closes
         # over: an earlier test re-imports agent.prompt_builder, so the
         # sys.modules entry can be a different module object.
-        pb_mod = sys.modules[build_context_files_prompt.__module__]
+        pb_mod = sys.modules[build_workspace_context_prompt.__module__]
         monkeypatch.setattr(pb_mod, "_get_context_file_read_timeout", lambda: 0.05)
 
         original_read_text = Path.read_text
@@ -1032,7 +1033,7 @@ class TestContextFileReadTimeout:
 
         start = time.monotonic()
         with caplog.at_level(logging.WARNING, logger=pb_mod.__name__):
-            result = build_context_files_prompt(cwd=str(tmp_path))
+            result = build_workspace_context_prompt(cwd=str(tmp_path))
         elapsed = time.monotonic() - start
 
         assert elapsed < 0.4, f"context load blocked for {elapsed:.2f}s"

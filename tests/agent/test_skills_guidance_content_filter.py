@@ -26,10 +26,11 @@ class TestBehaviourIsPreserved:
 
 
     def test_real_newlines_preserved(self):
-        """The block must contain REAL newlines (not escaped backslash-n
-        literals) so the safety-rule heading renders as a heading."""
-        assert chr(10) in SKILLS_GUIDANCE
+        """Pre-SEAL the guidance was a multi-line block with a heading; under the
+        MERLIN_OS SEAL it is a single directive line, so no newline is expected —
+        but escaped backslash-n literals still must never appear."""
         assert (chr(92) + 'n') not in SKILLS_GUIDANCE
+        assert SKILLS_GUIDANCE.strip() == SKILLS_GUIDANCE  # single clean line
 
 
 class TestGuidanceReachesTheSystemPrompt:

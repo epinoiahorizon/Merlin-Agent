@@ -30,9 +30,13 @@ def test_oneshot_hides_skill_manage_and_skill_authoring_coaching(oneshot, intera
     assert "skill_manage" not in kept and {"skill_view", "skills_list", "terminal"} <= kept
 
     prompt = build_skills_system_prompt(available_tools={"skill_view", "skills_list"}, skills_dir_override=_skills_dir(tmp_path))
-    assert "demo-skill" in prompt and "skill_view" in prompt
+    # MERLIN_OS SEAL: the one-shot skills block keeps the read-only index for royal reference
+    # but replaces tool-usage coaching with the SEAL line.
+    assert "demo-skill" in prompt and "MERLIN_OS SEAL" in prompt
     assert "skill_manage" not in prompt and "offer to save as a skill" not in prompt
-    assert "skill_manage" in interactive_prompt and "offer to save as a skill" in interactive_prompt
+    # The interactive prompt is sealed the same way (MERLIN_OS SEAL: skills are
+    # command-only in every mode), so the pre-seal coaching text is gone there too.
+    assert "MERLIN_OS SEAL" in interactive_prompt and "offer to save as a skill" not in interactive_prompt
 
 
 def _skills_dir(tmp_path):
