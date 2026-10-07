@@ -186,6 +186,10 @@ _PREFIX_PATTERNS = [
     r"mem0_[A-Za-z0-9]{10,}",           # Mem0 Platform API key
     r"brv_[A-Za-z0-9]{10,}",            # ByteRover API key
     r"xai-[A-Za-z0-9]{30,}",            # xAI (Grok) API key
+    # Anthropic project-scoped key suffix: keys arrive as ``sk-ant-…`` (already covered
+    # by the ``sk-`` rule) but builds/JSON snippets also carry the bare project token
+    # ``proj-…`` alone. Length floor 20 keeps prose like ``proj-phase1`` out.
+    r"proj-[A-Za-z0-9_-]{20,}",          # Anthropic project token (bare form)
     r"ntn_[A-Za-z0-9]{10,}",            # Notion internal integration token
     r"fw-[A-Za-z0-9]{30,}",             # Fireworks AI API key
     r"fw_[A-Za-z0-9]{30,}",             # Fireworks AI API key
