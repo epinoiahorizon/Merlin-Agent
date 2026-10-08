@@ -1218,15 +1218,83 @@ def _cmd_share(db, args):
     return 0
 
 
+def _cmd_forge(db, args):
+    """``sessions forge``: one session → Dreamball capsule (5W1H + soul + rivers).
+
+    The capsule never carries message bodies: only the structural 5W1H, the
+    first user line as the WHY epitaph, and lineage ids as RIVERS.
+    """
+    resolved = db.resolve_session_id(args.session_id)
+    if not resolved:
+        return _not_found(args.session_id)
+    # Lineage export feeds RIVERS; fall back to the single session.
+    data = None
+    try:
+        data = db.export_session_lineage(resolved, include_compacted=False)
+    except Exception:
+        data = None
+    if not data:
+        data = db.export_session(resolved, include_compacted=False)
+    if not data:
+        return _not_found(args.session_id)
+
+    anchor = {"kind": "unanchored"}
+    if args.anchor or (args.lat is not None and args.lon is not None):
+        anchor = {"kind": "place" if args.lat is not None else "label"}
+        if args.lat is not None and args.lon is not None:
+            anchor.update({"lat": args.lat, "lon": args.lon})
+        if args.anchor:
+            anchor["label"] = args.anchor
+        if args.lat is None and args.lon is None and args.anchor:
+            anchor = {"kind": "memory", "label": args.anchor}
+
+    from merlin_cli.dreamball import forge_dreamball, save_dreamball
+    capsule = forge_dreamball(
+        data, anchor=anchor, principal=args.principal, intent_override=args.intent)
+
+    out_path = None
+    if args.output and args.output != "-":
+        out_path = Path(args.output).expanduser()
+    else:
+        from merlin_cli.config import get_merlin_home
+        balls_dir = Path(get_merlin_home()) / "dreamballs"
+        out_path = None  # resolved by save_dreamball into the default dir
+        safe = str(resolved).replace("/", "-")
+        balls_dir.mkdir(parents=True, exist_ok=True)
+        out_path = str(balls_dir / (safe + ".dreamball"))
+    if args.output == "-":
+        import json as _json
+        print(_json.dumps(capsule, ensure_ascii=False, indent=2))
+        return 0
+    path = save_dreamball(capsule, str(Path(out_path).parent) if args.output else str(Path.home() / ".merlin" / "dreamballs"))
+    if args.output and args.output != "-":
+        # explicit file path: honor it exactly
+        Path(args.output).expanduser().parent.mkdir(parents=True, exist_ok=True)
+        Path(args.output).expanduser().write_text(
+            json.dumps(capsule, ensure_ascii=False, indent=2), encoding="utf-8")
+        path = args.output
+
+    print(f"Dreamball forged: {path}")
+    if capsule["how"]["verified"]:
+        print(f"Soul: \"{capsule['soul']['inscription']}\"]")
+        print("Receipt: red→green verified. The ball burns bright.")
+    else:
+        print(f"Soul: \"{capsule['soul']['inscription']}\"]")
+    rivers = capsule.get("rivers") or []
+    if rivers:
+        print(f"Rivers: {len(rivers)} upstream session(s) flow into this ball.")
+    return 0
+
+
 _PRE_DB_HANDLERS = {
     "repair": _cmd_repair, "recover": _cmd_recover, "import": _cmd_import,
     "repair-profiles": _cmd_repair_profiles,  # opens every profile's store itself
     "set-journal-mode": _cmd_set_journal_mode,  # offline: must not open the store it converts
 }
-_OBSERVATIONAL_DB_ACTIONS = frozenset({"list", "stats", "pinned", "share"})
+_OBSERVATIONAL_DB_ACTIONS = frozenset({"list", "stats", "pinned", "share", "forge"})
 _DB_HANDLERS = {
     "list": _cmd_list, "export": _cmd_export, "delete": _cmd_delete, "rename": _cmd_rename, "pinned": _cmd_pinned,
-    "share": _cmd_share,
+    "share": _cmd_share, "forge": _cmd_forge,
     "prune": partial(_cmd_prune_or_archive, action="prune"), "pin": partial(_cmd_pin, pinning=True),
     "archive": partial(_cmd_prune_or_archive, action="archive"), "unpin": partial(_cmd_pin, pinning=False),
     "retitle-skills": _cmd_retitle_skills, "browse": _cmd_browse, "optimize": _cmd_optimize,
