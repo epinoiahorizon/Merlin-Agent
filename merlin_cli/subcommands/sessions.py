@@ -110,6 +110,18 @@ def build_sessions_parser(subparsers, *, cmd_sessions: Callable) -> None:
     sessions_share.add_argument("--title", help="Override the card title")
     sessions_share.add_argument("--subtitle", help="Card subtitle (e.g. the one-line outcome)")
 
+    sessions_forge = sessions_subparsers.add_parser(
+        "forge", help="Forge a session into a Dreamball capsule (5W1H + soul + rivers)")
+    sessions_forge.add_argument("session_id", metavar="SESSION", help="Session id or prefix")
+    sessions_forge.add_argument("output", nargs="?", metavar="OUTPUT",
+        help="Where to write the capsule (default: <merlin home>/dreamballs/<session>.dreamball)")
+    sessions_forge.add_argument("--anchor", metavar="LABEL",
+        help="WHERE: anchor label for the Dreamfield (e.g. 'Jakarta' or 'Sirius')")
+    sessions_forge.add_argument("--lat", type=float, help="Anchor latitude (with --lon)")
+    sessions_forge.add_argument("--lon", type=float, help="Anchor longitude (with --lat)")
+    sessions_forge.add_argument("--principal", default="the King", help="WHO: the human principal")
+    sessions_forge.add_argument("--intent", help="Override the WHY epitaph line")
+
 
     sessions_prune = sessions_subparsers.add_parser(
         "prune", help="Delete old sessions (filterable by time window, source, title, ...)")
