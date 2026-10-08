@@ -102,6 +102,15 @@ def build_sessions_parser(subparsers, *, cmd_sessions: Callable) -> None:
     sessions_delete.add_argument("session_id", help="Session ID to delete")
     add_yes_flag(sessions_delete, "Skip confirmation")
 
+    sessions_share = sessions_subparsers.add_parser(
+        "share", help="Render one session as a self-contained share card (1200x630 HTML)")
+    sessions_share.add_argument("session_id", metavar="SESSION", help="Session id or prefix")
+    sessions_share.add_argument("output", nargs="?", metavar="OUTPUT",
+        help="Where to write the card HTML (default: <merlin home>/share-cards/<session>.html)")
+    sessions_share.add_argument("--title", help="Override the card title")
+    sessions_share.add_argument("--subtitle", help="Card subtitle (e.g. the one-line outcome)")
+
+
     sessions_prune = sessions_subparsers.add_parser(
         "prune", help="Delete old sessions (filterable by time window, source, title, ...)")
     _add_session_filter_args(
