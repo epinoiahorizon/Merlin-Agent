@@ -1162,14 +1162,71 @@ def _cmd_set_journal_mode(args):
     return cmd_set_journal_mode(args)
 
 
+def _cmd_share(db, args):
+    """``sessions share``: one session → self-contained 1200x630 share card HTML.
+
+    The card carries only metadata and caller-visible counts; message bodies are
+    reduced to red→green evidence by the card renderer and never rendered raw.
+    """
+    resolved = db.resolve_session_id(args.session_id)
+    if not resolved:
+        return _not_found(args.session_id)
+    data = db.export_session(resolved, include_compacted=False)
+    if not data:
+        return _not_found(args.session_id)
+
+    from merlin_cli.share_card import card_summary, generate_share_card_html
+    summary = card_summary(data)
+    title = args.title or summary["title"]
+    html = generate_share_card_html(
+        title=title,
+        subtitle=args.subtitle,
+        messages=data.get("messages") or [],
+    )
+
+    out_path = None
+    if args.output and args.output != "-":
+        out_path = Path(args.output).expanduser()
+    else:
+        from merlin_cli.config import get_merlin_home
+        cards_dir = Path(get_merlin_home()) / "share-cards"
+        cards_dir.mkdir(parents=True, exist_ok=True)
+        safe = (resolved or summary.get("session_id") or "session").replace("/", "-")
+        out_path = cards_dir / f"{safe}.html"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(html, encoding="utf-8")
+
+    import datetime as _dt
+    date = None
+    ts = data.get("created_at") or data.get("start") or data.get("epoch")
+    if isinstance(ts, (int, float)):
+        date = _dt.datetime.fromtimestamp(ts, tz=_dt.timezone.utc).strftime("%Y-%m-%d")
+    stats = {
+        "date": date or "—",
+        "messages": summary["message_count"],
+    }
+    html2 = generate_share_card_html(
+        title=title, subtitle=args.subtitle,
+        messages=data.get("messages") or [], stats=stats,
+    )
+    out_path.write_text(html2, encoding="utf-8")
+
+    print(f"Share card written: {out_path}")
+    if summary.get("verification_receipt"):
+        print("Receipt detected: red→green verified session.")
+    print("Render to PNG at 1200x630 (screenshot the HTML) for social posting.")
+    return 0
+
+
 _PRE_DB_HANDLERS = {
     "repair": _cmd_repair, "recover": _cmd_recover, "import": _cmd_import,
     "repair-profiles": _cmd_repair_profiles,  # opens every profile's store itself
     "set-journal-mode": _cmd_set_journal_mode,  # offline: must not open the store it converts
 }
-_OBSERVATIONAL_DB_ACTIONS = frozenset({"list", "stats", "pinned"})
+_OBSERVATIONAL_DB_ACTIONS = frozenset({"list", "stats", "pinned", "share"})
 _DB_HANDLERS = {
     "list": _cmd_list, "export": _cmd_export, "delete": _cmd_delete, "rename": _cmd_rename, "pinned": _cmd_pinned,
+    "share": _cmd_share,
     "prune": partial(_cmd_prune_or_archive, action="prune"), "pin": partial(_cmd_pin, pinning=True),
     "archive": partial(_cmd_prune_or_archive, action="archive"), "unpin": partial(_cmd_pin, pinning=False),
     "retitle-skills": _cmd_retitle_skills, "browse": _cmd_browse, "optimize": _cmd_optimize,
