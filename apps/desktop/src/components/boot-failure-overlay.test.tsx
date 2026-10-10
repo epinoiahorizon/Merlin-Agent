@@ -249,7 +249,9 @@ describe('BootFailureOverlay', () => {
     const gatewayUrl = 'https://agent-1.agents.epinoiahorizon.com'
     const logout = vi.fn().mockResolvedValue({ ok: true, connected: false })
     const nativeLogin = vi.fn().mockResolvedValue({ ok: true, connected: false })
-    const cloudStatus = vi.fn().mockResolvedValue({ portalBaseUrl: 'https://portal.epinoiahorizon.com', signedIn: false })
+    const cloudStatus = vi
+      .fn()
+      .mockResolvedValue({ portalBaseUrl: 'https://portal.epinoiahorizon.com', signedIn: false })
 
     const cloudLogin = vi.fn().mockResolvedValue({
       ok: true,

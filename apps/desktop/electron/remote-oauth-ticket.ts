@@ -33,11 +33,7 @@ export async function resolveRemoteOauthTicket(
     // causes behind one sentence (#98647).
     throw (
       makeAtlasCloudBackendDownError(baseUrl, error) ??
-      gatewayTicketFailure(
-        error,
-        oauthTicketFailureAuthMessage(hadNativeSession),
-        gatewayTicketTransportMessage(error)
-      )
+      gatewayTicketFailure(error, oauthTicketFailureAuthMessage(hadNativeSession), gatewayTicketTransportMessage(error))
     )
   }
 }

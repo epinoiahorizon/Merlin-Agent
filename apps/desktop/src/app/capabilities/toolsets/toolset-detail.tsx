@@ -2,8 +2,8 @@ import { compactNumber } from '@merlin/shared'
 import { useNavigate } from 'react-router'
 
 import { Button } from '@/components/ui/button'
-import { type ProfileScope, profileScopeKey } from '@/merlin'
 import { useI18n } from '@/i18n'
+import { type ProfileScope, profileScopeKey } from '@/merlin'
 import type { ToolsetInfo } from '@/types/merlin'
 
 import { ToolChip } from '../../master-detail'

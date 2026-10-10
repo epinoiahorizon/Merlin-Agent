@@ -15,10 +15,10 @@ import {
   DialogTitle,
   preventCloseButtonAutoFocus
 } from '@/components/ui/dialog'
-import { getGlobalModelOptions } from '@/merlin'
 import { type Translations, useI18n } from '@/i18n'
 import { CheckCircle2, Loader2 } from '@/lib/icons'
-import { FREE_TIER_MODEL, friendlyWait, ATLAS_PROVIDER_ID, refreshFreeTierStatus } from '@/store/free-tier'
+import { getGlobalModelOptions } from '@/merlin'
+import { ATLAS_PROVIDER_ID, FREE_TIER_MODEL, friendlyWait, refreshFreeTierStatus } from '@/store/free-tier'
 import {
   $freeTierSignIn,
   beginFreeTierSignIn,

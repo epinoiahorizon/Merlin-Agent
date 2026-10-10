@@ -1,6 +1,6 @@
 import type { MerlinGitBranch, MerlinGitWorktree } from '@/global'
-import type { ProjectInfo, SessionInfo } from '@/merlin'
 import { normalize } from '@/lib/text'
+import type { ProjectInfo, SessionInfo } from '@/merlin'
 
 import { rankSessions } from '../order'
 

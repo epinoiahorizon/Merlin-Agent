@@ -3,9 +3,9 @@ import { useMemo } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { CountSkeleton } from '@/components/ui/skeleton'
-import { previewSkillHub, type ProfileScope, profileScopeKey } from '@/merlin'
 import { useI18n } from '@/i18n'
 import { Loader2 } from '@/lib/icons'
+import { previewSkillHub, type ProfileScope, profileScopeKey } from '@/merlin'
 import type { OfficialSkillInfo } from '@/types/merlin'
 
 import { PanelPill } from '../../overlays/panel'

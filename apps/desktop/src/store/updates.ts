@@ -15,9 +15,9 @@ import type {
   DesktopVersionInfo,
   MerlinConnection
 } from '@/global'
-import { checkMerlinUpdate, getActionStatus, updateMerlin } from '@/merlin'
 import { translateNow } from '@/i18n'
 import { persistString, storedString } from '@/lib/storage'
+import { checkMerlinUpdate, getActionStatus, updateMerlin } from '@/merlin'
 import { $connectionsRegistry, refreshConnectionsRegistry } from '@/store/connections'
 import { reconnectGateway } from '@/store/gateway-reconnect'
 import { dismissNotification, notify } from '@/store/notifications'

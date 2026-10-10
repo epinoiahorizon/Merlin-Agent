@@ -2,7 +2,7 @@ import { contrastRatio } from '@merlin/shared/color'
 import { describe, expect, it } from 'vitest'
 
 import { hexToOklch, withHue } from './color'
-import { githubTheme, atlasTheme } from './presets'
+import { atlasTheme, githubTheme } from './presets'
 import { retintTheme } from './retint'
 import type { DesktopThemeColors } from './types'
 

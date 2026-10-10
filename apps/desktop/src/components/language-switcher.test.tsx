@@ -1,8 +1,8 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import type { MerlinConfigRecord } from '@/merlin'
 import { type I18nConfigClient, I18nProvider, registerAppLocale } from '@/i18n'
+import type { MerlinConfigRecord } from '@/merlin'
 import { stubMenuDomApis, stubResizeObserver } from '@/test/jsdom'
 
 import { LanguageSwitcher } from './language-switcher'

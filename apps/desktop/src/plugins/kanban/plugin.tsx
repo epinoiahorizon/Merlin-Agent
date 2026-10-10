@@ -14,10 +14,10 @@ import './kanban.css'
 import {
   cn,
   Codicon,
-  type MerlinPlugin,
   host,
   type KeybindContribution,
   KEYBINDS_AREA,
+  type MerlinPlugin,
   PALETTE_AREA,
   type PaletteContribution,
   type RouteContribution,
