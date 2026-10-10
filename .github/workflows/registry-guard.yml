@@ -1,0 +1,47 @@
+name: Registry resolution guard
+
+# Every lockfile pin must resolve to a downloadable tarball whose digest
+# matches the registry. Catches the fresh-install E404 class (a Malaysia user
+# was the first hit, 2026-10-10: a repo-wide hermes->merlin rename had rewritten
+# third-party package names inside package-lock.json; dev machines never ran
+# npm ci fresh, and the install E2E matrix had no release tags to pick, so the
+# first signal was a real user). Runs on the same pushes that trigger the
+# install E2E's dependency paths, plus a daily sweep.
+#
+# The script is deliberately dependency-free (node:http only): it must never
+# itself need npm ci to run.
+
+on:
+  push:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'apps/*/package.json'
+      - 'apps/*/package-lock.json'
+      - 'ui-tui/package.json'
+      - 'web/package.json'
+      - 'scripts/build/check-registry-resolution.mjs'
+      - '.github/workflows/registry-guard.yml'
+  schedule:
+    - cron: '5 5 * * *' # daily, 05:05 UTC — off every other repo cron
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: registry-guard-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    name: Lockfile pins resolve (E404 guard)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22' # no project install needed: the guard is stdlib-only
+      - name: Check every lockfile pin resolves
+        run: node scripts/build/check-registry-resolution.mjs package-lock.json
