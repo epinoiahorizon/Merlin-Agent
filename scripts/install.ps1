@@ -854,6 +854,14 @@ function Stage-Repository {
         $staged = Join-Path $parent ".merlin-clone-$PID-$(Get-Random)"
         $tree = Join-Path $staged "tree"
         New-Item -ItemType Directory -Force -Path $staged | Out-Null
+        # A crashed earlier run can leave staging behind (the name embeds that
+        # run's PID+random, so this run's fresh dir never collides with it).
+        # Reclaim it, or the retry loop dies on a misleading "destination
+        # path already exists" instead of the real failure.
+        Get-ChildItem -LiteralPath $parent -Filter '.merlin-clone-*' -Force -ErrorAction SilentlyContinue |
+            Select-Object -ExpandProperty FullName |
+            Where-Object { $_ -ne $staged } |
+            ForEach-Object { Remove-Item -LiteralPath $_ -Recurse -Force -ErrorAction SilentlyContinue }
         # Phase lines ("Receiving objects: 42%") feed the status line; git
         # prints none to a pipe unless asked.
         $progress = @()
@@ -870,6 +878,12 @@ function Stage-Repository {
                 Invoke-Logged $cloneLabel { git clone @progress --filter=tree:0 --branch $Branch $RepoUrl $tree }
                 if (-not $LASTEXITCODE) { $cloned = $true; break }
                 Remove-Item -LiteralPath $tree -Recurse -Force -ErrorAction SilentlyContinue
+                if (Test-Path -LiteralPath $tree) {
+                    # Say why, instead of letting the next attempt fail with a
+                    # misleading "destination already exists": name the usual
+                    # lockers and the exact manual fix.
+                    Fail "stale clone dir could not be removed: $tree (usual causes: antivirus or OneDrive holding files open; close/unlock, delete that folder manually, then rerun)"
+                }
                 if ($attempt -lt 3) { Start-Sleep -Seconds ($attempt * 5) }
             }
             if (-not $cloned) {

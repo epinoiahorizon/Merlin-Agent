@@ -554,6 +554,10 @@ stage_repository() {
         # prints none to a pipe unless asked.
         if quiet_output; then progress=(--progress); fi
         staged="$(mktemp -d "$(dirname "$INSTALL_DIR")/.merlin-clone-XXXXXX")" || fail "cannot stage clone"
+        # Reclaim staging left by a crashed earlier run (names embed that run's
+        # mktemp suffix, so this run's fresh dir never collides with one).
+        find "$(dirname "$INSTALL_DIR")" -maxdepth 1 -type d -name '.merlin-clone-*' \
+            ! -path "$staged" -exec rm -rf {} + 2>/dev/null || true
         for attempt in 1 2 3; do
             # Treeless: every commit and release tag (runtime identity is the
             # nearest reachable release; --commit pins and branch switches
@@ -567,6 +571,13 @@ stage_repository() {
                 break
             fi
             rm -rf "$staged/tree"
+            if [ -d "$staged/tree" ]; then
+                # Say why, instead of letting the next attempt fail with a
+                # misleading "destination already exists": name the usual
+                # lockers and the exact manual fix.
+                rm -rf "$staged"
+                fail "stale clone dir could not be removed: $staged/tree (usual causes: antivirus or OneDrive holding files open; close/unlock, delete that folder manually, then rerun)"
+            fi
             [ "$attempt" = 3 ] || sleep "$((attempt * 5))"
         done
         if [ "$cloned" = false ]; then
