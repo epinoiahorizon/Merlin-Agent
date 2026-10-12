@@ -372,6 +372,55 @@ class TestStatusBarFieldConfig:
         assert "12.4K/200K" in text
         assert "🗜️" in text
 
+    def test_spellbook_chrome_suppresses_stock_gauge(self):
+        """Arcane skin renders its own ᚨ Mana gauge — stock status bar must not ALSO
+        render its context bar (two gauges, one value — #double-mana-gauge)."""
+        from unittest.mock import patch as mpatch
+        import merlin_cli.skin_engine as skin_engine
+        cli_obj = _attach_agent(
+            _make_cli(),
+            prompt_tokens=10_230,
+            completion_tokens=2_220,
+            total_tokens=12_450,
+            api_calls=7,
+            context_tokens=12_450,
+            context_length=200_000,
+            compressions=7,
+        )
+        arcane_skin = SimpleNamespace(
+            name="grimoire",
+            get_branding=lambda key, default="": "ᛟ Incantation" if key == "response_label" else default,
+        )
+        with mpatch.object(skin_engine, "get_active_skin", return_value=arcane_skin), \
+                mpatch.object(cli_mod, "CLI_CONFIG", {"display": {"status_bar": {"fields": []}}}):
+            text = cli_obj._build_status_bar_text(width=120)
+        assert "claude-sonnet-4-20250514" in text
+        assert "%" not in text  # stock gauge suppressed; SPELLBOOK panel owns it
+
+    def test_explicit_context_pct_field_overrides_spellbook_suppression(self):
+        """User who lists context_pct in display.status_bar.fields opts the stock
+        gauge back in even under the arcane chrome (explicit beats heuristic)."""
+        from unittest.mock import patch as mpatch
+        import merlin_cli.skin_engine as skin_engine
+        cli_obj = _attach_agent(
+            _make_cli(),
+            prompt_tokens=10_230,
+            completion_tokens=2_220,
+            total_tokens=12_450,
+            api_calls=7,
+            context_tokens=12_450,
+            context_length=200_000,
+            compressions=7,
+        )
+        arcane_skin = SimpleNamespace(
+            name="grimoire",
+            get_branding=lambda key, default="": "ᛟ Incantation" if key == "response_label" else default,
+        )
+        with mpatch.object(skin_engine, "get_active_skin", return_value=arcane_skin), \
+                mpatch.object(cli_mod, "CLI_CONFIG", {"display": {"status_bar": {"fields": ["model", "context_pct"]}}}):
+            text = cli_obj._build_status_bar_text(width=120)
+        assert "%" in text  # explicit opt-in wins
+
 
 
 class TestCacheHitRate:
