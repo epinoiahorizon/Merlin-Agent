@@ -460,6 +460,8 @@ class CLITuiRuntimeMixin:
         from cli import _DIM, _RST, _cprint, _invoke_interrupted_session_end, _run_cleanup, set_approval_callback, set_secret_capture_callback, set_sudo_password_callback
         self._should_exit = True
         self._pet_stop_anim()
+        with suppress(Exception):
+            self._spellbook_anim_stop()
         # Without this line the terminal sits silent through the whole cleanup window.
         with suppress(Exception):
             print(f"{_DIM}{t('cli.tui.shutting_down')}{_RST}", flush=True)

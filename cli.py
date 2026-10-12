@@ -1495,6 +1495,8 @@ class MerlinCLI(CLIInitMixin, CLITuiRuntimeMixin, CLIProcessNotificationsMixin, 
                 if self._tui_multiline_shortcuts:
                     _enable_extended_enter_keys(app.output)
                 self._pet_start_anim()
+                if self._spellbook_anim_active_skin():
+                    self._spellbook_anim_start()
                 app.run()
         except (EOFError, KeyboardInterrupt, BrokenPipeError):
             pass

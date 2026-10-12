@@ -404,6 +404,11 @@ class CLIInitMixin:
         self._pet_kitty_image_id = self._pet_frame_idx = 0
         self._pet_lock = threading.Lock()
         self._pet_cfg_checked = self._pet_event_until = 0.0
+        # Arcane shimmer (display.spellbook_anim): sparkle + glow sweep across the SPELLBOOK
+        # chrome's ᚨ Mana gauge — same daemon/invalidate pattern as the pet anim loop.
+        self._spellbook_anim_enabled = self._spellbook_anim_running = False
+        self._spellbook_anim_thread = None
+        self._spellbook_anim_idx = 0
         self._pet_event: str = ""
         self._pet_reasoning = self._pet_turn_error = False
         self._attached_images: list[Path] = []

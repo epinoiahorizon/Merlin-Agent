@@ -83,6 +83,10 @@ class CLITerminalMixin:
             self._pet_stop_anim()
         except Exception:
             pass
+        try:
+            self._spellbook_anim_stop()
+        except Exception:
+            pass
         logger.warning(
             "Terminal I/O broken%s — freezing UI paints to avoid redraw storm (#81521)",
             f" ({reason})" if reason else "")

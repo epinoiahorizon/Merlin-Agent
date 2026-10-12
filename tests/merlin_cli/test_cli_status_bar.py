@@ -4,8 +4,26 @@ from datetime import datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 import cli as cli_mod
 from cli import MerlinCLI
+
+
+@pytest.fixture(autouse=True)
+def _stock_skin_for_bar_tests():
+    """Contract tests below describe the *stock* bar. The upstream default skin is the
+    arcane Grimoire (ᛟ), whose SPELLBOOK chrome legitimately de-dupes model/prompt_elapsed/
+    context_pct out of the stock bar — so every test here runs under a plain non-arcane
+    skin unless it patches an arcane one itself."""
+    import merlin_cli.skin_engine as skin_engine
+    stock = SimpleNamespace(
+        name="stock-test",
+        get_branding=lambda key, default="": "",
+        get_color=lambda key, fallback="": fallback,
+    )
+    with patch.object(skin_engine, "get_active_skin", return_value=stock):
+        yield
 
 
 def _make_cli(model: str = "anthropic/claude-sonnet-4-20250514"):
@@ -372,9 +390,9 @@ class TestStatusBarFieldConfig:
         assert "12.4K/200K" in text
         assert "🗜️" in text
 
-    def test_spellbook_chrome_suppresses_stock_gauge(self):
-        """Arcane skin renders its own ᚨ Mana gauge — stock status bar must not ALSO
-        render its context bar (two gauges, one value — #double-mana-gauge)."""
+    def test_spellbook_chrome_suppresses_stock_duplicates(self):
+        """Arcane skin renders its own ᚨ Mana panel — the stock status bar must not ALSO
+        render model / context gauge / prompt-elapsed duplicates (one panel, one fact)."""
         from unittest.mock import patch as mpatch
         import merlin_cli.skin_engine as skin_engine
         cli_obj = _attach_agent(
@@ -394,8 +412,11 @@ class TestStatusBarFieldConfig:
         with mpatch.object(skin_engine, "get_active_skin", return_value=arcane_skin), \
                 mpatch.object(cli_mod, "CLI_CONFIG", {"display": {"status_bar": {"fields": []}}}):
             text = cli_obj._build_status_bar_text(width=120)
-        assert "claude-sonnet-4-20250514" in text
-        assert "%" not in text  # stock gauge suppressed; SPELLBOOK panel owns it
+        assert "12.4K/200K" in text  # raw token counts are ABSENT from the panel — extra info, stays
+        assert "%" not in text      # stock pct bar suppressed; SPELLBOOK panel owns the gauge
+        assert "claude-sonnet-4-20250514" not in text  # panel's ᛟ Incantation owns the model
+        assert "⏲" not in text      # panel's ᛝ Response owns the prompt elapsed
+        assert "15m" in text        # session duration is NOT duplicated by the panel — stays
 
     def test_explicit_context_pct_field_overrides_spellbook_suppression(self):
         """User who lists context_pct in display.status_bar.fields opts the stock

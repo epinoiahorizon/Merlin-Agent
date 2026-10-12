@@ -512,6 +512,31 @@ class CLITuiMixin:
                 mana_part = f"[{'᛫' * 16}] warming"
                 mstyle = "fg:" + c_dim
 
+            # ── arcane shimmer (display.spellbook_anim): rotating rune + one ember
+            # sweeping the Mana rail while the anim thread ticks the counter. Static
+            # fallback when dormant.
+            mana_label, label_style = "ᚨ", "fg:" + c_dim
+            mana_frags = [(mstyle, mana_part)]
+            if getattr(self, "_spellbook_anim_running", False):
+                try:
+                    idx = int(getattr(self, "_spellbook_anim_idx", 0)) or 0
+                    glyphs = self._SPELLBOOK_ANIM_GLYPHS
+                    glow = self._SPELLBOOK_ANIM_GLOW
+                    mana_label = glyphs[idx % len(glyphs)]
+                    label_style = "fg:" + (c_title if idx % 2 == 0 else c_dim)
+                    b_start = mana_part.index("[") + 1
+                    b_end = mana_part.index("]")
+                    rail = mana_part[b_start:b_end]
+                    if rail:
+                        pos = idx % len(rail)
+                        mana_frags = [
+                            (mstyle, mana_part[:b_start] + rail[:pos]),
+                            ("fg:" + glow[0] + " bold", rail[pos]),
+                            (mstyle, rail[pos + 1:] + mana_part[b_end:]),
+                        ]
+                except Exception:
+                    mana_label, label_style, mana_frags = "ᚨ", "fg:" + c_dim, [(mstyle, mana_part)]
+
             return [
                 ("fg:" + c_title, "✧━ ⟨ SPELLBOOK STATUS ⟩ ━✧ "),
                 ("fg:" + c_dim, "| [ESC] banish ── [/] runes ── [CTRL+C] terminate"),
@@ -520,8 +545,8 @@ class CLITuiMixin:
                 ("fg:" + c_text, str(model)),
                 ("fg:" + c_dim, "  ᛞ Runes: "),
                 ("fg:" + c_text, skill_count),
-                ("fg:" + c_dim, "  ᚨ Mana: "),
-                (mstyle, mana_part),
+                (label_style, f"  {mana_label} Mana: "),
+                *mana_frags,
                 ("fg:" + c_dim, "  ᛝ Response: "),
                 ("fg:" + c_text, response_state),
             ]
