@@ -147,6 +147,25 @@ class CLIStatusBarMixin:
     def _compression_count_style(count: int) -> str:
         return _threshold_style(count, ((10, "bad"), (5, "warn")), "dim")
 
+    def _spellbook_gauge_active(self, field_set: Optional[frozenset]) -> bool:
+        """True when the Arcane Grimoire SPELLBOOK chrome already renders its own context
+        gauge (ᚨ Mana 16-glyph bar in the TUI status panel). The stock status bar then
+        suppresses its duplicate context gauge unless the user explicitly opts back in
+        via ``display.status_bar.fields`` — otherwise two gauges for the same value
+        render side by side (#double-mana-gauge)."""
+        if field_set is not None and "context_pct" in field_set:
+            return False  # explicit opt-in: user asked for the stock gauge too
+        try:
+            from merlin_cli.skin_engine import get_active_skin
+            skin = get_active_skin()
+            return bool(
+                skin
+                and skin.name in ("default", "grimoire")
+                and skin.get_branding("response_label", "").strip().startswith("ᛟ")
+            )
+        except Exception:
+            return False
+
     def _build_context_bar(self, percent_used: Optional[int], width: int = 10) -> str:
         safe_percent = max(0, min(100, percent_used or 0))
         filled = round((safe_percent / 100) * width)
@@ -1067,7 +1086,7 @@ class CLIStatusBarMixin:
                 else:
                     context_label = t("cli.status_bar.ctx_unknown")
                 segs.append([(_DIM, context_label)])
-            if _ok("context_pct"):
+            if _ok("context_pct") and not self._spellbook_gauge_active(field_set):
                 bar_style = self._status_bar_context_style(percent)
                 if wide and styled:
                     segs.append([
