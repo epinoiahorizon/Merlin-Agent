@@ -17,6 +17,12 @@ from agent.pet import render as pet_render
 from merlin_cli.banner import _format_context_length
 from typing import Any, Dict, Optional
 
+# Arcane shimmer tuning (class aliases below keep the pet-loop naming convention).
+SPELLBOOK_ANIM_INTERVAL = 0.4
+SPELLBOOK_ANIM_CFG_INTERVAL = 60.0
+SPELLBOOK_ANIM_GLYPHS = ("✧", "✦", "ᛝ", "⟡")
+SPELLBOOK_ANIM_GLOW = ("#e6c04a", "#b58900", "#657b83")
+
 _SB = "class:status-bar"
 _DIM = "class:status-bar-dim"
 _STRONG = "class:status-bar-strong"
@@ -147,24 +153,37 @@ class CLIStatusBarMixin:
     def _compression_count_style(count: int) -> str:
         return _threshold_style(count, ((10, "bad"), (5, "warn")), "dim")
 
-    def _spellbook_gauge_active(self, field_set: Optional[frozenset]) -> bool:
-        """True when the Arcane Grimoire SPELLBOOK chrome already renders its own context
-        gauge (ᚨ Mana 16-glyph bar in the TUI status panel). The stock status bar then
-        suppresses its duplicate context gauge unless the user explicitly opts back in
-        via ``display.status_bar.fields`` — otherwise two gauges for the same value
-        render side by side (#double-mana-gauge)."""
-        if field_set is not None and "context_pct" in field_set:
-            return False  # explicit opt-in: user asked for the stock gauge too
+    def _spellbook_chrome_active(self) -> bool:
+        """True when the Arcane Grimoire SPELLBOOK chrome is rendering (same condition the
+        chrome itself uses in ``_get_extra_tui_widgets``: response_label starts with the ᛟ
+        rune, or the help header uses the ✧━ spellbook frame — skin NAME is irrelevant, which
+        mirrors the chrome exactly so suppression can never drift from what the user sees)."""
         try:
             from merlin_cli.skin_engine import get_active_skin
             skin = get_active_skin()
             return bool(
                 skin
-                and skin.name in ("default", "grimoire")
-                and skin.get_branding("response_label", "").strip().startswith("ᛟ")
+                and (skin.get_branding("response_label", "").strip().startswith("ᛟ")
+                     or skin.get_branding("help_header", "").startswith("✧━"))
             )
         except Exception:
             return False
+
+    def _spellbook_suppresses(self, name: str, field_set: Optional[frozenset]) -> bool:
+        """De-dupe vs the SPELLBOOK chrome: while the arcane chrome renders, the stock bar's
+        ``model``, ``prompt_elapsed`` and ``context_pct`` segments merely duplicate what the
+        panel already shows. Suppressed by default; the chrome-gating condition mirrors
+        ``_get_extra_tui_widgets`` exactly so suppression can never drift from what the user
+        sees. An explicit entry in ``display.status_bar.fields`` always opts the segment
+        back in (user intent beats the heuristic)."""
+        if not self._spellbook_chrome_active():
+            return False
+        return not (field_set is not None and name in field_set)
+
+    def _spellbook_gauge_active(self, field_set: Optional[frozenset]) -> bool:
+        """True when the SPELLBOOK chrome already renders its own context gauge (ᚨ Mana
+        16-glyph bar) so the stock bar should drop its duplicate context gauge."""
+        return self._spellbook_suppresses("context_pct", field_set)
 
     def _build_context_bar(self, percent_used: Optional[int], width: int = 10) -> str:
         safe_percent = max(0, min(100, percent_used or 0))
@@ -964,6 +983,79 @@ class CLIStatusBarMixin:
             thread.join(timeout=0.3)
         self._pet_anim_thread = None
 
+    # ── arcane shimmer ────────────────────────────────────────────────────────
+    # display.spellbook_anim: the SPELLBOOK chrome already owns identity in this skin; its
+    # ᚨ Mana gauge gets a slow sparkle sweep (border glyph rotates, one bright ember walks
+    # the bar) so the panel feels alive without a repaint storm. Same daemon/invalidate
+    # discipline as the pet loop: EIO → _mark_terminal_io_broken, config re-read is coarse.
+
+    _SPELLBOOK_ANIM_INTERVAL = SPELLBOOK_ANIM_INTERVAL
+    _SPELLBOOK_ANIM_CFG_INTERVAL = SPELLBOOK_ANIM_CFG_INTERVAL
+    _SPELLBOOK_ANIM_GLYPHS = SPELLBOOK_ANIM_GLYPHS
+    _SPELLBOOK_ANIM_GLOW = SPELLBOOK_ANIM_GLOW
+
+    def _spellbook_anim_active_skin(self) -> bool:
+        try:
+            from merlin_cli.skin_engine import get_active_skin
+            skin = get_active_skin()
+            return bool(
+                skin
+                and skin.name in ("default", "grimoire")
+                and skin.get_branding("response_label", "").strip().startswith("ᛟ")
+            )
+        except Exception:
+            return False
+
+    def _spellbook_anim_start(self) -> None:
+        if self._spellbook_anim_running:
+            return
+        try:
+            if not self._spellbook_anim_cfg_enabled():
+                return
+        except Exception:
+            pass
+        self._spellbook_anim_running = True
+        self._spellbook_anim_thread = threading.Thread(target=self._spellbook_anim_loop, daemon=True)
+        self._spellbook_anim_thread.start()
+
+    def _spellbook_anim_cfg_enabled(self) -> bool:
+        """display.spellbook_anim gate — default ON under the arcane skin; any falsy value disables."""
+        try:
+            from utils import is_truthy_value
+            from merlin_cli.config import load_config
+            cfg = load_config()
+            display = cfg.get("display", {}) if isinstance(cfg.get("display"), dict) else {}
+            return is_truthy_value(display.get("spellbook_anim"), default=True)
+        except Exception:
+            return True
+
+    def _spellbook_anim_stop(self) -> None:
+        self._spellbook_anim_running = False
+        thread = self._spellbook_anim_thread
+        if thread is not None:
+            thread.join(timeout=0.3)
+        self._spellbook_anim_thread = None
+
+    def _spellbook_anim_loop(self) -> None:
+        while self._spellbook_anim_running:
+            time.sleep(self._SPELLBOOK_ANIM_INTERVAL)
+            if getattr(self, "_terminal_io_broken", False):
+                self._spellbook_anim_running = False
+                break
+            self._spellbook_anim_idx += 1
+            if self._spellbook_anim_idx % (self._SPELLBOOK_ANIM_CFG_INTERVAL / self._SPELLBOOK_ANIM_INTERVAL) == 0:
+                cfg_now = getattr(self, "_spellbook_anim_cfg_enabled", lambda: True)()
+                if not cfg_now or not self._spellbook_anim_active_skin():
+                    continue
+            app = getattr(self, "_app", None)
+            if app is not None:
+                try:
+                    app.invalidate()
+                except OSError as exc:
+                    if getattr(exc, "errno", None) == errno.EIO:
+                        self._mark_terminal_io_broken("spellbook_anim")
+                        break
+
     # ── voice ─────────────────────────────────────────────────────────────────
 
     def _voice_record_key_label(self) -> str:
@@ -1064,7 +1156,7 @@ class CLIStatusBarMixin:
             if count:
                 add(name, style(count) if callable(style) else style, f"{glyph} {count}")
 
-        if _ok("model"):
+        if _ok("model") and not self._spellbook_suppresses("model", field_set):
             if styled:
                 segs.append([(_SB, " ᛟ "), (_STRONG, model_short)])
             else:
@@ -1117,7 +1209,7 @@ class CLIStatusBarMixin:
         if wide:
             for name in ("prompt_elapsed", "idle_since"):
                 label = snapshot.get(name)
-                if label:
+                if label and (name != "prompt_elapsed" or not self._spellbook_suppresses("prompt_elapsed", field_set)):
                     add(name, _DIM, label)
         if focus_label:
             add("focus", _STRONG, focus_label)
