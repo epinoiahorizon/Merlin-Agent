@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth — Verified Render</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; }
+        #app { width: 100vw; height: 100vh; }
+        .hud {
+            position: fixed; z-index: 10; color: #cfe8e4;
+            font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+            font-size: 12px; letter-spacing: 0.04em;
+            background: rgba(4, 8, 12, 0.55); border: 1px solid rgba(120, 200, 190, 0.18);
+            padding: 10px 14px; border-radius: 8px; backdrop-filter: blur(8px);
+        }
+        #stats { right: 20px; bottom: 20px; min-width: 170px; }
+        #stats div { display: flex; justify-content: space-between; gap: 18px; line-height: 1.7; }
+        #stats b { color: #6ee7d8; font-weight: 600; }
+        #title { left: 24px; bottom: 20px; }
+        #title h1 {
+            font-family: 'Inter', -apple-system, sans-serif; font-size: 20px; font-weight: 650;
+            color: #eafffb; letter-spacing: -0.01em; margin-bottom: 2px;
+        }
+        #title p { font-family: 'Inter', sans-serif; font-size: 12px; color: #7fa8a2; }
+        #load {
+            position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+            color: #6ee7d8; font-family: ui-monospace, monospace; font-size: 13px; z-index: 20;
+            transition: opacity .6s ease; letter-spacing: .08em;
+            background: #030507;
+        }
+        #load.done { opacity: 0; pointer-events: none; }
+        #load .err { color: #ff7b6b; max-width: 60ch; text-align: center; line-height: 1.6; }
+    </style>
+    <!-- CRITICAL: importmap MUST come before any module script -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div id="app"></div>
+    <div id="load">loading earth textures…</div>
+    <div class="hud" id="title">
+        <h1>Terra</h1>
+        <p>day/night earth · cloud layer · atmospheric rim — drag to orbit</p>
+    </div>
+    <div class="hud" id="stats">
+        <div><span>FPS</span><b id="fps">—</b></div>
+        <div><span>DRAW CALLS</span><b id="calls">—</b></div>
+        <div><span>TRIANGLES</span><b id="tris">—</b></div>
+        <div><span>TEXTURES</span><b id="tex">—</b></div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+        const TEX = 'https://raw.githubusercontent.com/mrdoob/three.js/r170/examples/textures/planets/';
+        const $load = document.getElementById('load');
+
+        const app = document.getElementById('app');
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.15;
+        app.appendChild(renderer.domElement);
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x030507);
+
+        const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 100);
+        camera.position.set(0, 0.9, 7.2);
+
+        // ---- textures (async, with hard failure surface — no silent black blob) ----
+        const loader = new THREE.TextureLoader();
+        loader.setCrossOrigin('anonymous');
+        const loadT = (url) => new Promise((res, rej) => loader.load(url, res, undefined,
+            () => rej(new Error('texture failed: ' + url))));
+        let day, clouds;
+        try {
+            [day, clouds] = await Promise.all([
+                loadT(TEX + 'earth_atmos_2048.jpg'),
+                loadT(TEX + 'earth_clouds_1024.png')
+            ]);
+        } catch (e) {
+            $load.innerHTML = '<div class="err">TEXTURE LOAD FAILED<br>' + e.message +
+                '<br>check network / CORS</div>';
+            throw e;
+        }
+        day.colorSpace = THREE.SRGBColorSpace;
+        day.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        clouds.anisotropy = 4;
+
+        // ---- sun ----
+        const sun = new THREE.DirectionalLight(0xfff2df, 3.2);
+        sun.position.set(-5, 2, 4);
+        scene.add(sun);
+        // faint fill so the night side isn't pure black on screen
+        const fill = new THREE.AmbientLight(0x223038, 0.55);
+        scene.add(fill);
+
+        // ---- earth: ShaderMaterial with day/night terminator + atmospheric rim ----
+        const earthMat = new THREE.ShaderMaterial({
+            uniforms: {
+                dayMap: { value: day },
+                sunDir: { value: sun.position.clone().normalize() }
+            },
+            vertexShader: /* glsl */`
+                varying vec3 vNormal;   // world-space normal
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    vNormal = normalize(mat3(modelMatrix) * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }`,
+            fragmentShader: /* glsl */`
+                uniform sampler2D dayMap;
+                uniform vec3 sunDir;
+                varying vec3 vNormal;
+                varying vec2 vUv;
+                void main() {
+                    float d = dot(vNormal, sunDir);            // >0 = day side
+                    vec3 dayCol = texture2D(dayMap, vUv).rgb;
+                    vec3 nightCol = dayCol * vec3(0.045, 0.06, 0.10); // cool dark side
+                    float blend = smoothstep(-0.12, 0.25, d);  // soft terminator
+                    vec3 col = mix(nightCol, dayCol * (0.25 + 0.9 * max(d, 0.0)), blend);
+                    // atmospheric rim: blue scattering at grazing angles on lit side
+                    float rim = pow(1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0))), 2.5);
+                    col += vec3(0.15, 0.35, 0.65) * rim * smoothstep(-0.2, 0.4, d) * 0.85;
+                    gl_FragColor = vec4(col, 1.0);
+                }`
+        });
+        const R = 2.1;
+        const earth = new THREE.Mesh(new THREE.SphereGeometry(R, 96, 64), earthMat);
+        earth.rotation.z = 23.4 * Math.PI / 180;  // axial tilt
+        scene.add(earth);
+
+        // ---- clouds: slightly larger sphere, alpha from cloud map ----
+        const cloudMat = new THREE.MeshLambertMaterial({
+            map: clouds, transparent: true, opacity: 0.85, depthWrite: false
+        });
+        const cloudsMesh = new THREE.Mesh(new THREE.SphereGeometry(R * 1.012, 96, 64), cloudMat);
+        cloudsMesh.rotation.z = earth.rotation.z;
+        scene.add(cloudsMesh);
+
+        // ---- starfield (Points, cheap) ----
+        const pN = 2600, pos = new Float32Array(pN * 3);
+        for (let i = 0; i < pN; i++) {
+            // shell distribution so stars surround the scene
+            const v = new THREE.Vector3().randomDirection().multiplyScalar(30 + Math.random() * 20);
+            pos[i*3] = v.x; pos[i*3+1] = v.y; pos[i*3+2] = v.z;
+        }
+        const pGeo = new THREE.BufferGeometry();
+        pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        const stars = new THREE.Points(pGeo, new THREE.PointsMaterial({
+            color: 0xbfd8e8, size: 0.09, transparent: true, opacity: 0.8,
+            depthWrite: false
+        }));
+        scene.add(stars);
+
+        // ---- post-processing: gentle bloom for the rim + stars ----
+        const composer = new EffectComposer(renderer);
+        composer.addPass(new RenderPass(scene, camera));
+        const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.28, 0.7, 0.88);
+        composer.addPass(bloom);
+        composer.addPass(new OutputPass());
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.35;
+        controls.minDistance = 3.4;
+        controls.maxDistance = 14;
+
+        addEventListener('resize', () => {
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth, innerHeight);
+            composer.setSize(innerWidth, innerHeight);
+        });
+
+        // ---- honest stats (autoReset=false; reset before composer accumulates all passes) ----
+        window.__renderer = renderer;
+        renderer.info.autoReset = false;
+        const $fps = document.getElementById('fps'), $calls = document.getElementById('calls'),
+              $tris = document.getElementById('tris'), $tex = document.getElementById('tex');
+        let tPrev = performance.now(), tStat = 0;
+        function tick(t) {
+            requestAnimationFrame(tick);
+            const dt = Math.max((t - tPrev) / 1000, 1e-6); tPrev = t;
+            renderer.info.reset();
+            composer.render();
+            if (t - tStat > 500) {
+                tStat = t;
+                $fps.textContent = Math.round(1 / dt);
+                $calls.textContent = renderer.info.render.calls;
+                $tris.textContent = renderer.info.render.triangles.toLocaleString();
+                $tex.textContent = renderer.info.memory.textures;
+            }
+            earth.rotation.y += dt * 0.05;       // slow spin
+            cloudsMesh.rotation.y += dt * 0.065; // clouds drift relative to ground
+            stars.rotation.y += dt * 0.002;
+            controls.update();
+        }
+        $load.classList.add('done');
+        requestAnimationFrame(tick);
+    </script>
+</body>
+</html>
