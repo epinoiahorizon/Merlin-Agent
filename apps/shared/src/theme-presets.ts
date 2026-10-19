@@ -438,6 +438,63 @@ export const THEME_PRESET_PALETTES = {
       userBubbleBorder: '#242466'
     }
   },
+  gilded: {
+    // Parchment by day: warm ivory paper, ink-grey type, antique-gold accent.
+    colors: {
+      background: '#faf6ec',
+      foreground: '#1c1710',
+      card: '#fffdf6',
+      cardForeground: '#1c1710',
+      muted: '#f1e9d8',
+      mutedForeground: '#6f6350',
+      popover: '#fffdf6',
+      popoverForeground: '#1c1710',
+      primary: '#8a6a1f',
+      primaryForeground: '#fffdf6',
+      secondary: '#efe5ce',
+      secondaryForeground: '#3b3226',
+      accent: '#f4ecd8',
+      accentForeground: '#2a2418',
+      border: '#e3d7bf',
+      input: '#e3d7bf',
+      ring: '#a8862f',
+      midground: '#a8862f',
+      destructive: '#a83a34',
+      destructiveForeground: '#fffdf6',
+      sidebarBackground: '#f5efe0',
+      sidebarBorder: '#e6dbc4',
+      userBubble: '#f6eeda',
+      userBubbleBorder: '#e2d5b9'
+    },
+    // Obsidian by night: warm near-black, ivory type, gold that reads as metal
+    // rather than as a highlight colour.
+    darkColors: {
+      background: '#0b0a08',
+      foreground: '#f2e9d8',
+      card: '#13110d',
+      cardForeground: '#f2e9d8',
+      muted: '#1a1712',
+      mutedForeground: '#a2937b',
+      popover: '#16130f',
+      popoverForeground: '#f2e9d8',
+      primary: '#e0bb63',
+      primaryForeground: '#1a1408',
+      secondary: '#211c15',
+      secondaryForeground: '#e9dcc2',
+      accent: '#241e16',
+      accentForeground: '#f6eeda',
+      border: '#2b241a',
+      input: '#2b241a',
+      ring: '#e0bb63',
+      midground: '#e0bb63',
+      destructive: '#b8463f',
+      destructiveForeground: '#fff7ea',
+      sidebarBackground: '#070706',
+      sidebarBorder: '#1d1913',
+      userBubble: '#1b1710',
+      userBubbleBorder: '#30281c'
+    }
+  },
   ember: {
     colors: {
       background: '#160800',

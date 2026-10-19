@@ -384,6 +384,21 @@ export const cyberpunkTheme: DesktopTheme = {
   }
 }
 
+/**
+ * Gilded — the opulent skin: parchment by day, obsidian and antique gold by
+ * night. Deliberately low-chroma everywhere except the accent, so the gold
+ * reads as metal instead of as a second highlight colour.
+ */
+export const gildedTheme: DesktopTheme = {
+  name: 'gilded',
+  label: 'Gilded',
+  description: 'Parchment and obsidian with an antique-gold accent',
+  ...THEME_PRESET_PALETTES.gilded,
+  typography: {
+    fontMono: `"JetBrains Mono", ${SYSTEM_MONO}`
+  }
+}
+
 /** Cool slate blue for developers. Matches the CLI slate skin. */
 export const slateTheme: DesktopTheme = {
   name: 'slate',
@@ -406,6 +421,7 @@ export const BUILTIN_THEMES: Record<string, DesktopTheme> = {
   ember: emberTheme,
   mono: monoTheme,
   slate: slateTheme,
+  gilded: gildedTheme,
   cyberpunk: cyberpunkTheme
 }
 
