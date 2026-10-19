@@ -1,0 +1,29 @@
+Merlin Agent
+Copyright (c) 2025-2026 Epinoia Horizon
+
+This product is a modified fork of hermes-agent
+(https://github.com/NousResearch/hermes-agent), Copyright (c) 2025 Nous
+Research, licensed under the MIT License reproduced in LICENSE.
+
+Substantial portions of this source tree — the agent core, CLI, gateway,
+desktop application, and supporting tooling — originate from that project and
+remain under the MIT License. The MIT License requires the original copyright
+notice and permission notice to accompany every copy or substantial portion of
+the software; that requirement is met by reproducing them in LICENSE.
+
+Changes made by Epinoia Horizon include, without limitation:
+
+  * Rebranding: product name, copy, documentation, and documentation site.
+  * A new visual identity: the wizard-hat app icon, rune/arcane glyph
+    replacements for the upstream caduceus marks, and the gold/navy palette.
+  * A vendored UI design system packaged as @merlin/ui.
+  * Desktop packaging, installer, and update-channel changes for the Merlin
+    distribution.
+  * Feature work landed after the fork point.
+
+This notice does not imply endorsement by Nous Research, and no claim of
+authorship is made over the upstream portions of the software.
+
+Third-party components keep their own licenses; see the dependency manifests
+(pyproject.toml, package.json, uv.lock, package-lock.json) and the license
+files shipped inside each dependency.

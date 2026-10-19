@@ -187,4 +187,6 @@ PM 引导、Python 3.14 测试环境和规范验证命令见
 
 MIT — 详见 [LICENSE](LICENSE)。
 
+Merlin Agent 是 Nous Research 的 [hermes-agent](https://github.com/NousResearch/hermes-agent) 的修改版分支，依据 MIT 许可证使用。原始版权声明保留在 [LICENSE](LICENSE) 中，修改清单见 [NOTICE](NOTICE)。Nous Research 未对本分支背书。
+
 由 Epinoia Horizon 构建。

@@ -233,6 +233,8 @@ PM اور Python 3.14 کے ٹیسٹ ماحول اور تصدیقی کمانڈز 
 
 MIT — تفصیلات کے لیے [LICENSE](LICENSE) دیکھیں۔
 
+Merlin Agent، Nous Research کے [hermes-agent](https://github.com/NousResearch/hermes-agent) کا ترمیم شدہ فورک ہے، جو MIT لائسنس کے تحت استعمال ہوتا ہے۔ اصل کاپی رائٹ اطلاع [LICENSE](LICENSE) میں محفوظ ہے اور تبدیلیوں کی فہرست [NOTICE](NOTICE) میں ہے۔ Nous Research اس فورک کی توثیق نہیں کرتا۔
+
 [نوس ریسرچ (Epinoia Horizon)](https://epinoiahorizon.com) کی جانب سے تیار کردہ۔
 
 </div>

@@ -202,4 +202,6 @@ de verificación están en [Development Setup](CONTRIBUTING.md#development-setup
 
 MIT — ver [LICENSE](LICENSE).
 
+Merlin Agent es un fork modificado de [hermes-agent](https://github.com/NousResearch/hermes-agent) de Nous Research, usado bajo la licencia MIT. El aviso de copyright original se conserva en [LICENSE](LICENSE) y la lista de cambios está en [NOTICE](NOTICE). Nous Research no respalda este fork.
+
 Creado por Epinoia Horizon.
