@@ -32,3 +32,24 @@ test('an already-focused window never pumps the OS foreground path', () => {
   // runs SetForegroundWindow on Windows, dismissing another app's dialog.
   assert.equal(shouldFocusToTakeKeyboard({ isFocused: () => true }), false)
 })
+
+test('a destroyed window never takes the keyboard', () => {
+  // ensureMainWindow checks isDestroyed(), but the close can land between that
+  // check and this call; touching the native handle then throws "Object has
+  // been destroyed" as an uncaught main-process exception.
+  assert.equal(
+    shouldFocusToTakeKeyboard({ isDestroyed: () => true, isFocused: () => false }),
+    false
+  )
+})
+
+test('a window that dies mid-check does not throw', () => {
+  assert.equal(
+    shouldFocusToTakeKeyboard({
+      isFocused: () => {
+        throw new Error('Object has been destroyed')
+      }
+    }),
+    false
+  )
+})
