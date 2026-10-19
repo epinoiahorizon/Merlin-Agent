@@ -1857,15 +1857,19 @@ body.guest-pointer-lock :is(webview, iframe) {
 
 /* The display lettering an empty chat is titled with. Kept here beside
    `.fit-text` rather than as utilities on the element: the two always travel
-   together, and the face is the whole point of the treatment — it must not be
+   together, and the fit treatment is the whole point — it must not be
    something a class-merge or a missed scan can quietly drop, leaving the
-   wordmark rendered in body text. */
+   wordmark unsized.
+
+   Face: the UI sans the sidebar and navbar use, not a display/mono face. The
+   bold uppercase display treatment read as another product's lockup, so the
+   wordmark now speaks in the same voice as the rest of the chrome. */
 .wordmark {
-  font-family: 'Collapse', var(--font-sans);
-  font-weight: 700;
-  line-height: 0.9;
+  font-family: var(--dt-font-sans);
+  font-weight: 600;
+  line-height: 0.95;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
 }
 
 .fit-text > [aria-hidden] {
