@@ -22,6 +22,8 @@
 
 export interface FocusPolicyWindow {
   isFocused: () => boolean
+  /** Optional: every BrowserWindow has it; the policy keeps structural typing. */
+  isDestroyed?: () => boolean
 }
 
 /**
@@ -39,7 +41,21 @@ export function revealAction(windowVisible: boolean): 'showInactive' | 'none' {
  * The keyboard half of `focusWindow`: focus only moves when the window
  * doesn't already have it. A `.focus()` call on an already-focused window
  * is a foreground pump on Windows and a no-op everywhere else — skip it.
+ *
+ * A destroyed window can outlive the caller's `ensureMainWindow` check (the
+ * close lands between the two calls), and then `isFocused()` throws
+ * "Object has been destroyed" from the main process — an uncaught exception
+ * for a raise that had nothing left to raise. Treat "gone" and "unreachable"
+ * as "do not take the keyboard".
  */
-export function shouldFocusToTakeKeyboard({ isFocused }: FocusPolicyWindow): boolean {
-  return !isFocused()
+export function shouldFocusToTakeKeyboard(window: FocusPolicyWindow): boolean {
+  if (window.isDestroyed?.()) {
+    return false
+  }
+
+  try {
+    return !window.isFocused()
+  } catch {
+    return false
+  }
 }
