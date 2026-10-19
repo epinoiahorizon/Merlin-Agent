@@ -1,6 +1,13 @@
 MIT License
 
-Copyright (c) 2025 Epinoia Horizon
+Copyright (c) 2025 Nous Research
+Copyright (c) 2025-2026 Epinoia Horizon
+
+This software is a modified fork of hermes-agent
+(https://github.com/NousResearch/hermes-agent), Copyright (c) 2025 Nous
+Research, released under the MIT License. Substantial portions of the source
+originate from that project and remain under the terms below. See NOTICE for
+the list of changes.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
