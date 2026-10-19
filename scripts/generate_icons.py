@@ -111,9 +111,12 @@ _CANARY_TAG_RE = re.compile(
 )
 
 # The atlas dark background (#0d1117) — fixed dark tile/background everywhere.
-DARK_HEX = "#0d1117"
-DARK_RGB = (13, 17, 23)
+DARK_HEX = "#102037"
+DARK_RGB = (16, 32, 55)
 BORDER_FRACTION = 0.0407747197
+# Brand palette: navy mark on a gold plate (light), gold on navy (dark).
+NAVY_HEX = "#102037"
+GOLD_HEX = "#fecd28"
 
 # Portrait boxes fitted to the reference at equal visible tile width, with
 # uniform scaling about the tile center followed by an up-left translation.
@@ -128,6 +131,8 @@ GIRL_BOXES = {
 }
 # The brand-kit SVG canvas (both girl svgs share this viewBox).
 GIRL_VIEWBOX = 5487.0615
+# The icon mark is authored on the same brand-kit canvas.
+MARK_VIEWBOX = 5487.0615
 
 # Target sizes for --check's structural verification: relpath -> (format, size)
 CHECK_SIZES: dict[str, tuple[str, tuple[int, int]]] = {
@@ -208,9 +213,14 @@ class IconArt:
         self.colors = colors
         self.commit = commit
         self.girls = {color: assets / f"atlas-girl-{color}.svg" for color in ("black", "white")}
+        # Icon targets compose a mark, not the wordmark art: the hat reads at
+        # 16px where the girl silhouette turns to mush.
+        self.marks = {color: assets / f"icon-mark-{color}.svg" for color in ("black", "white")}
         self.backgrounds = assets / "backgrounds"
         self.paths: dict[str, str] = {}
         self.bboxes: dict[str, tuple[float, float, float, float]] = {}
+        self.mark_paths: dict[str, str] = {}
+        self.mark_bboxes: dict[str, tuple[float, float, float, float]] = {}
         self.master = compose_svg(self, "black", "squircle-light.svg")
         self.master_dark = compose_svg(self, "white", "squircle-dark.svg")
         # macOS icons sit on Apple's 824-on-1024 grid, not the full-bleed
@@ -259,10 +269,49 @@ def girl_layer(
     )
 
 
+def mark_path(art: IconArt, color: str) -> str:
+    """Every `<path>` of the icon mark, editor metadata stripped."""
+    if color not in art.mark_paths:
+        src = art.marks[color].read_text(encoding="utf-8-sig")
+        paths = re.findall(r"<path\b.*?/>", src, re.S)
+        assert paths, f"no <path> found in {art.marks[color].name}"
+        art.mark_paths[color] = "\n    ".join(
+            re.sub(r'\s+(inkscape|sodipodi):[a-zA-Z-]+="[^"]*"', "", p) for p in paths
+        )
+    return art.mark_paths[color]
+
+
+def mark_bbox(art: IconArt, color: str) -> tuple[float, float, float, float]:
+    """Mark bounding box in its own coordinate space, measured by rendering."""
+    if color not in art.mark_bboxes:
+        data = resvg_py.svg_to_bytes(svg_path=str(art.marks[color]), width=512, height=512)
+        im = Image.open(io.BytesIO(data))
+        bx, by, bx2, by2 = im.getchannel("A").point(lambda v: 255 if v > 0 else 0).getbbox()
+        s = MARK_VIEWBOX / 512.0
+        art.mark_bboxes[color] = (bx * s, by * s, (bx2 - bx) * s, (by2 - by) * s)
+    return art.mark_bboxes[color]
+
+
+def mark_layer(
+    art: IconArt, color: str, box: tuple[float, float, float, float],
+    *, align: str = "xMidYMid",
+) -> str:
+    """Nested-svg layer: the icon mark (bbox as viewBox) placed into `box`."""
+    bx, by, bw, bh = mark_bbox(art, color)
+    x, y, w, h = box
+    return (
+        f'<svg x="{x}" y="{y}" width="{w}" height="{h}" viewBox="{bx} {by} {bw} {bh}" '
+        f'preserveAspectRatio="{align} meet">' + "\n"
+        f"    {mark_path(art, color)}\n"
+        "  </svg>"
+    )
+
+
 def background_inner(art: IconArt, name: str) -> tuple[str, int, int]:
     """Inner content + (width, height) of a background SVG asset."""
     text = (art.backgrounds / name).read_text(encoding="utf-8-sig")
     if art.colors:
+        text = text.replace('fill="#fecd28"', f'fill="{art.colors[0]}"')
         text = text.replace('fill="#ffffff"', f'fill="{art.colors[0]}"')
         text = text.replace(f'fill="{DARK_HEX}"', f'fill="{art.colors[1]}"')
     root = ET.fromstring(text)
@@ -364,14 +413,14 @@ def compose_svg(art: IconArt, girl: str, bg: str) -> str:
     silhouette = ET.Element("rect", {key: str(value) for key, value in geometry.items()})
     for key, value in geometry.items():
         tile.set(key, str(value + inset[key] * thickness / 2))
-    tile.set("stroke", "#000000" if girl == "black" else "#ffffff")
+    tile.set("stroke", NAVY_HEX if girl == "black" else GOLD_HEX)
     tile.set("stroke-width", str(thickness))
     inner = "".join(ET.tostring(child, encoding="unicode") for child in background)
     clip = ET.tostring(silhouette, encoding="unicode")
     box = GIRL_BOXES[bg]
-    portrait = ET.fromstring(girl_layer(art, girl, box, align="xMidYMax"))
+    portrait = ET.fromstring(mark_layer(art, girl, box, align="xMidYMax"))
     _, y, portrait_width, portrait_height = box
-    _, by, bw, bh = girl_bbox(art, girl)
+    _, by, bw, bh = mark_bbox(art, girl)
     scale = min(portrait_width / bw, portrait_height / bh)
     join_bottom = geometry["y"] + geometry["height"] - thickness + 10
     drag_bottom_nodes(
