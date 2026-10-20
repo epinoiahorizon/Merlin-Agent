@@ -2,9 +2,12 @@
   "name": "merlin",
   "productName": "Merlin",
   "private": true,
-  "version": "0.0.0",
-  "description": "Native desktop shell for Merlin Agent.",
-  "author": "Epinoia Horizon",
+  "version": "0.1.0",
+  "description": "Merlin Agent \u2014 desktop AI agent by Epinoia Horizon",
+  "author": {
+    "name": "Epinoia Horizon",
+    "email": "hello@epinoiahorizon.com"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/epinoiahorizon/Merlin-Agent.git"
@@ -41,6 +44,7 @@
     "dist:mac:zip": "npm run build && npm run builder -- --mac zip",
     "dist:win": "npm run build && npm run builder -- --win msix",
     "dist:win:msix": "npm run build && npm run builder -- --win msix",
+    "dist:win:nsis": "npm run build && npm run builder -- --win nsis",
     "dist:linux": "npm run build && npm run builder -- --linux AppImage deb rpm",
     "perf": "node scripts/perf/run.mjs",
     "update:shim": "bash ../../scripts/desktop-update/repro.sh shim",
