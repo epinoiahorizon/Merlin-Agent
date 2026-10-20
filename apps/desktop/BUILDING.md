@@ -8,13 +8,34 @@ commands package the current desktop build; they do not stage a fresh runtime.
 | Target | Artifact | Update owner |
 |---|---|---|
 | Windows x64 / ARM64, sideload | Signed per-architecture MSIX packages, combined into a universal `.msixbundle`; `.appinstaller` descriptor | Windows App Installer |
+| Windows x64, certificate-free sideload | Unsigned `Merlin-Setup-\${version}-\${arch}.exe` (NSIS), installed per-machine into `C:\Program Files\Merlin` | None — reinstall manually |
 | Windows x64 / ARM64, Store | Store-identity MSIX packages and a separate Store bundle | Microsoft Store |
 | macOS ARM64 / x64 | Signed, notarized `Merlin.app` in DMG and ZIP artifacts | `electron-updater` with Squirrel.Mac |
 | Linux x64 / ARM64 | Local builder can produce AppImage | External replacement; Linux desktop release legs are disabled |
 
 The current MSIX manifest requires Windows 11 22H2 (`10.0.22621.0`).
 The source-script Windows support range is separate from this package floor.
-Windows desktop packaging uses MSIX, not NSIS or MSI.
+Windows release packaging uses MSIX; MSI is not produced.
+
+### Certificate-free `.exe` installer
+
+A sideloaded MSIX is only installable once its publisher certificate is
+trusted on the machine. Where that trust does not exist, build the NSIS lane:
+
+```sh
+npm run dist:win:nsis --workspace apps/desktop
+```
+
+It packages the same app tree as `dist:win` but installs per-machine into
+`C:\Program Files\Merlin`, offers a directory choice, writes Start Menu and
+desktop shortcuts, registers an uninstaller in Apps & Features, and leaves
+Merlin state in the user's AppData. The artifact is
+`release/Merlin-Setup-<version>-x64.exe` and is **unsigned** — SmartScreen
+warns until the binary is signed. This lane has no update feed and no
+`.appinstaller`; treat it as a manual-reinstall distribution channel.
+The NSIS toolchain itself is fetched by electron-builder into its own cache
+(`%LOCALAPPDATA%\electron-builder\Cache`), not into the prepared dependency
+snapshot, so a network-denied build of this lane needs that cache pre-warmed.
 
 `bundled` carries the local runtime. `store` carries the same runtime under
 Partner Center's package identity. `light` is a remote-only client without
