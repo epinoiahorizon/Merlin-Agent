@@ -13,7 +13,11 @@
   <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
 </p>
 
-**由 Epinoia Horizon 构建的自进化 AI 代理。** 它是唯一内置学习闭环的智能代理——从经验中创建技能，在使用中改进技能，主动持久化知识，搜索过往对话，并在跨会话中逐步构建对你的深度理解。可以在 $5 的 VPS 上运行，也可以在 GPU 集群上运行，或者使用几乎零成本的 Serverless 基础设施。它不绑定你的笔记本——你可以在 Telegram 上与它对话，而它在云端 VM 上工作。
+> **来源说明，放在最前。** Merlin Agent 是 [Hermes Agent](https://github.com/NousResearch/hermes-agent)（MIT，© 2025 Nous Research）的更名发行版。代理核心、工具、网关、技能引擎、调度器、桌面外壳与 TUI 均来自上游代码——并非我们所写，我们也不主张著作权。改动清单见 [NOTICE](NOTICE)，许可条款见 [LICENSE](LICENSE)。Nous Research 未对本分支背书。若想使用原项目，请前往上游：它的进度领先于我们。
+>
+> 本仓库的 git 历史自 2026-09-30 的 fork 导入开始，不含上游历史。
+
+**Merlin Agent 是该开源代理的桌面打包版本，由 [Epinoia Horizon](https://epinoiahorizon.com) 制作与支持。** 从经验中创建技能、在使用中改进、检索过往对话——这些都是上游核心，已在上方注明。Merlin 是其外围的发行版：无需终端的安装程序与应用窗口、为不想收集五个 API 密钥的人准备的 [Atlas Portal](https://portal.epinoiahorizon.com)、由我们负责的 Windows 支持路径，以及我们自己的修复。
 
 支持任意模型——[Atlas Portal](https://portal.epinoiahorizon.com)、[OpenRouter](https://openrouter.ai)（200+ 模型）、[NVIDIA NIM](https://build.nvidia.com)（Nemotron）、[小米 MiMo](https://platform.xiaomimimo.com)、[z.ai/GLM](https://z.ai)、[Kimi/Moonshot](https://platform.moonshot.ai)、[MiniMax](https://www.minimax.io)、[Hugging Face](https://huggingface.co)、OpenAI，或自定义端点。使用 `merlin model` 即可切换——无需改代码，无锁定。
 

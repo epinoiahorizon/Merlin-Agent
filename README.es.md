@@ -16,7 +16,11 @@
   <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
 </p>
 
-**El agente de IA con mejora continua creado por Epinoia Horizon.** Es el único agente con un bucle de aprendizaje integrado: crea habilidades a partir de la experiencia, las mejora durante el uso, se impulsa a sí mismo a persistir el conocimiento, busca en sus propias conversaciones pasadas y construye un modelo cada vez más profundo de quién eres a lo largo de las sesiones. Ejecútalo en un VPS de $5, un clúster de GPUs o infraestructura sin servidor que cuesta casi nada cuando está inactivo. No está atado a tu laptop — habla con él desde Telegram mientras trabaja en una VM en la nube.
+> **Procedencia, por delante.** Merlin Agent es una distribución con nueva marca de [Hermes Agent](https://github.com/NousResearch/hermes-agent) (MIT, © 2025 Nous Research). El núcleo del agente, las herramientas, el gateway, el motor de skills, el planificador, el shell de escritorio y la TUI son código upstream — no los escribimos nosotros y no lo reclamamos. Los cambios están en [NOTICE](NOTICE) y la licencia en [LICENSE](LICENSE). Nous Research no respalda este fork. Si quieres el proyecto original, ve allí: está más adelantado que nosotros.
+>
+> El historial de git de este repositorio comienza en la importación del fork (2026-09-30); no replica el historial upstream.
+
+**Merlin Agent es una compilación de escritorio empaquetada de ese agente de código abierto, hecha y soportada por [Epinoia Horizon](https://epinoiahorizon.com).** Crea habilidades a partir de la experiencia, las mejora durante el uso y busca en sus conversaciones pasadas — todo eso es el núcleo upstream, acreditado arriba. Merlin es la distribución alrededor: instalador y ventana de aplicación sin terminal, [Atlas Portal](https://portal.epinoiahorizon.com) para quien prefiere no reunir cinco claves de API, soporte con foco en Windows que termina en nosotros, y nuestras propias correcciones encima.
 
 Usa cualquier modelo que quieras — [Atlas Portal](https://portal.epinoiahorizon.com), [OpenRouter](https://openrouter.ai) (más de 200 modelos), [NovitaAI](https://novita.ai), [NVIDIA NIM](https://build.nvidia.com) (Nemotron), [Xiaomi MiMo](https://platform.xiaomimimo.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, o tu propio endpoint. Cambia con `merlin model` — sin cambios de código, sin dependencias.
 

@@ -19,7 +19,24 @@ Changes made by Epinoia Horizon include, without limitation:
   * A vendored UI design system packaged as @merlin/ui.
   * Desktop packaging, installer, and update-channel changes for the Merlin
     distribution.
+  * Atlas Portal, a hosted model and tool gateway, with its own transport and
+    rate guard (agent/atlas_wire.py, agent/atlas_rate_guard.py).
+  * Desktop runtime hardening in the Electron application: backend discovery
+    and exit recovery, host attach and spawn gating, pool limits and
+    reclamation.
+  * Policy seal: an optional governance mode in agent/prompt_builder.py that
+    keeps memory and skill tools dormant unless explicitly invoked.
   * Feature work landed after the fork point.
+
+What this distribution does NOT claim: the agent loop, tool implementations,
+skills engine, gateway, scheduler, cron, TUI, and the majority of the desktop
+application are upstream work and remain credited here and in LICENSE.
+
+Repository history note: the git history of this repository begins at the fork
+import on 2026-09-30 and does not contain upstream's commit history. Upstream
+(https://github.com/NousResearch/hermes-agent) remains the canonical source;
+Merlin ports upstream changes rather than the reverse, and should be expected
+to lag it.
 
 This notice does not imply endorsement by Nous Research, and no claim of
 authorship is made over the upstream portions of the software.

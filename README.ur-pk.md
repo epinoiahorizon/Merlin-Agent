@@ -15,7 +15,11 @@
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=for-the-badge" alt="中文"></a>
 </p>
 
-**[نوس ریسرچ (Epinoia Horizon)](https://epinoiahorizon.com) کا تیار کردہ خود کو بہتر بنانے والا اے آئی (AI) ایجنٹ۔** یہ واحد ایجنٹ ہے جس میں سیکھنے کا عمل (learning loop) پہلے سے موجود ہے — یہ اپنے تجربات سے نئی مہارتیں (skills) بناتا ہے، استعمال کے دوران ان کو بہتر کرتا ہے، معلومات کو محفوظ رکھنے کے لیے خود کو یاد دہانی کرواتا ہے، اپنی پرانی بات چیت کو تلاش کر سکتا ہے، اور مختلف سیشنز کے دوران آپ کے بارے میں ایک گہری سمجھ پیدا کرتا ہے۔ اسے $5 والے VPS پر چلائیں، GPU کلسٹر پر، یا سرور لیس (serverless) انفراسٹرکچر پر جس کی قیمت استعمال نہ ہونے پر تقریباً صفر ہے۔ یہ آپ کے لیپ ٹاپ تک محدود نہیں ہے — آپ ٹیلی گرام (Telegram) سے اس کے ساتھ بات چیت کر سکتے ہیں جبکہ یہ کلاؤڈ VM پر کام کر رہا ہو۔
+> **اصل و نسب، سب سے پہلے۔** Merlin Agent، [Hermes Agent](https://github.com/NousResearch/hermes-agent) (MIT، © 2025 Nous Research) کی نئی برانڈنگ کے ساتھ تقسیم ہے۔ ایجنٹ کور، ٹولز، گیٹ وے، اسکلز انجن، شیڈولر، ڈیسک ٹاپ شیل اور TUI اپ اسٹریم کوڈ ہیں — یہ ہم نے نہیں لکھے اور نہ ان پر دعویٰ کرتے ہیں۔ تبدیلیوں کی فہرست [NOTICE](NOTICE) میں اور لائسنس [LICENSE](LICENSE) میں ہے۔ Nous Research اس فورک کی توثیق نہیں کرتا۔ اصل پروجیکٹ کے لیے وہاں جائیں: وہ ہم سے آگے ہے۔
+>
+> اس ریپوزٹری کی git ہسٹری 2026-09-30 کو فورک امپورٹ سے شروع ہوتی ہے؛ اپ اسٹریم کی ہسٹری یہاں شامل نہیں۔
+
+**Merlin Agent اس اوپن سورس ایجنٹ کی ڈیسک ٹاپ پیکج شدہ تقسیم ہے، جسے [Epinoia Horizon](https://epinoiahorizon.com) بناتا اور سپورٹ کرتا ہے۔** تجربے سے مہارتیں بنانا، استعمال میں بہتر کرنا اور پرانی گفتگو تلاش کرنا — یہ سب اپ اسٹریم کور ہے، جس کا ذکر اوپر ہے۔ Merlin اس کے گرد تقسیم ہے: بغیر ٹرمینل کے انسٹالر اور ایپ ونڈو، پانچ API کیز جمع نہ کرنے والوں کے لیے [Atlas Portal](https://portal.epinoiahorizon.com)، ہماری Windows سپورٹ، اور ہماری اپنی اصلاحات۔
 
 آپ اپنی مرضی کا کوئی بھی ماڈل استعمال کر سکتے ہیں — [Atlas Portal](https://portal.epinoiahorizon.com)، [OpenRouter](https://openrouter.ai) (200 سے زائد ماڈلز)، [NovitaAI](https://novita.ai) (ماڈل API، ایجنٹ سینڈ باکس، اور GPU کلاؤڈ کے لیے اے آئی مقامی کلاؤڈ)، [NVIDIA NIM](https://build.nvidia.com) (Nemotron)، [Xiaomi MiMo](https://platform.xiaomimimo.com)، [z.ai/GLM](https://z.ai)، [Kimi/Moonshot](https://platform.moonshot.ai)، [MiniMax](https://www.minimax.io)، [Hugging Face](https://huggingface.co)، OpenAI، یا اپنا حسب ضرورت اینڈ پوائنٹ (endpoint) استعمال کریں۔ ماڈل تبدیل کرنے کے لیے صرف `merlin model` استعمال کریں — کسی کوڈ کو تبدیل کرنے کی ضرورت نہیں، کوئی پابندی نہیں۔
 
