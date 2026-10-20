@@ -16,9 +16,13 @@
   <a href="README.es.md"><img src="https://img.shields.io/badge/Lang-Español-orange?style=for-the-badge" alt="Español"></a>
 </p>
 
-**The self-improving AI agent built by Epinoia Horizon.** It's the only agent with a built-in learning loop — it creates skills from experience, improves them during use, nudges itself to persist knowledge, searches its own past conversations, and builds a deepening model of who you are across sessions. Run it on a $5 VPS, a GPU cluster, or serverless infrastructure that costs nearly nothing when idle. It's not tied to your laptop — talk to it from Telegram while it works on a cloud VM.
+> **Provenance, up front.** Merlin Agent is a rebranded distribution of [Hermes Agent](https://github.com/NousResearch/hermes-agent) (MIT, © 2025 Nous Research). The agent core, tools, gateway, skills engine, scheduler, desktop shell and TUI are upstream code — we did not write them and do not claim to. What we changed is listed in [NOTICE](NOTICE), licensing in [LICENSE](LICENSE). Nous Research does not endorse this fork. If you want the upstream project itself, go there: it is further ahead than we are, and we port its fixes rather than the other way round.
+>
+> Git history in this repository starts at the fork import (2026-09-30); upstream's history is not mirrored here.
 
-Use any model you want — [Atlas Portal](https://portal.epinoiahorizon.com), OpenRouter, OpenAI, your own endpoint, and [many others](https://merlin-agent.epinoiahorizon.com/docs/integrations/providers). Switch with `merlin model` — no code changes, no lock-in.
+**Merlin Agent is a packaged desktop build of that open-source agent, made and supported by [Epinoia Horizon](https://epinoiahorizon.com).** It creates skills from experience, improves them during use, searches its own past conversations and keeps a deepening model of who you are across sessions — all of that is the upstream core, credited above. Merlin is the distribution around it: an installer and an app window that need no terminal, [Atlas Portal](https://portal.epinoiahorizon.com) for people who would rather not collect five API keys, a Windows-focused support path that ends at us, and our own fixes on top.
+
+Use any model you want — Atlas Portal, OpenRouter, OpenAI, your own endpoint, and [many others](https://merlin-agent.epinoiahorizon.com/docs/integrations/providers). Switch with `merlin model` — no code changes, no lock-in.
 
 <table>
 <tr><td><b>A real terminal interface</b></td><td>Full TUI with multiline editing, slash-command autocomplete, conversation history, interrupt-and-redirect, and streaming tool output.</td></tr>
@@ -26,9 +30,32 @@ Use any model you want — [Atlas Portal](https://portal.epinoiahorizon.com), Op
 <tr><td><b>A closed learning loop</b></td><td>Agent-curated memory with periodic nudges. Autonomous skill creation after complex tasks. Skills self-improve during use. FTS5 session search with LLM summarization for cross-session recall. <a href="https://github.com/plastic-labs/honcho">Honcho</a> dialectic user modeling. Compatible with the <a href="https://agentskills.io">agentskills.io</a> open standard.</td></tr>
 <tr><td><b>Scheduled automations</b></td><td>Built-in cron scheduler with delivery to any platform. Daily reports, nightly backups, weekly audits — all in natural language, running unattended.</td></tr>
 <tr><td><b>Delegates and parallelizes</b></td><td>Spawn isolated subagents for parallel workstreams. Write Python scripts that call tools via RPC, collapsing multi-step pipelines into zero-context-cost turns.</td></tr>
-<tr><td><b>Runs anywhere, not just your laptop</b></td><td>Seven terminal backends — local, Docker, SSH, Singularity, Modal, Daytona, and Vercel Sandbox. Daytona and Modal offer serverless persistence — your agent's environment hibernates when idle and wakes on demand, costing nearly nothing between sessions. Run it on a $5 VPS or a GPU cluster.</td></tr>
+<tr><td><b>Runs anywhere, not just your laptop</b></td><td>Seven terminal backends — local, Docker, SSH, Singularity, Modal, Daytona, and Vercel Sandbox. Daytona and Modal offer serverless persistence: the environment hibernates when idle and wakes on demand.</td></tr>
 <tr><td><b>Research-ready</b></td><td>Batch trajectory generation, trajectory compression for training the next generation of tool-calling models.</td></tr>
 </table>
+
+---
+
+## What we changed, and what we did not
+
+We do not maintain a competing agent core. Merlin tracks upstream and ports its fixes; expect this repository to lag the upstream project, sometimes by weeks.
+
+Changed in this distribution:
+
+- **Brand and packaging** — name, icon, palette, docs site and domain, README copy, installer and store metadata.
+- **Atlas Portal** — a hosted model and tool gateway wired into setup (`merlin setup --portal`), with its own transport and rate guard (`agent/atlas_wire.py`, `agent/atlas_rate_guard.py`). Entirely ours, independent of upstream.
+- **Desktop runtime hardening** — backend discovery and exit recovery, host attach and spawn gating, pool limits and reclamation in the Electron app.
+- **Policy seal** — memory and skills stay dormant unless you invoke them explicitly; the seal lives in `agent/prompt_builder.py`.
+- **Our defaults, our support** — a curated default config, this issue tracker, and the Windows support path.
+
+Not changed: the agent loop, tool implementations, skills engine, gateway, scheduler, cron, TUI, and the great majority of the desktop app. Those are upstream's, under the MIT licence, and they stay credited in [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
+
+## What this repository is not
+
+- Not a from-scratch agent, and it does not claim to be.
+- Not endorsed by, affiliated with, or sponsored by Nous Research.
+- Not ahead of upstream on features: if a capability exists in both projects, upstream had it first.
+- Not a fork of anyone's brand assets — the name, wizard-hat icon and palette are ours, which is what keeps this clear of upstream trademarks.
 
 ---
 

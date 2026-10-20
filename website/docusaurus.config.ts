@@ -5,13 +5,13 @@ import relativeDocLinks from './src/remark/relativeDocLinks';
 
 const config: Config = {
   title: 'Merlin Agent',
-  tagline: 'The self-improving AI agent',
+  tagline: 'A packaged desktop build of an open-source AI agent',
   favicon: 'img/favicon.ico',
 
   url: 'https://merlin-agent.epinoiahorizon.com',
   baseUrl: '/docs/',
 
-  organizationName: 'AtlasResearch',
+  organizationName: 'epinoiahorizon',
   projectName: 'merlin-agent',
 
   onBrokenLinks: 'warn',
