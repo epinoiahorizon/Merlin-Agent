@@ -319,3 +319,71 @@ test.skipIf(process.platform === 'win32')(
     assert.equal(result.error, 'install.sh --manifest failed: exit 3\n✗ manifest broke')
   }
 )
+
+test('resolveInstallScript falls back to the branch when the pinned commit is not on the remote', async () => {
+  const home = mkTmpHome()
+
+  try {
+    // The exact shape of the markpc report: an installer built from an unpushed commit
+    // stamps that SHA, GitHub has never seen it, and bootstrap answered
+    // "Failed to download install.ps1: HTTP 404".
+    const commit = 'b'.repeat(40)
+    const cached = cachedScriptPath(home, commit)
+    const refs = []
+    const lines = []
+
+    const result = await resolveInstallScript({
+      installStamp: { commit, branch: 'main' },
+      sourceRepoRoot: null,
+      merlinHome: home,
+      emit: event => lines.push(event.line || ''),
+      _download: async (ref, destPath) => {
+        refs.push(ref)
+
+        if (ref === commit) {
+          throw new Error(`Failed to download install.ps1: HTTP 404 from https://raw.githubusercontent.com/epinoiahorizon/Merlin-Agent/${ref}/scripts/install.ps1`)
+        }
+
+        fs.mkdirSync(path.dirname(destPath), { recursive: true })
+        fs.writeFileSync(destPath, '#!/bin/sh\necho branch installer\n')
+
+        return destPath
+      }
+    })
+
+    assert.deepEqual(refs, [commit, 'main'])
+    assert.equal(result.source, 'download')
+    assert.equal(result.commit, null)
+    assert.match(fs.readFileSync(cached, 'utf8'), /branch installer/)
+    assert.ok(lines.some(line => /not on the remote/.test(line)), 'the fallback must be logged')
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true })
+  }
+})
+
+test('resolveInstallScript does not fall back on a non-404 pinned failure', async () => {
+  const home = mkTmpHome()
+
+  try {
+    const commit = 'c'.repeat(40)
+    const refs = []
+
+    await assert.rejects(
+      resolveInstallScript({
+        installStamp: { commit, branch: 'main' },
+        sourceRepoRoot: null,
+        merlinHome: home,
+        emit: () => {},
+        _download: async ref => {
+          refs.push(ref)
+          throw new Error(`Failed to download install.ps1: HTTP 503 from https://raw.githubusercontent.com/.../${ref}`)
+        }
+      }),
+      /HTTP 503/
+    )
+
+    assert.deepEqual(refs, [commit])
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true })
+  }
+})
