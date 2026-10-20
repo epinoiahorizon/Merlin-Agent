@@ -72,6 +72,10 @@ $script:BoundParams = $PSBoundParameters
 # each run without the previous run's answer (see Set-LauncherUserPath).
 $script:BinDirOnCallerPath = $null
 $RepoUrl = if ($env:MERLIN_REPO_URL) { $env:MERLIN_REPO_URL } else { "https://github.com/epinoiahorizon/Merlin-Agent.git" }
+# Set by the clone ladder when the plain `git clone` failed and a remedied
+# variant worked (proxy / IPv4 pin); persisted into the checkout below so
+# `merlin update` inherits it. Empty means the plain command worked.
+$script:CloneTransportConfig = @()
 
 # --- BEGIN GENERATED: bootstrap pins (scripts/gen-bootstrap-pins.py) ---
 # Derived from pm/lock.json. DO NOT EDIT BY HAND:
@@ -732,6 +736,186 @@ function Stage-Prerequisites {
     Write-Ok "prerequisites ok (git)"
 }
 
+# ============================================================================
+# Clone transport recovery
+# ============================================================================
+# The pinned uv/Git artifacts download through .NET (Invoke-WebRequest), which
+# follows the Windows system proxy and moves on to the next address when one
+# does not answer. `git` reaches the network through its own libcurl: it reads
+# neither the WinINET proxy nor a ProxyAutoConfig script, and it prefers the
+# first address the resolver hands back. A machine can therefore provision its
+# prerequisites fine and then fail every clone with
+#   fatal: unable to access 'https://github.com/...': Failed to connect to
+#       github.com port 443 after 21xxx ms: Could not connect to server
+# Repeating that identical command three times learns nothing -- measured live
+# (report from a Chinese-locale Windows laptop, C:\Users\chauc) triage found
+# exactly that: the pinned Git downloaded OK, all four clone attempts timed
+# out the same way.
+# So: probe the repo host once, retry with the proxy this PC already uses
+# and/or an IPv4 pin, and keep whichever worked in the checkout's config so
+# `merlin update` inherits it.
+
+# One TCP connect with a deadline; .NET's TcpClient has none of its own.
+function Test-TcpPort {
+    param([string]$Address, [int]$Port = 443, [int]$TimeoutMs = 2500)
+    $target = [System.Net.IPAddress]::Any
+    if (-not [System.Net.IPAddress]::TryParse($Address, [ref]$target)) { return $false }
+    $client = New-Object System.Net.Sockets.TcpClient
+    try {
+        $pending = $client.BeginConnect($target, $Port, $null, $null)
+        if (-not $pending.AsyncWaitHandle.WaitOne($TimeoutMs, $false)) { return $false }
+        $client.EndConnect($pending)
+        return $true
+    } catch {
+        return $false
+    } finally {
+        try { $client.Close() } catch { }
+    }
+}
+
+# https://host/path -> host. An SSH or local-path remote is left alone: there
+# is no proxy or address pin to reason about.
+function Get-RepoHost([string]$Url) {
+    $parsed = [System.Uri]"http://invalid.invalid/"
+    if ([System.Uri]::TryCreate($Url, [System.UriKind]::Absolute, [ref]$parsed)) {
+        if (($parsed.Scheme -eq 'http' -or $parsed.Scheme -eq 'https') -and $parsed.Host) { return $parsed.Host }
+    }
+    return $null
+}
+
+# Every proxy this session could use, and where it came from. Git honours only
+# http(s)_proxy / ALL_PROXY from the environment, so a client that configures
+# the browser (Clash, v2ray, corporate agent) shows up in the registry and
+# nowhere git looks.
+function Get-SystemProxyCandidates {
+    $candidates = @()
+    foreach ($name in @('HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy', 'ALL_PROXY', 'all_proxy')) {
+        $value = [Environment]::GetEnvironmentVariable($name)
+        if ($value -and "$value".Trim()) {
+            $candidates += [pscustomobject]@{ Url = "$value".Trim(); Source = "`$env:$name" }
+        }
+    }
+    try {
+        $settings = Get-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -ErrorAction Stop
+        if ([int]$settings.ProxyEnable -eq 1 -and $settings.ProxyServer) {
+            $server = [string]$settings.ProxyServer
+            $url = $server
+            if ($server.Contains('=')) {
+                # "http=h:80;https=h:443" -- git needs the https entry.
+                $byScheme = @{}
+                foreach ($part in ($server -split ';')) {
+                    $pair = $part -split '=', 2
+                    if ($pair.Count -eq 2) { $byScheme[$pair[0].Trim().ToLowerInvariant()] = $pair[1].Trim() }
+                }
+                $url = if ($byScheme['https']) { $byScheme['https'] } elseif ($byScheme['http']) { $byScheme['http'] } else { '' }
+            }
+            $url = "$url".Trim()
+            if ($url) {
+                if ($url -notmatch '^[a-z][a-z0-9+.-]*://') { $url = "http://$url" }
+                $candidates += [pscustomobject]@{ Url = $url; Source = 'Windows Internet Settings' }
+            }
+        }
+    } catch { }
+    return $candidates
+}
+
+# A proxy that is not running would only turn a timeout into "connection
+# refused": offer one only if something answers on its port.
+function Test-ProxyListening([string]$ProxyUrl) {
+    $parsed = [System.Uri]"http://invalid.invalid/"
+    if (-not [System.Uri]::TryCreate($ProxyUrl, [System.UriKind]::Absolute, [ref]$parsed)) { return $false }
+    $port = if ($parsed.Port -gt 0) { $parsed.Port } else { 8080 }
+    try {
+        $addresses = @([System.Net.Dns]::GetHostAddresses($parsed.Host) | ForEach-Object { $_.IPAddressToString })
+    } catch {
+        return $false
+    }
+    foreach ($address in ($addresses | Select-Object -First 2)) {
+        if (Test-TcpPort -Address $address -Port $port -TimeoutMs 1200) { return $true }
+    }
+    return $false
+}
+
+# Variants to try only AFTER the plain clone has failed twice, in increasing
+# order of intrusiveness. Prints what the probe found so install.log explains
+# itself without a support round-trip.
+function Get-CloneRetryVariants([string]$Url) {
+    $variants = @()
+    $hostName = Get-RepoHost $Url
+    if (-not $hostName) { return $variants }
+    $v4 = @()
+    $v6 = @()
+    try {
+        foreach ($rule in [System.Net.Dns]::GetHostAddresses($hostName)) {
+            $text = $rule.IPAddressToString
+            if ($rule.AddressFamily -eq [System.Net.Sockets.AddressFamily]::InterNetwork) {
+                if ($text -notmatch '^(127\.|169\.254\.)') { $v4 += $text }
+            } elseif ($rule.AddressFamily -eq [System.Net.Sockets.AddressFamily]::InterNetworkV6) {
+                if ($text -notmatch '^(::1|fe80:)') { $v6 += $text }
+            }
+        }
+    } catch {
+        Write-Warn "cannot resolve ${hostName}: $($_.Exception.Message)"
+        return $variants
+    }
+    $v4Ok = $false
+    foreach ($address in ($v4 | Select-Object -First 2)) { if (Test-TcpPort -Address $address) { $v4Ok = $true; break } }
+    $v6Ok = $false
+    foreach ($address in ($v6 | Select-Object -First 2)) { if (Test-TcpPort -Address $address) { $v6Ok = $true; break } }
+    $v4Text = if ($v4.Count) { $v4 -join ', ' } else { 'none' }
+    $v6Text = if ($v6.Count) { $v6 -join ', ' } else { 'none' }
+    Write-Warn "${hostName} answers: IPv4 $(if ($v4Ok) { 'ok' } else { 'no' }) ($v4Text); IPv6 $(if ($v6Ok) { 'ok' } else { 'no' }) ($v6Text)"
+    $proxy = $null
+    $gitProxy = Invoke-Native { git config --get http.proxy 2>$null }
+    $gitProxy = if ($LASTEXITCODE -eq 0) { "$gitProxy".Trim() } else { '' }
+    if ($gitProxy) {
+        Write-Warn "git already uses http.proxy=$gitProxy, so a proxy setting is not what is missing"
+    } else {
+        foreach ($candidate in (Get-SystemProxyCandidates)) {
+            if (Test-ProxyListening $candidate.Url) {
+                $proxy = $candidate.Url
+                Write-Warn "using the proxy this PC already uses ($($candidate.Source)): $proxy"
+                break
+            }
+            Write-Warn "proxy $($candidate.Url) from $($candidate.Source) is not listening; ignoring it"
+        }
+    }
+    $addressPin = $null
+    if ($v4Ok -and -not $v6Ok -and $v4.Count) {
+        $addressPin = "${hostName}:443:$($v4[0])"
+        Write-Warn "IPv4 answers and IPv6 does not; pinning ${hostName} to $($v4[0])"
+    }
+    if ($proxy) {
+        $variants += @{ Label = 'through the system proxy'; Config = @("http.proxy=$proxy", "https.proxy=$proxy") }
+    }
+    if ($addressPin) {
+        $variants += @{ Label = "pinned to IPv4 $($v4[0])"; Config = @("http.curloptResolve=$addressPin") }
+    }
+    if ($proxy -and $addressPin) {
+        $variants += @{ Label = "through the system proxy, pinned to IPv4 $($v4[0])"; Config = @("http.proxy=$proxy", "https.proxy=$proxy", "http.curloptResolve=$addressPin") }
+    }
+    return $variants
+}
+
+# The last word has to be actionable: "git clone failed" leaves the user with
+# nothing to do, and this failure is always a local-network setting.
+function Get-CloneFailureMessage {
+    $hostName = Get-RepoHost $RepoUrl
+    $logPath = Join-Path (Join-Path $MerlinHome 'logs') 'install.log'
+    $lines = @("git clone failed; no checkout published")
+    if ($hostName) { $lines += "  ${hostName}:443 does not answer from this PC (see the reachability line above)" }
+    $lines += "  fixes, in order of likelihood:"
+    $lines += "    1. A proxy/VPN client on this PC (Clash, v2ray, corporate) is not used by git:"
+    $lines += "         git config --global http.proxy http://127.0.0.1:7890    # its actual port"
+    $lines += "         then rerun: irm https://epinoiahorizon.com/install.ps1 | iex"
+    $lines += "    2. IPv6 is broken on this network: pin the IPv4 address"
+    $lines += "         git config --global http.curloptResolve ${hostName}:443:<ipv4>"
+    $lines += "    3. Install from a mirror instead of GitHub:"
+    $lines += "         `$env:MERLIN_REPO_URL='https://<mirror>/Merlin-Agent.git'"
+    $lines += "  full log for support: $logPath"
+    return ($lines -join "`n")
+}
+
 function Stage-Repository {
     # Refuse an occupied non-checkout before provisioning Git. This check
     # needs no tool download and must not overwrite a user's existing files.
@@ -868,15 +1052,35 @@ function Stage-Repository {
         if (Test-QuietOutput) { $progress = @('--progress') }
         try {
             $cloned = $false
-            foreach ($attempt in 1..3) {
+            # Two plain attempts cover genuine flakiness (throttling, a dropped
+            # TLS session). Only after both die does the network probe run and
+            # add remedied variants, so a healthy install never pays for it.
+            $variants = @(
+                @{ Label = ''; Config = @() },
+                @{ Label = ''; Config = @() }
+            )
+            $index = 0
+            while (-not $cloned -and $index -lt $variants.Count) {
+                $current = $variants[$index]
+                $index++
+                $gitArgs = @()
+                foreach ($setting in $current.Config) { $gitArgs += @('-c', $setting) }
                 # Treeless: every commit and release tag (runtime identity is the
                 # nearest reachable release; -Commit pins and branch switches
                 # still resolve), trees and blobs fetched on demand, so the
                 # download stays close to a --depth 1 clone.
                 $cloneLabel = "Cloning $RepoUrl ($Branch) into $InstallDir"
-                if ($attempt -gt 1) { $cloneLabel += " (attempt $attempt of 3)" }
-                Invoke-Logged $cloneLabel { git clone @progress --filter=tree:0 --branch $Branch $RepoUrl $tree }
-                if (-not $LASTEXITCODE) { $cloned = $true; break }
+                if ($current.Label) { $cloneLabel += " $($current.Label)" }
+                elseif ($index -gt 1) { $cloneLabel += " (attempt $index)" }
+                Invoke-Logged $cloneLabel { git @gitArgs clone @progress --filter=tree:0 --branch $Branch $RepoUrl $tree }
+                if (-not $LASTEXITCODE) {
+                    $cloned = $true
+                    $script:CloneTransportConfig = @($current.Config)
+                    if ($script:CloneTransportConfig.Count) {
+                        Write-Ok "clone reached $RepoUrl $($current.Label)"
+                    }
+                    break
+                }
                 Remove-Item -LiteralPath $tree -Recurse -Force -ErrorAction SilentlyContinue
                 if (Test-Path -LiteralPath $tree) {
                     # Say why, instead of letting the next attempt fail with a
@@ -884,13 +1088,24 @@ function Stage-Repository {
                     # lockers and the exact manual fix.
                     Fail "stale clone dir could not be removed: $tree (usual causes: antivirus or OneDrive holding files open; close/unlock, delete that folder manually, then rerun)"
                 }
-                if ($attempt -lt 3) { Start-Sleep -Seconds ($attempt * 5) }
+                if ($index -eq 2) {
+                    # Both identical attempts died: learn what the network looks
+                    # like before spending more time on it.
+                    $variants += Get-CloneRetryVariants $RepoUrl
+                    if ($variants.Count -eq 2) {
+                        Write-Warn "no proxy or address-family remedy applies; $RepoUrl is unreachable from this PC"
+                    }
+                } elseif ($index -lt $variants.Count) {
+                    Start-Sleep -Seconds 3
+                }
             }
             if (-not $cloned) {
                 # The checkout step is where throttled downloads die: clone the
                 # graph alone, then retry materializing the tree separately.
                 Write-Warn "direct clone failed; trying deferred checkout"
-                Invoke-Logged "Cloning history" { git clone @progress --filter=tree:0 --no-checkout --branch $Branch $RepoUrl $tree }
+                $deferredArgs = @()
+                foreach ($setting in $script:CloneTransportConfig) { $deferredArgs += @('-c', $setting) }
+                Invoke-Logged "Cloning history" { git @deferredArgs clone @progress --filter=tree:0 --no-checkout --branch $Branch $RepoUrl $tree }
                 if (-not $LASTEXITCODE) {
                     foreach ($attempt in 1..2) {
                         Invoke-Logged "Checking out files (attempt $attempt of 2)" { git -C $tree reset --hard HEAD }
@@ -899,8 +1114,19 @@ function Stage-Repository {
                     }
                 }
             }
-            if (-not $cloned) { Fail "git clone failed; no checkout published" }
+            if (-not $cloned) { Fail (Get-CloneFailureMessage) }
             Move-Item -LiteralPath $tree -Destination $InstallDir
+            # A checkout that needed a proxy or an address pin needs it again on
+            # every fetch: `merlin update` runs git inside this repo, so the
+            # repo-local config carries the repair forward instead of leaving
+            # the next update to fail the same way.
+            foreach ($setting in $script:CloneTransportConfig) {
+                $split = $setting -split '=', 2
+                if ($split.Count -eq 2) {
+                    Invoke-Native { git -C $InstallDir config $split[0] $split[1] } | Out-Null
+                    Log "kept $($split[0]) in the checkout's git config for future fetches"
+                }
+            }
             Write-Ok "Merlin Agent cloned"
         } finally {
             Remove-Item -LiteralPath $staged -Recurse -Force -ErrorAction SilentlyContinue
