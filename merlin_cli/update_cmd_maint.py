@@ -798,6 +798,20 @@ def _run_pre_update_backup(args) -> Optional[str]:
         print("  Continuing with update (set updates.pre_update_backup: off to silence this).")
         print()
 
+    # The install step swaps <home>/tools/python-* for the newly pinned build. A process still
+    # running from that tree (a build the user started, a stray agent session) makes that swap
+    # fail with WinError 5 minutes after the build finished. Name the holders NOW, while the
+    # user can still stop cleanly, instead of after a nine-minute build.
+    with _best_effort("Toolchain holder probe failed: %s"):
+        from merlin_cli.update_cmd_windows import warn_toolchain_holders
+        _toolchain_holders = warn_toolchain_holders()
+        if _toolchain_holders:
+            print("  ⚠ Process(es) still running from the Python toolchain this update replaces:")
+            for _holder in _toolchain_holders:
+                print(f"      · pid {_holder['pid']}  {_holder['exe']}")
+            print("    The install step fails while they run — close Merlin and any agent session first.")
+            print()
+
     if mode != "full":
         if snapshot_id:
             print()

@@ -216,6 +216,34 @@ def _desktop_unpacked_root(exe: Path, release_dir: Path) -> Path:
     return unpacked
 
 
+def _desktop_root_has_app(root: Path) -> bool:
+    """Whether *root* — one electron-builder ``appOutDir`` — still holds a launchable app.
+
+    An interrupted promotion (killed update, a rename that lost to a lock and never rolled
+    back) can leave the directory behind holding ``resources`` and no executable. Moving that
+    shell aside spends the rollback slot on something that is not an app, so the next update
+    restores it and fails the same way (#112544 follow-up).
+    """
+    if not root.is_dir():
+        return False
+    if sys.platform == "darwin":
+        return any(root.glob("*.app/Contents/MacOS/*"))
+    if sys.platform == "win32":
+        return any(exe.is_file() for exe in root.glob("*.exe"))
+    return any(exe.is_file() for exe in root.glob("merlin*")) or any(
+        exe.is_file() for exe in root.glob("Merlin*")
+    )
+
+
+def _sweep_interrupted_swap_artifacts(live_root: Path) -> None:
+    """Clear the half-written sibling a killed pack or promotion leaves next to *live_root*.
+
+    ``<root>.tmp`` is never live state and nothing reads it; leaving it in place is exactly
+    what a later promotion trips over.
+    """
+    shutil.rmtree(live_root.with_name(live_root.name + ".tmp"), ignore_errors=True)
+
+
 def _swap_staged_desktop_app(desktop_dir: Path, staging_dir: Path) -> Optional[Path]:
     """Promote a VERIFIED staged pack over ``release/`` by two renames (live → ``.previous``, staged →
     live); a failure between them rolls back. Returns the live exe or None (live app kept). Never raises."""
@@ -230,7 +258,13 @@ def _swap_staged_desktop_app(desktop_dir: Path, staging_dir: Path) -> Optional[P
         previous = release_dir / (staged_root.name + _DESKTOP_PREVIOUS_SUFFIX)
         release_dir.mkdir(parents=True, exist_ok=True)
         shutil.rmtree(previous, ignore_errors=True)
-        moved_aside = live_root.exists()
+        _sweep_interrupted_swap_artifacts(live_root)
+        moved_aside = _desktop_root_has_app(live_root)
+        if live_root.exists() and not moved_aside:
+            # A previous run died between its two renames: the app that lived here is already
+            # gone, so there is nothing to roll back to. Clear the shell and let staging land.
+            logger.warning("clearing an interrupted desktop promotion leftover at %s", live_root)
+            shutil.rmtree(live_root, ignore_errors=True)
         if moved_aside:
             # A Desktop may have reopened during the long packaging step (Windows lock) or
             # never exited at all (a manual `merlin update`/`merlin desktop` run does not

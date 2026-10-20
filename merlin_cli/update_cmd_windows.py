@@ -337,6 +337,54 @@ def list_venv_holders() -> list[dict]:
     return holders
 
 
+def warn_toolchain_holders() -> list[dict]:
+    """Processes still running from the pinned Python toolchain the install step must replace.
+
+    ``<home>/tools/python-*`` is a SECOND set of runtime DLLs (libcrypto/libssl) that a source
+    update swaps for the newly pinned build. Anything still running from that tree — a stray
+    agent session, a build the user started by hand — turns that swap into ``WinError 5``
+    minutes after the build finished, which reads as an update that hung for no reason.
+    Advisory by design: callers print the list before the long work instead of adding a new
+    refusal path to the contract the Desktop hand-off already depends on.
+    """
+    psutil = _psutil()
+    if psutil is None:
+        return []
+    from merlin_cli.update_cmd import _m
+    if not _m()._is_windows():
+        return []
+    try:
+        from pm.environments import dependency_home_root
+        tools_prefix = _lower_dir_prefix(dependency_home_root() / "tools")
+    except Exception:
+        return []
+    skip = _self_and_non_gateway_ancestor_pids(psutil)
+    holders: list[dict] = []
+    try:
+        proc_iter = psutil.process_iter(["pid", "exe", "name"])
+    except Exception:
+        return []
+    for proc in proc_iter:
+        try:
+            info = proc.info
+        except Exception:
+            continue
+        pid, exe = info.get("pid"), info.get("exe")
+        if not exe or pid is None or int(pid) in skip:
+            continue
+        try:
+            exe_norm = str(Path(exe).resolve()).lower()
+        except (OSError, ValueError):
+            exe_norm = str(exe).lower()
+        if not exe_norm.startswith(tools_prefix):
+            continue
+        name = str(info.get("name") or Path(exe).name)
+        if not name.lower().startswith(("python", "pypy")):
+            continue
+        holders.append({"pid": int(pid), "exe": name})
+    return holders
+
+
 def _leftover_pausable_gateway_pids(matches: list[tuple[int, str, str]]) -> list[int] | None:
     """PIDs from *matches* when EVERY remaining venv holder is a pausable gateway, else ``None`` (keep refusing).
 
