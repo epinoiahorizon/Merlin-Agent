@@ -377,7 +377,7 @@ async function resolveInstallScript({
  */
 async function _downloadOrBranch(installRef, cached, emit, fallbackBranch, download) {
   try {
-    await download(installRef.ref, cached)
+    await _downloadWithRetry(download, installRef.ref, cached, emit)
 
     return false
   } catch (error) {
@@ -395,9 +395,43 @@ async function _downloadOrBranch(installRef, cached, emit, fallbackBranch, downl
         `[bootstrap] pinned commit ${String(installRef.ref).slice(0, 12)} is not on the remote ` +
         `(HTTP 404); falling back to ${branch}`
     })
-    await download(branch, cached)
+    await _downloadWithRetry(download, branch, cached, emit)
 
     return true
+  }
+}
+
+/**
+ * A download that survives the network, not just the happy path.
+ *
+ * The setup runs on whatever connection a stranger has: a captive portal, a proxy
+ * that drops idle sockets, a DNS blip. One dropped TLS handshake used to end the
+ * install with a scary error, so a transport-shaped failure is retried twice with
+ * a short backoff. A 404 is NOT retried — that is an answer, not a hiccup, and the
+ * pinned-ref fallback above is the only thing allowed to act on it.
+ */
+const TRANSIENT_DOWNLOAD = /ECONNRESET|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|EPIPE|socket hang up|HTTP (?:5\d\d|429)/i
+const DOWNLOAD_RETRY_DELAYS_MS = [750, 2500]
+
+async function _downloadWithRetry(download, ref, destPath, emit) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await download(ref, destPath)
+    } catch (error) {
+      const message = String((error && error.message) || error)
+      const retryable = TRANSIENT_DOWNLOAD.test(message) && attempt < DOWNLOAD_RETRY_DELAYS_MS.length
+
+      if (!retryable) {
+        throw error
+      }
+
+      const delay = DOWNLOAD_RETRY_DELAYS_MS[attempt]
+      emit({
+        type: 'log',
+        line: `[bootstrap] download attempt ${attempt + 1} failed (${message}); retrying in ${delay}ms`
+      })
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
   }
 }
 
