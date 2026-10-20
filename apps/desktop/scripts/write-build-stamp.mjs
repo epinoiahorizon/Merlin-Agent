@@ -113,6 +113,34 @@ export function isFallbackCommit(commit) {
   return typeof commit === "string" && /^0{7,40}$/.test(commit)
 }
 
+/**
+ * Warn when the stamp pins a commit the remote's main branch does not contain.
+ *
+ * A local build from an unpushed commit bakes that SHA into the artifact. First launch
+ * then fetches `raw.githubusercontent.com/<sha>/scripts/install.ps1`, GitHub answers 404,
+ * and a stranger's install dies before step one — the exact shape of the markpc report.
+ * Bootstrap now falls back to the branch, but an artifact that needs that fallback is not
+ * a release artifact: say so where it is still one command to fix.
+ */
+export function warnIfCommitUnpublished(stamp, { repoRoot = REPO_ROOT, execFn = tryExec } = {}) {
+  if (!stamp || stamp.source !== "local" || isFallbackCommit(stamp.commit)) {
+    return
+  }
+  // Local ancestry check against the fetched remote tip: no network, no rate limit.
+  // A missing origin/main (fresh or offline clone) cannot prove publication either, so
+  // it lands in the same warning — this is advice, never a build failure.
+  const published = execFn(["git", "merge-base", "--is-ancestor", stamp.commit, "origin/main"], { cwd: repoRoot })
+  if (published !== null) {
+    return
+  }
+  console.warn(
+    "[write-build-stamp] WARNING: " + stamp.commit.slice(0, 12) + " is not an ancestor of origin/main.\n" +
+      "  First-launch bootstrap pins this commit for install.ps1/install.sh. If GitHub\n" +
+      "  does not have it, a fresh install answers HTTP 404 and stops at step zero.\n" +
+      "  Push the commit (or build from origin/main) before publishing this artifact."
+  )
+}
+
 /** Qualify desktop CLI files before the immutable runtime paths are baked.
  * Canonical command keys remain stable for backend consumers; public aliases
  * come from the declared filenames, never those internal keys.
@@ -173,6 +201,8 @@ function main() {
         "  run from a git checkout or set $GITHUB_SHA."
     )
   }
+
+  warnIfCommitUnpublished(stamp)
 
   if (stamp.dirty) {
     console.warn(

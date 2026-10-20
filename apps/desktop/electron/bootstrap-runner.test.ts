@@ -376,13 +376,52 @@ test('resolveInstallScript does not fall back on a non-404 pinned failure', asyn
         emit: () => {},
         _download: async ref => {
           refs.push(ref)
-          throw new Error(`Failed to download install.ps1: HTTP 503 from https://raw.githubusercontent.com/.../${ref}`)
+          // 403 is an answer (blocked/forbidden), not a hiccup: no retry, no fallback.
+          throw new Error(`Failed to download install.ps1: HTTP 403 from https://raw.githubusercontent.com/.../${ref}`)
         }
       }),
-      /HTTP 503/
+      /HTTP 403/
     )
 
     assert.deepEqual(refs, [commit])
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true })
+  }
+})
+
+test('resolveInstallScript retries a dropped connection before giving up', async () => {
+  const home = mkTmpHome()
+
+  try {
+    const commit = 'd'.repeat(40)
+    const cached = cachedScriptPath(home, commit)
+    const refs = []
+    let attempts = 0
+
+    const result = await resolveInstallScript({
+      installStamp: { commit, branch: 'main' },
+      sourceRepoRoot: null,
+      merlinHome: home,
+      emit: () => {},
+      _download: async (ref, destPath) => {
+        refs.push(ref)
+        attempts += 1
+
+        if (attempts === 1) {
+          throw new Error('connect ECONNRESET 104.18.0.1:443')
+        }
+
+        fs.mkdirSync(path.dirname(destPath), { recursive: true })
+        fs.writeFileSync(destPath, '#!/bin/sh\necho second try\n')
+
+        return destPath
+      }
+    })
+
+    assert.equal(attempts, 2, 'a transport failure must be retried once')
+    assert.deepEqual(refs, [commit, commit], 'the retry keeps the pinned ref')
+    assert.equal(result.commit, commit, 'a successful pinned download still records the pin')
+    assert.match(fs.readFileSync(cached, 'utf8'), /second try/)
   } finally {
     fs.rmSync(home, { recursive: true, force: true })
   }
