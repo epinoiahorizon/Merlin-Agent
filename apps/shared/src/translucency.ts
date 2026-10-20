@@ -144,9 +144,25 @@ const DEFAULT_VALUES: Record<'mac' | 'windows', Record<Appearance, TranslucencyV
 /**
  * The untouched values for an appearance on this platform. Linux never reaches
  * here — translucency is unsupported there, so nothing resolves.
+ *
+ * `glassSupported` changes the TINT default, not the rest of the table. The
+ * 29% in `DEFAULT_VALUES` is a glass tint: it thins surfaces over a live
+ * platform backdrop while the content column and its text stay opaque. Where
+ * glass has no native material (Windows below 22H2), `normalizeMode` resolves
+ * the mode to 'clear', and the same number means something else entirely —
+ * native window OPACITY, applied to the WHOLE window including text and
+ * colours (29 → ~94% opaque). A machine nobody has tuned must not look washed
+ * out just because it cannot blur, so Clear's default starts at 0; the lever
+ * still works the moment the user raises it.
  */
-export function defaultTranslucencyValues(appearance: Appearance, isWindows: boolean): TranslucencyValues {
-  return DEFAULT_VALUES[isWindows ? 'windows' : 'mac'][appearance]
+export function defaultTranslucencyValues(
+  appearance: Appearance,
+  isWindows: boolean,
+  glassSupported = true
+): TranslucencyValues {
+  const values = DEFAULT_VALUES[isWindows ? 'windows' : 'mac'][appearance]
+
+  return glassSupported ? values : { ...values, intensity: 0 }
 }
 
 /**
@@ -287,7 +303,7 @@ export function defaultTranslucencyState(
   isWindows: boolean
 ): TranslucencyState {
   return {
-    ...defaultTranslucencyValues(appearance, isWindows),
+    ...defaultTranslucencyValues(appearance, isWindows, glassSupported),
     mode: normalizeMode(undefined, glassSupported)
   }
 }
@@ -350,9 +366,10 @@ export function normalizeBook(payload: unknown, glassSupported: boolean): Transl
 export function resolveTranslucency(
   book: TranslucencyBook,
   appearance: Appearance,
-  isWindows: boolean
+  isWindows: boolean,
+  glassSupported = true
 ): TranslucencyState {
-  const fallback = defaultTranslucencyValues(appearance, isWindows)
+  const fallback = defaultTranslucencyValues(appearance, isWindows, glassSupported)
   const slot = book[appearance]
 
   return {
