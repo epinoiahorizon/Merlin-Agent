@@ -47,7 +47,17 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Trigger Vercel Deploy
-        run: curl -fsS --retry 3 --retry-delay 10 -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "${VERCEL_DEPLOY_HOOK}" ]; then
+            # This repository deploys its site to GitHub Pages. Vercel is only
+            # used by the upstream project, so an unset hook must not turn the
+            # whole run red.
+            echo "VERCEL_DEPLOY_HOOK is not configured here; nothing to do."
+            exit 0
+          fi
+          curl -fsS --retry 3 --retry-delay 10 -X POST "$VERCEL_DEPLOY_HOOK"
 
   deploy-docs:
     if: github.repository == 'epinoiahorizon/Merlin-Agent'
@@ -204,6 +214,19 @@ jobs:
           if [ -f website/build/llms-full.txt ]; then
             cp website/build/llms-full.txt _site/llms-full.txt
           fi
+          # The docs are staged under /docs/ (that is the Docusaurus baseUrl), so
+          # the bare domain had no index at all and every link to
+          # https://merlin-agent.epinoiahorizon.com/ answered 404. Serve a
+          # redirect at the root instead of a dead page.
+          printf '%s\n' \
+            '<!doctype html>' \
+            '<meta charset="utf-8">' \
+            '<title>Merlin Agent — documentation</title>' \
+            '<link rel="canonical" href="https://merlin-agent.epinoiahorizon.com/docs/">' \
+            '<meta http-equiv="refresh" content="0; url=/docs/">' \
+            "<script>location.replace('/docs/' + location.search + location.hash)</script>" \
+            '<p>Redirecting to <a href="/docs/">the documentation</a>…</p>' \
+            > _site/index.html
 
       # Pages serves exactly the newest artifact, so each deploy used to delete
       # the previous build's content-hashed JS/CSS while edge caches (Vercel →
