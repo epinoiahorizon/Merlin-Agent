@@ -19,9 +19,15 @@ platform-gated features are supported), see **[Platform Support](./platform-supp
 Download the package for your platform from the
 [Merlin website](https://merlin-agent.epinoiahorizon.com/).
 
-- **Windows:** open the `.appinstaller` download with Windows App Installer.
-  It installs the signed MSIX bundle and records its update source.
-  Microsoft Store packages have separate Store ownership.
+- **Windows:** download **`Merlin-Setup-<version>-x64.exe`** from the
+  [releases page](https://github.com/epinoiahorizon/Merlin-Agent/releases) (or
+  the download button on the landing page) and run it. It installs per-machine
+  into `C:\Program Files\Merlin`, adds Start Menu and desktop shortcuts, and
+  registers an uninstaller in Apps & Features. The preview build is unsigned,
+  so SmartScreen asks for **More info → Run anyway**.
+  The `.appinstaller` download is the signed lane instead: open it with Windows
+  App Installer and it installs the signed MSIX bundle and records its update
+  source. Microsoft Store packages have separate Store ownership.
 - **macOS:** open the DMG, then copy `Merlin.app` to Applications. The ZIP
   artifact carries the signed app used by the automatic updater.
 
