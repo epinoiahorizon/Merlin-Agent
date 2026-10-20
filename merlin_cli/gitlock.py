@@ -520,8 +520,17 @@ def fetch_with_partial_clone_recovery(runner: Callable[..., subprocess.Completed
     registers promisor remotes additively, so the repo's own ``true`` still wins.)
     """
     result = runner(git_cmd, fetch_args)
-    if result.returncode == 0 or not is_partial_clone_pack_objects_crash(getattr(result, "stderr", "") or ""):
+    if result.returncode == 0:
         return result
-    mark_unmarked_packs_promisor(repo_root)
-    logger.info("pack-objects crash on a partial clone; retrying the fetch")
-    return runner(git_cmd, fetch_args)
+    if is_partial_clone_pack_objects_crash(getattr(result, "stderr", "") or ""):
+        mark_unmarked_packs_promisor(repo_root)
+        logger.info("pack-objects crash on a partial clone; retrying the fetch")
+        result = runner(git_cmd, fetch_args)
+        if result.returncode == 0:
+            return result
+    # A connect-level failure has a local cause (a proxy git cannot see, a dead
+    # IPv6 route) and a remedy. Anything else -- a rejected ref, a credential
+    # prompt -- is the caller's to report.
+    from merlin_cli.git_transport import recover_fetch_transport
+
+    return recover_fetch_transport(runner, git_cmd, fetch_args, repo_root, result)
