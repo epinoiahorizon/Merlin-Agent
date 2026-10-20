@@ -1,6 +1,6 @@
 """A clone that only a proxy or IPv4 pin can reach is retried with it, and kept.
 
-Live failure class (2026-10-20, Malaysia user behind a proxied/blocked network):
+Live failure class (Chinese-locale Windows laptop behind a proxied network):
 prerequisites download fine through .NET -- which follows the Windows proxy --
 and then every `git clone` dies with
 
