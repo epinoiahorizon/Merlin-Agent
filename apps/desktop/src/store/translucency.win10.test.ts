@@ -40,14 +40,27 @@ describe('Win10 translucency defaults (regression for #90824)', () => {
   it('resolves an untouched profile to the WINDOWS defaults, not the mac ones', () => {
     // Untouched profile: no persisted book, so the store falls through to the
     // platform defaults. The store's initial appearance is dark.
-    expect($translucency.get()).toEqual({ ...WINDOWS_DARK, mode: 'clear' })
+    //
+    // Tint is 0, not the table's 29: on this machine the mode resolves to
+    // 'clear', where the number is native window OPACITY (whole window, text
+    // included), not a glass tint. A profile nobody tuned must open solid.
+    expect($translucency.get()).toEqual({ ...WINDOWS_DARK, intensity: 0, mode: 'clear' })
 
     expect($translucency.get().material).not.toBe(defaultTranslucencyValues('dark', false).material)
 
     // Light appearance must resolve the windows light table too.
     setAppearance('light')
-    expect($translucency.get()).toEqual({ ...WINDOWS_LIGHT, mode: 'clear' })
+    expect($translucency.get()).toEqual({ ...WINDOWS_LIGHT, intensity: 0, mode: 'clear' })
     expect($translucency.get().material).not.toBe(defaultTranslucencyValues('light', false).material)
+  })
+
+  it('opens solid: window opacity is 1, not a 29% fade', async () => {
+    // The regression this guards: 'clear' + table default 29 went through
+    // opacityRamp() and shipped a 94%-opaque window — washed-out text and
+    // duller colours on every Win10 machine that never touched the setting.
+    const { windowOpacityFor } = await import('@merlin/shared/translucency')
+
+    expect(windowOpacityFor($translucency.get())).toBe(1)
   })
 
   it('keeps the mode clear when glass is unsupported', () => {
@@ -58,10 +71,11 @@ describe('Win10 translucency defaults (regression for #90824)', () => {
 
   it('still resolves windows defaults after an explicit reset to an empty book', () => {
     // A fresh book with no values is the same "untouched" shape the store
-    // starts from; the platform defaults must still be the windows ones.
+    // starts from; the platform defaults must still be the windows ones, and
+    // the tint must still be the solid-by-default 0 on a clear-only machine.
     $translucencyBook.set({ mode: 'clear', base: {}, light: {}, dark: {} })
     setAppearance('dark')
 
-    expect($translucency.get()).toEqual({ ...WINDOWS_DARK, mode: 'clear' })
+    expect($translucency.get()).toEqual({ ...WINDOWS_DARK, intensity: 0, mode: 'clear' })
   })
 })
