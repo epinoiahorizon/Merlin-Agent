@@ -256,6 +256,35 @@ module.exports = {
     capabilities: ['unvirtualizedResources'],
     showNameOnTiles: true
   },
+  // The sideload `.exe` installer lane (`npm run dist:win:nsis`, i.e. `--win
+  // nsis`). MSIX stays the release target: it is what App Installer updates
+  // and the Store consumes. This lane exists for the machines MSIX cannot
+  // reach without a trusted signing certificate — an unsigned/side-loaded
+  // setup.exe that installs per-machine into `C:\Program Files\Merlin`,
+  // writes Start Menu + desktop shortcuts and registers an uninstaller in
+  // Apps & Features. Without `perMachine` electron-builder would install
+  // per-user into `%LOCALAPPDATA%\Programs`, which is the "extracted zip"
+  // experience users do not read as an install.
+  nsis: {
+    oneClick: false,
+    perMachine: true,
+    allowElevation: true,
+    allowToChangeInstallationDirectory: true,
+    createDesktopShortcut: true,
+    createStartMenuShortcut: true,
+    shortcutName: displayName,
+    uninstallDisplayName: displayName,
+    installerIcon: 'assets/icon.ico',
+    uninstallerIcon: 'assets/icon.ico',
+    installerHeaderIcon: 'assets/icon.ico',
+    artifactName: `${artifactNamePascal}-Setup-\${version}-\${arch}.\${ext}`,
+    // Merlin state lives in the user's AppData, shared with unpackaged CLI
+    // and gateway processes; an uninstall must not delete it.
+    deleteAppDataOnUninstall: false,
+    runAfterFinish: true,
+    differentialPackage: false,
+    include: 'packaging/installer.nsh'
+  },
   linux: {
     category: 'Development',
     maintainer: 'Epinoia Horizon <support@epinoiahorizon.com>',
