@@ -342,7 +342,6 @@ async function resolveInstallScript({
   }
 
   const cached = cachedScriptPath(merlinHome, installRef.cacheKey)
-  const resolvedCommit = installRef.pinned ? installRef.ref : null
 
   // The cache is only this run's -File target, never a source of truth.
   // Refreshing also makes old Desktop builds pick up installer fixes instead
@@ -354,10 +353,52 @@ async function resolveInstallScript({
       (installRef.pinned ? '' : ' (unpinned branch)')
   })
 
-  await _download(installRef.ref, cached)
+  const fellBack = await _downloadOrBranch(installRef, cached, emit, installStamp?.branch || FALLBACK_BRANCH, _download)
   emit({ type: 'log', line: `[bootstrap] saved to ${cached}` })
 
+  // A fallback download is the BRANCH's script, not the pinned commit's: recording the pin
+  // would hand a SHA to the install receipt that never produced these bytes.
+  const resolvedCommit = installRef.pinned && !fellBack ? installRef.ref : null
+
   return { path: cached, source: 'download', commit: resolvedCommit, kind: installScriptKind() }
+}
+
+/**
+ * Download the installer at the pinned ref, falling back to the branch when the
+ * pin is a commit the remote does not have.
+ *
+ * A build made from an unpushed commit stamps that SHA — honest, and useless on a
+ * fresh machine: `raw.githubusercontent.com/<sha>/scripts/install.ps1` answers 404
+ * and bootstrap dies before a single step runs ("Failed to download install.ps1:
+ * HTTP 404"). The stamp records the branch it was built from, and the installer
+ * script is the thing being fetched, so following the branch is always at least as
+ * new as the pin. Only a real 404 on a pinned ref may fall back; every other
+ * failure (proxy, DNS, 5xx) keeps its own error.
+ */
+async function _downloadOrBranch(installRef, cached, emit, fallbackBranch, download) {
+  try {
+    await download(installRef.ref, cached)
+
+    return false
+  } catch (error) {
+    const message = String((error && error.message) || error)
+    const pinMissing = installRef.pinned && /HTTP 404/.test(message)
+
+    if (!pinMissing) {
+      throw error
+    }
+
+    const branch = fallbackBranch || FALLBACK_BRANCH
+    emit({
+      type: 'log',
+      line:
+        `[bootstrap] pinned commit ${String(installRef.ref).slice(0, 12)} is not on the remote ` +
+        `(HTTP 404); falling back to ${branch}`
+    })
+    await download(branch, cached)
+
+    return true
+  }
 }
 
 // ---------------------------------------------------------------------------
