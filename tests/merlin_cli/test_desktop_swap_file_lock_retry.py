@@ -80,3 +80,36 @@ def test_swap_gives_up_after_bounded_retries_and_keeps_live_app(tmp_path, monkey
     assert live_exe.read_text(encoding="utf-8") == "old"
     assert not (live_exe.parent.parent / (live_exe.parent.name + ".previous")).exists()
     assert any("Access is denied" in r.message and "live app kept" in r.message for r in caplog.records)
+
+
+def test_swap_heals_an_interrupted_promotion_leftover(tmp_path, monkeypatch):
+    """A killed earlier update leaves ``release/<root>`` as a resources-only shell plus a
+    ``<root>.tmp`` sibling. The next promotion must clear both and land the staged app, instead
+    of moving the shell aside and rolling it straight back — the shape that made every later
+    update fail with "Could not publish the desktop build" (#112544 follow-up).
+    """
+    desktop_dir, staging, live_exe, _ = _staged_over_live(tmp_path, monkeypatch)
+    root = live_exe.parent  # release/win-unpacked
+    release = root.parent
+    live_exe.unlink()  # the app is gone; only the shell an interrupted run left is here
+    (root / "resources").mkdir()
+    leftover = release / (root.name + ".tmp")
+    leftover.mkdir()
+    (leftover / "half-written").write_text("x", encoding="utf-8")
+
+    promoted = main_desktop._swap_staged_desktop_app(desktop_dir, staging)
+
+    assert promoted == live_exe
+    assert live_exe.read_text(encoding="utf-8") == "new"
+    assert not leftover.exists()
+    assert not (release / (root.name + ".previous")).exists()
+
+
+def test_desktop_root_has_app_ignores_a_shell(tmp_path):
+    """The rollback slot is only worth spending on a directory that still holds an app."""
+    shell = tmp_path / "win-unpacked"
+    (shell / "resources").mkdir(parents=True)
+    assert main_desktop._desktop_root_has_app(shell) is False
+
+    (shell / "Merlin.exe").write_text("app", encoding="utf-8")
+    assert main_desktop._desktop_root_has_app(shell) is True
