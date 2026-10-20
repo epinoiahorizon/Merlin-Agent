@@ -748,8 +748,9 @@ function Stage-Prerequisites {
 #   fatal: unable to access 'https://github.com/...': Failed to connect to
 #       github.com port 443 after 21xxx ms: Could not connect to server
 # Repeating that identical command three times learns nothing -- measured live
-# (2026-10-20, Malaysia user, C:\Users\chauc) triage found exactly that: the
-# pinned Git downloaded OK, all four clone attempts timed out the same way.
+# (report from a Chinese-locale Windows laptop, C:\Users\chauc) triage found
+# exactly that: the pinned Git downloaded OK, all four clone attempts timed
+# out the same way.
 # So: probe the repo host once, retry with the proxy this PC already uses
 # and/or an IPv4 pin, and keep whichever worked in the checkout's config so
 # `merlin update` inherits it.
