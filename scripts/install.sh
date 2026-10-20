@@ -447,6 +447,74 @@ stage_prerequisites() {
     log_success "prerequisites ok (git, curl)"
 }
 
+# ---------------------------------------------------------------------------
+# Clone transport recovery
+# ---------------------------------------------------------------------------
+# A clone can fail on TCP 443 while every other HTTPS fetch from the same
+# machine works. git reaches the network through libcurl, which takes the
+# first address the resolver returns: on a host with no usable IPv6 route the
+# AAAA answer hangs until the connect timeout and every attempt prints
+#   fatal: unable to access '...': Failed to connect to github.com port 443
+#       after 21xxx ms: Could not connect to server
+# Retrying that identical command learns nothing. Probe both address families
+# once (curl is already a prerequisite), then retry pinned to IPv4 -- and when
+# the probe has nothing to say, over HTTP/1.1, for middleboxes that break h2.
+# Whatever reached the remote is written into the checkout so `merlin update`
+# inherits it.
+CLONE_TRANSPORT_ARGS=()
+
+repo_host() {
+    printf '%s' "$REPO_URL" | sed -nE 's#^https?://(\[[^]]+\]|[^/:]+).*#\1#p'
+}
+
+first_ipv4() {
+    getent ahostsv4 "$1" 2>/dev/null | awk 'NR == 1 { print $1; exit }'
+}
+
+# Set CLONE_TRANSPORT_ARGS to the settings the next attempt should carry.
+clone_transport_diag() {
+    local host v4=no v6=no addr
+    host="$(repo_host)"
+    [ -n "$host" ] || return 0
+    if curl -sS -o /dev/null --connect-timeout 4 --max-time 8 -4 "https://$host/" >/dev/null 2>&1; then
+        v4=yes
+    fi
+    if curl -sS -o /dev/null --connect-timeout 4 --max-time 8 -6 "https://$host/" >/dev/null 2>&1; then
+        v6=yes
+    fi
+    log_warn "$host from this host: IPv4 $v4, IPv6 $v6"
+    if [ "$v4" = yes ] && [ "$v6" = no ]; then
+        addr="$(first_ipv4 "$host")"
+        if [ -n "$addr" ]; then
+            log_warn "IPv4 answers and IPv6 does not; pinning $host to $addr"
+            CLONE_TRANSPORT_ARGS=(-c "http.curloptResolve=$host:443:$addr")
+            return 0
+        fi
+    fi
+    log_warn "no address-family remedy applies; retrying over HTTP/1.1"
+    CLONE_TRANSPORT_ARGS=(-c http.version=HTTP/1.1)
+}
+
+# "git clone failed" leaves the user with nothing to do, and this failure is
+# always a local-network setting.
+clone_failure_message() {
+    local host
+    host="$(repo_host)"
+    printf '%s\n' "git clone failed; no checkout published"
+    if [ -n "$host" ]; then
+        printf '%s\n' "  $host:443 does not answer from this host (see the reachability line above)"
+    fi
+    printf '%s\n' \
+        "  fixes, in order of likelihood:" \
+        "    1. Send the proxy this machine already uses through the environment:" \
+        "         https_proxy=http://127.0.0.1:7890 curl -fsSL https://epinoiahorizon.com/install.sh | bash" \
+        "    2. Pin the repo host to IPv4 (a host with no IPv6 route):" \
+        "         git config --global http.curloptResolve $host:443:<ipv4>" \
+        "    3. Install from a mirror instead of GitHub:" \
+        "         MERLIN_REPO_URL=https://<mirror>/Merlin-Agent.git bash install.sh" \
+        "  full log for support: $INSTALL_LOG"
+}
+
 stage_repository() {
     # An interrupted clone from an older installer can leave a .git with no
     # initial commit, where stash/checkout abort ("You do not have the
@@ -549,7 +617,8 @@ stage_repository() {
             fi
         fi
         mkdir -p "$(dirname "$INSTALL_DIR")"
-        local staged attempt label cloned=false progress=()
+        local staged attempt label cloned=false progress=() variant
+        local -a variants=("" "")
         # Phase lines ("Receiving objects: 42%") feed the status line; git
         # prints none to a pipe unless asked.
         if quiet_output; then progress=(--progress); fi
@@ -558,14 +627,31 @@ stage_repository() {
         # mktemp suffix, so this run's fresh dir never collides with one).
         find "$(dirname "$INSTALL_DIR")" -maxdepth 1 -type d -name '.merlin-clone-*' \
             ! -path "$staged" -exec rm -rf {} + 2>/dev/null || true
-        for attempt in 1 2 3; do
+        attempt=0
+        # Two plain attempts cover genuine flakiness; only after both fail does
+        # the probe run and add a remedied variant, so a healthy install never
+        # pays for it.
+        while [ "$cloned" = false ] && [ "$attempt" -lt "${#variants[@]}" ]; do
+            variant="${variants[$attempt]}"
+            attempt=$((attempt + 1))
+            CLONE_TRANSPORT_ARGS=()
+            if [ -n "$variant" ]; then
+                # The variant is a short, space-separated "-c key=value" list.
+                # shellcheck disable=SC2206
+                CLONE_TRANSPORT_ARGS=($variant)
+            fi
             # Treeless: every commit and release tag (runtime identity is the
             # nearest reachable release; --commit pins and branch switches
             # still resolve), trees and blobs fetched on demand, so the
             # download stays close to a --depth 1 clone.
             label="Cloning $REPO_URL ($BRANCH) into $INSTALL_DIR"
-            [ "$attempt" = 1 ] || label="$label (attempt $attempt of 3)"
-            if run_logged "$label" git clone ${progress[@]+"${progress[@]}"} \
+            if [ -n "$variant" ]; then
+                label="$label ($variant)"
+            elif [ "$attempt" -gt 1 ]; then
+                label="$label (attempt $attempt)"
+            fi
+            if run_logged "$label" git ${CLONE_TRANSPORT_ARGS[@]+"${CLONE_TRANSPORT_ARGS[@]}"} \
+                clone ${progress[@]+"${progress[@]}"} \
                 --filter=tree:0 --branch "$BRANCH" "$REPO_URL" "$staged/tree"; then
                 cloned=true
                 break
@@ -578,13 +664,23 @@ stage_repository() {
                 rm -rf "$staged"
                 fail "stale clone dir could not be removed: $staged/tree (usual causes: antivirus or OneDrive holding files open; close/unlock, delete that folder manually, then rerun)"
             fi
-            [ "$attempt" = 3 ] || sleep "$((attempt * 5))"
+            if [ "$attempt" -eq 2 ]; then
+                # Both identical attempts died: learn what the network looks
+                # like before spending more time on it.
+                clone_transport_diag
+                if [ "${#CLONE_TRANSPORT_ARGS[@]}" -gt 0 ]; then
+                    variants+=("${CLONE_TRANSPORT_ARGS[*]}")
+                fi
+            elif [ "$attempt" -lt "${#variants[@]}" ]; then
+                sleep 3
+            fi
         done
         if [ "$cloned" = false ]; then
             # The checkout step is where throttled downloads die: clone the
             # graph alone, then retry materializing the tree separately.
             log_warn "direct clone failed; trying deferred checkout"
-            if run_logged "Cloning history" git clone ${progress[@]+"${progress[@]}"} \
+            if run_logged "Cloning history" git ${CLONE_TRANSPORT_ARGS[@]+"${CLONE_TRANSPORT_ARGS[@]}"} \
+                clone ${progress[@]+"${progress[@]}"} \
                 --filter=tree:0 --no-checkout --branch "$BRANCH" "$REPO_URL" "$staged/tree"; then
                 for attempt in 1 2; do
                     if run_logged "Checking out files (attempt $attempt of 2)" \
@@ -598,13 +694,26 @@ stage_repository() {
         fi
         if [ "$cloned" = false ]; then
             rm -rf "$staged"
-            fail "git clone failed; no checkout published"
+            fail "$(clone_failure_message)"
         fi
         if ! mv "$staged/tree" "$INSTALL_DIR"; then
             rm -rf "$staged"
             fail "cannot publish cloned checkout"
         fi
         rmdir "$staged"
+        # A checkout that only a proxy or an address pin could reach needs it
+        # again on every fetch: `merlin update` runs git inside this repo, so
+        # the repo-local config carries the repair forward.
+        if [ "${#CLONE_TRANSPORT_ARGS[@]}" -gt 0 ]; then
+            local i setting
+            for ((i = 0; i < ${#CLONE_TRANSPORT_ARGS[@]}; i += 2)); do
+                [ "${CLONE_TRANSPORT_ARGS[$i]}" = "-c" ] || continue
+                setting="${CLONE_TRANSPORT_ARGS[$((i + 1))]}"
+                if git -C "$INSTALL_DIR" config "${setting%%=*}" "${setting#*=}" 2>/dev/null; then
+                    log "kept ${setting%%=*} in the checkout's git config for future fetches"
+                fi
+            done
+        fi
         log_success "Merlin Agent cloned"
     fi
     if [ -n "$INSTALL_COMMIT" ]; then
