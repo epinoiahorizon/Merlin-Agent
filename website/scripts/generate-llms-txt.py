@@ -308,7 +308,7 @@ def emit_llms_index() -> str:
     )
     lines.append("")
     lines.append(
-        "Install: `curl -fsSL https://raw.githubusercontent.com/AtlasResearch/"
+        "Install: `curl -fsSL https://raw.githubusercontent.com/epinoiahorizon/"
         "merlin-agent/main/scripts/install.sh | bash`  "
         "(Linux, macOS, WSL2)"
     )
