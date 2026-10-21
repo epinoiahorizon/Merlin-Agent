@@ -1,7 +1,7 @@
 # Piagam Identitas & Originalitas — Merlin Agent by Epinoia Horizon
 
 Dokumen kanonik. Semua permukaan produk WAJIB merujuk ke sini.
-Versi: 1.0 · Dibuat: 2026-10-21 · Pemilik: Epinoia Horizon (June Arthov)
+Versi: 1.1 · Dibuat: 2026-10-21 · Pemilik: Epinoia Horizon (June Arthov)
 
 ## 1. Satu Nama, Satu Organisasi
 
