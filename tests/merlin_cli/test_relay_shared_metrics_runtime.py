@@ -2974,3 +2974,30 @@ def test_failed_flush_still_skips_the_export(direct_runtime, monkeypatch, caplog
 
     assert exported == []
     assert "task flush failed" in caplog.text
+
+
+def test_process_marks_saved_flush_is_bounded_and_reports_nothing_settled(
+    direct_runtime, monkeypatch
+):
+    """A wedged barrier on the CLI recovery path returns 0 instead of hanging the command.
+
+    0 is what makes ``shared_metrics_events.emit_saved`` keep its spool file: the rows are retried
+    on a later run rather than deleted as if they had been recorded.
+    """
+    release = threading.Event()
+
+    def _wedged_flush():
+        release.wait(30)
+
+    runtime = relay_shared_metrics._get_runtime()
+    monkeypatch.setattr(runtime.relay.subscribers, "flush", _wedged_flush)
+    monkeypatch.setattr(relay_shared_metrics, "_SUBSCRIBER_FLUSH_TIMEOUT_S", 0.2)
+
+    started = time.monotonic()
+    try:
+        settled = runtime.record_process_marks_saved([("merlin.process.exit", {"exit_kind": "clean"})])
+    finally:
+        release.set()
+
+    assert settled == 0
+    assert time.monotonic() - started < 5.0
