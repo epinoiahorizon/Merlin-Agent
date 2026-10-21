@@ -5,7 +5,7 @@ import relativeDocLinks from './src/remark/relativeDocLinks';
 
 const config: Config = {
   title: 'Merlin Agent',
-  tagline: 'A packaged desktop build of an open-source AI agent',
+  tagline: 'The self-improving AI agent by Epinoia Horizon',
   favicon: 'img/favicon.ico',
 
   url: 'https://merlin-agent.epinoiahorizon.com',

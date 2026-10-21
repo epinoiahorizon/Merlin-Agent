@@ -295,16 +295,14 @@ def emit_llms_index() -> str:
     lines.append("# Merlin Agent")
     lines.append("")
     lines.append(
-        "> Merlin Agent is a packaged desktop build of the open-source Hermes Agent "
-        "(MIT, © 2025 Nous Research) made and supported by Epinoia Horizon. The agent "
-        "core — agent loop, tools, gateway, skills engine, scheduler, TUI and most of "
-        "the desktop app — is upstream work, credited in NOTICE; what this "
-        "distribution changes is listed there as well. On top of it: a no-terminal "
-        "installer and app window, persistent memory, agent-authored skills, Atlas "
-        "Portal for models and tools, and a messaging gateway covering Telegram, "
-        "Discord, Slack, WhatsApp, Signal, SMS, Matrix, IRC and Microsoft Teams. "
-        "Works with Atlas Portal, OpenRouter, OpenAI, Anthropic, Google, or any "
-        "OpenAI-compatible endpoint."
+        "> Merlin Agent is the self-improving AI agent built by Epinoia Horizon: "
+        "persistent memory, agent-authored skills, a terminal-native TUI and "
+        "desktop app, and a messaging gateway on 21+ platforms. The agent core "
+        "derives from the open-source Hermes Agent (MIT, © 2025 Nous Research), "
+        "credited in the repository's NOTICE; this distribution adds the "
+        "no-terminal installer and app window, Atlas Portal for models and tools, "
+        "and Epinoia Horizon's own fixes. Works with Atlas Portal, OpenRouter, "
+        "OpenAI, Anthropic, Google, or any OpenAI-compatible endpoint."
     )
     lines.append("")
     lines.append(
