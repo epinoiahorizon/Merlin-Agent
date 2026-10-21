@@ -427,7 +427,13 @@ def _connection_update(operation, change, snapshot):
 
 
 def _install_update_hook():
-    from tools.connectors import operation as op_module
+    # Direct module import, NOT `from tools.connectors import operation`: the
+    # package __init__ imports tool, tool (via managed) imports operation, and
+    # a hook install requested while tool is mid-import re-enters the
+    # half-initialized package -> _ModuleLock deadlock at every gateway start.
+    import importlib
+
+    op_module = importlib.import_module("tools.connectors.operation")
 
     if getattr(op_module.ConnectionOperation, "_update_hook_installed", False):
         return
