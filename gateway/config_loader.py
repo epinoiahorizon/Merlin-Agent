@@ -171,6 +171,55 @@ def merge_platform_sections(yaml_cfg: dict, gateway_cfg: Any, gw_data: dict) -> 
     return platforms_data
 
 
+def _default_api_server_when_unconfigured(yaml_cfg: dict, platforms_data: dict) -> None:
+    """Synthesize the loopback API server when the user never mentioned one.
+
+    `http://127.0.0.1:8642/v1` is the documented default endpoint (`gateway_port` in the
+    shipped config template, API_SERVER_PORT in the docs), but `get_connected_platforms()`
+    needs `platforms.api_server` enabled AND a strong key — so a stock install bound no TCP
+    port at all and everything aimed at 8642 got connection refused with no hint why. When
+    the user has NOT configured the platform anywhere (any explicit block wins, including
+    `enabled: false`), seed an enabled loopback block with a generated key; the endpoint is
+    real out of the box, local-only, and a client authenticates with the stored key.
+    """
+    if platforms_data.get("api_server"):
+        return  # explicit block (even enabled: false) always wins
+    from gateway.platforms._shared import profile_scoped
+
+    if profile_scoped():
+        # A SECONDARY profile never binds a port: the default profile's listener serves it at
+        # /p/<profile>/v1 and mirrors api_server there (#100397). Seeding an enabled block here
+        # would put every secondary in a fight for the default's port.
+        return
+    gateway_section = yaml_cfg.get("gateway") if isinstance(yaml_cfg, dict) else {}
+    legacy = gateway_section.get("api_server") if isinstance(gateway_section, dict) else None
+    if legacy or (isinstance(yaml_cfg, dict) and isinstance(yaml_cfg.get("api_server"), dict)):
+        return  # a legacy top-level/nested subsection counts as "the user mentioned it"
+    import os
+    import secrets
+
+    from gateway.platforms._shared import get_scoped_secret
+
+    host = os.getenv("API_SERVER_HOST", "127.0.0.1")
+    port = os.getenv("API_SERVER_PORT", "8642")
+    key = get_scoped_secret("API_SERVER_KEY", "")
+    generated = False
+    if not key or len(key.strip()) < 16:
+        key = "mga_" + secrets.token_urlsafe(24)
+        generated = True
+    platforms_data["api_server"] = {
+        "enabled": True,
+        "extra": {"host": host, "port": port, "key": key, "_default_loopback": True},
+    }
+    if generated:
+        import logging
+
+        logging.getLogger(__name__).info(
+            "API server auto-enabled on %s:%s with a generated key (store it for clients: "
+            "printed once in gateway.log under 'api-server key'). Loopback only.",
+            host, port)
+
+
 def _is_platform_name(key: Any) -> bool:
     try:
         Platform(key)
@@ -432,3 +481,4 @@ def load_yaml_layer(home: Path, gw_data: dict) -> None:
     bridge_platform_shared_keys(yaml_cfg, gateway_platforms, gw_data, platforms_data, targets)
     apply_plugin_yaml_hooks(yaml_cfg, gateway_platforms, platforms_data, registry)
     bridge_core_env_settings(yaml_cfg, platforms_data)
+    _default_api_server_when_unconfigured(yaml_cfg, platforms_data)
