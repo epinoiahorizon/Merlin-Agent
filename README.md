@@ -20,7 +20,7 @@
 >
 > Git history in this repository starts at the fork import (2026-09-30); upstream's history is not mirrored here.
 
-**Merlin Agent is a packaged desktop build of that open-source agent, made and supported by [Epinoia Horizon](https://epinoiahorizon.com).** It creates skills from experience, improves them during use, searches its own past conversations and keeps a deepening model of who you are across sessions — all of that is the upstream core, credited above. Merlin is the distribution around it: an installer and an app window that need no terminal, [Atlas Portal](https://portal.epinoiahorizon.com) for people who would rather not collect five API keys, a Windows-focused support path that ends at us, and our own fixes on top.
+**Merlin Agent is the self-improving AI agent made and supported by [Epinoia Horizon](https://epinoiahorizon.com)** — a packaged distribution built on the open-source Hermes Agent core (MIT, © 2025 Nous Research, credited above). It creates skills from experience, improves them during use, searches its own past conversations and keeps a deepening model of who you are across sessions. Merlin is the distribution around that core: an installer and an app window that need no terminal, [Atlas Portal](https://portal.epinoiahorizon.com) for people who would rather not collect five API keys, a Windows-focused support path that ends at us, and our own fixes on top.
 
 Use any model you want — Atlas Portal, OpenRouter, OpenAI, your own endpoint, and [many others](https://merlin-agent.epinoiahorizon.com/docs/integrations/providers). Switch with `merlin model` — no code changes, no lock-in.
 
