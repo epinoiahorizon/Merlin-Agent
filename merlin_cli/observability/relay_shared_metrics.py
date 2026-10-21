@@ -33,6 +33,13 @@ _RUNTIMES: dict[str, _Runtime | object] = {}
 _RUNTIME_LOCK = threading.RLock()
 
 _ABORTED = {"failed": True, "turn_exit_reason": "system_aborted"}
+
+# ``relay.subscribers.flush()`` is a process-wide barrier over every queued subscriber callback and
+# every managed tool/LLM/guardrail scope terminal event. One wedged scope anywhere in the process
+# never returns it, and ``finish_task`` runs it from the ``on_session_end`` lifecycle hook — on the
+# agent turn's own thread, AFTER the answer exists (see _flush_relay_subscribers). Bound the wait so
+# a wedged scope costs a deferred export, never a stranded turn.
+_SUBSCRIBER_FLUSH_TIMEOUT_S = 2.0
 # The store latch allows one snapshot per 24h; re-reading it hourly keeps task starts cheap.
 _SNAPSHOT_RECHECK_NS = 3_600 * 1_000_000_000
 
@@ -229,6 +236,8 @@ class _Runtime:
         self._send_lock = threading.RLock()
         self._send_thread: threading.Thread | None = None
         self._snapshot_checked_ns: int | None = None
+        # One warning per process when the subscriber barrier overruns (see _warn_flush_timeout).
+        self._flush_timeout_warned = False
         self._subscriber_name = f"{SUBSCRIBER_NAME}.{self.host.runtime_id}"
         self.subscriber = SharedMetricsSubscriber(
             SharedMetricsStore(), get_version_info().base_version, runtime_id=self.host.runtime_id
@@ -567,15 +576,16 @@ class _Runtime:
             return
         self._emit_session_summary(session)
         try:
-            self.relay.subscribers.flush()
+            if self._flush_relay_subscribers(_SUBSCRIBER_FLUSH_TIMEOUT_S):
+                self._export()
+            else:
+                self._warn_flush_timeout()
         except Exception as exc:
             logger.warning(
                 "Merlin shared-metrics session %s closed with errors: subscriber flush failed: %s",
                 session.session_id,
                 exc,
             )
-        else:
-            self._export()
         with self._sessions_lock:
             _forget(self._sessions, session.session_id, session)
 
@@ -671,13 +681,69 @@ class _Runtime:
         return self.host.run_in_session(session.relay_session, callback, *args, **kwargs)
 
     def _flush_and_export(self, failure_message: str) -> None:
-        """Flush the Relay subscriber, then export; a failed flush skips the export."""
+        """Flush the Relay subscriber (bounded), then export; a failed flush skips the export."""
         try:
-            self.relay.subscribers.flush()
+            flushed = self._flush_relay_subscribers(_SUBSCRIBER_FLUSH_TIMEOUT_S)
         except Exception:
             logger.warning(failure_message, exc_info=True)
-        else:
-            self._export()
+            return
+        if not flushed:
+            self._warn_flush_timeout()
+            return
+        self._export()
+
+    def _flush_relay_subscribers(self, timeout: float) -> bool:
+        """Wait for the Relay subscriber barrier, bounded; ``False`` when it overran ``timeout``.
+
+        ``relay.subscribers.flush()`` waits for every queued subscriber callback AND every managed
+        tool/LLM/guardrail scope terminal event published before the call — process-wide. One
+        wedged scope anywhere therefore never returns it. This is reached from ``finish_task``, the
+        ``on_session_end`` lifecycle hook, on the agent turn's own thread after the answer already
+        exists: an unbounded wait there leaves the turn unable to return, so desktop/TUI never
+        record the turn as finished, the session turn lease keeps renewing, and the reply looks
+        "delivered but stuck" until the liveness watchdog force-interrupts it minutes later. The
+        blocked thread also leaks for the life of the process and pins the same barrier for every
+        later turn in it.
+
+        The wait is a projection, never truth: unflushed metrics stay queued for a later pass, so
+        overrunning the budget skips the export instead of blocking the caller.
+        """
+        flush = getattr(getattr(self.relay, "subscribers", None), "flush", None)
+        if not callable(flush):
+            return True
+        done = threading.Event()
+        failure: list[BaseException] = []
+
+        def _flush() -> None:
+            try:
+                flush()
+            except BaseException as exc:  # re-raised on the caller's thread below
+                failure.append(exc)
+            finally:
+                done.set()
+
+        # Daemon: an overrunning barrier must never keep the process alive (or its caller waiting).
+        worker = threading.Thread(
+            target=_flush, name="merlin-shared-metrics-subscriber-flush", daemon=True
+        )
+        worker.start()
+        if not done.wait(max(0.0, float(timeout))):
+            return False
+        if failure:
+            raise failure[0]
+        return True
+
+    def _warn_flush_timeout(self) -> None:
+        """Warn once per process: a wedged Relay scope is otherwise noisy on every finished turn."""
+        if self._flush_timeout_warned:
+            return
+        self._flush_timeout_warned = True
+        logger.warning(
+            "Merlin shared-metrics subscriber flush exceeded %.1fs; skipping the export (metrics "
+            "stay queued for a later pass) instead of blocking the caller. A managed Relay scope "
+            "is likely wedged.",
+            _SUBSCRIBER_FLUSH_TIMEOUT_S,
+        )
 
     def _abort_session(self, session: _MetricsSession, base_event: dict[str, Any]) -> bool:
         """Mark the session closing and system-abort its open tasks; False if already closing."""

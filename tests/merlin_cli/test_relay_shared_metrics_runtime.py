@@ -6,6 +6,7 @@ import contextvars
 import json
 import sqlite3
 import threading
+import time
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from typing import Any
@@ -2908,3 +2909,68 @@ def test_recovered_rows_report_saved_only_once_the_store_holds_them(real_binding
     assert relay_shared_metrics.record_process_marks_saved([row]) == 1
     saved = [(r["metric_name"], r["dimensions"], r["value"]) for r in SharedMetricsStore().counter_snapshot()]
     assert saved == [("merlin.process.exit", row[1], 1)]
+
+
+# --- bounded subscriber flush (finish_task runs on the agent turn thread) ---------------------
+# ``relay.subscribers.flush()`` is a PROCESS-WIDE barrier: it waits for every queued subscriber
+# callback and every managed tool/LLM/guardrail scope terminal event. ``finish_task`` is the
+# ``on_session_end`` lifecycle hook, invoked on the agent turn's own thread AFTER the answer exists,
+# so an unbounded wait there strands the turn: desktop/TUI never record it as finished, the session
+# lease keeps renewing, and the reply looks "delivered but stuck" until the liveness watchdog
+# force-interrupts it minutes later — with the blocked thread leaked for the process's life.
+
+
+def test_flush_timeout_does_not_block_the_session_end_hook(direct_runtime, monkeypatch, caplog):
+    """A wedged scope costs a deferred export, never a stranded turn."""
+    release = threading.Event()
+    calls = {"flush": 0, "export": 0}
+
+    def _wedged_flush():
+        calls["flush"] += 1
+        release.wait(30)
+
+    runtime = relay_shared_metrics._get_runtime()
+    monkeypatch.setattr(runtime.relay.subscribers, "flush", _wedged_flush)
+    monkeypatch.setattr(
+        runtime, "_export", lambda: calls.__setitem__("export", calls["export"] + 1)
+    )
+    monkeypatch.setattr(relay_shared_metrics, "_SUBSCRIBER_FLUSH_TIMEOUT_S", 0.2)
+
+    started = time.monotonic()
+    try:
+        runtime._flush_and_export("Merlin shared-metrics task flush failed")
+    finally:
+        release.set()
+    elapsed = time.monotonic() - started
+
+    assert calls["flush"] == 1
+    assert calls["export"] == 0, "an overrunning barrier must defer the export, not block on it"
+    assert elapsed < 5.0, f"flush wait was unbounded ({elapsed:.1f}s)"
+    assert "subscriber flush exceeded" in caplog.text
+
+
+def test_healthy_flush_still_exports(direct_runtime, monkeypatch):
+    runtime = relay_shared_metrics._get_runtime()
+    exported: list[bool] = []
+    monkeypatch.setattr(runtime, "_export", lambda: exported.append(True))
+
+    runtime._flush_and_export("Merlin shared-metrics task flush failed")
+
+    assert ("subscribers.flush",) in direct_runtime.events
+    assert exported == [True]
+
+
+def test_failed_flush_still_skips_the_export(direct_runtime, monkeypatch, caplog):
+    runtime = relay_shared_metrics._get_runtime()
+
+    def _boom():
+        raise RuntimeError("subscriber exploded")
+
+    monkeypatch.setattr(runtime.relay.subscribers, "flush", _boom)
+    exported: list[bool] = []
+    monkeypatch.setattr(runtime, "_export", lambda: exported.append(True))
+
+    runtime._flush_and_export("Merlin shared-metrics task flush failed")
+
+    assert exported == []
+    assert "task flush failed" in caplog.text
