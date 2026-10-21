@@ -1206,12 +1206,22 @@ class _Runtime:
         self._with_scope_stack(self.relay.scope.event, mark, data=data, metadata=self._event_metadata())
 
     def record_process_marks_saved(self, marks: list[tuple[str, dict[str, Any]]]) -> int:
-        """Emit ``marks`` and wait for the store; how many settled without a store error."""
+        """Emit ``marks`` and wait for the store (bounded); how many settled without a store error.
+
+        The wait is the same process-wide subscriber barrier as ``_flush_and_export``: it cannot
+        return while any managed scope in the process is wedged. This one runs on CLI startup
+        recovery and exit paths, where an unbounded wait hangs the command with nothing to show for
+        it. On an overrun nothing is PROVEN to have settled, and returning 0 is the safe answer:
+        ``shared_metrics_events.emit_saved`` deletes only the rows this count covers, so the spool
+        file survives and is retried on a later run instead of being dropped unrecorded.
+        """
         ticket = uuid.uuid4().hex
         metadata = {**self._event_metadata(), contract.COMMIT_TICKET_KEY: ticket}
         for mark, data in marks:
             self._with_scope_stack(self.relay.scope.event, mark, data=data, metadata=metadata)
-        self.relay.subscribers.flush()
+        if not self._flush_relay_subscribers(_SUBSCRIBER_FLUSH_TIMEOUT_S):
+            self._warn_flush_timeout()
+            return 0
         return self.subscriber.take_saved(ticket)
 
     def record_auxiliary_tokens(self, event: dict[str, Any]) -> None:
