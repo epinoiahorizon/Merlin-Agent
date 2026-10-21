@@ -79,6 +79,7 @@ jobs:
           PYTHONUTF8: '1'
         run: |
           cd apps/desktop
+          npm run build
           npm run builder -- --win nsis -c.extraMetadata.version=0.1.4
           test -f release/Merlin-Setup-0.1.4-x64.exe
 
