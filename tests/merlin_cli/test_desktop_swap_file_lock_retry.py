@@ -113,3 +113,69 @@ def test_desktop_root_has_app_ignores_a_shell(tmp_path):
 
     (shell / "Merlin.exe").write_text("app", encoding="utf-8")
     assert main_desktop._desktop_root_has_app(shell) is True
+
+
+def _lock_the_live_rename(live_exe: Path, monkeypatch):
+    """The live tree cannot be moved aside, exactly as a running Desktop's exe lock behaves on
+    Windows: ``desktop promotion rename win-unpacked -> win-unpacked.previous`` gets Access denied,
+    wherever the staged pack happens to live."""
+    real_rename = os.rename
+    live_root = live_exe.parent
+
+    def locked(src, dst):
+        if Path(src) == live_root:
+            raise PermissionError(5, "Access is denied")
+        return real_rename(src, dst)
+
+    monkeypatch.setattr(main_desktop.os, "rename", locked)
+
+
+def test_locked_promotion_parks_the_verified_build_instead_of_failing_the_update(
+    tmp_path, monkeypatch, capsys
+):
+    """A running Desktop keeps its files: the rebuild is parked, not discarded, and no update fails."""
+    desktop_dir, staging, live_exe, _ = _staged_over_live(tmp_path, monkeypatch)
+    _lock_the_live_rename(live_exe, monkeypatch)
+
+    returned = main_desktop._promote_staged_desktop_app(
+        desktop_dir, staging, integrity_check=lambda _p: None
+    )
+
+    # The live app is what the caller gets back: the update is not a failure.
+    assert returned == live_exe
+    assert live_exe.read_text(encoding="utf-8") == "old"
+    parked = main_desktop._pending_deferred_desktop_app(desktop_dir)
+    assert parked is not None and parked.is_dir()
+    assert (parked / "win-unpacked" / "Merlin.exe").read_text(encoding="utf-8") == "new"
+    out = capsys.readouterr().out
+    assert "parked at:" in out and "promoted automatically" in out
+
+
+def test_a_parked_build_is_promoted_by_the_next_launch(tmp_path, monkeypatch):
+    """Once nothing holds the lock, the parked build lands — no second rebuild needed."""
+    desktop_dir, staging, live_exe, _ = _staged_over_live(tmp_path, monkeypatch)
+    real_rename = os.rename
+    _lock_the_live_rename(live_exe, monkeypatch)
+    assert main_desktop._promote_staged_desktop_app(
+        desktop_dir, staging, integrity_check=lambda _p: None
+    ) == live_exe
+
+    monkeypatch.setattr(main_desktop.os, "rename", real_rename)  # the app exited
+    promoted = main_desktop._promote_deferred_desktop_app(desktop_dir)
+
+    assert promoted == live_exe
+    assert live_exe.read_text(encoding="utf-8") == "new"
+    assert main_desktop._pending_deferred_desktop_app(desktop_dir) is None
+    assert not list(desktop_dir.glob(f"{main_desktop._DESKTOP_DEFERRED_PREFIX}*"))
+
+
+def test_a_parked_build_stays_parked_while_the_lock_is_still_live(tmp_path, monkeypatch):
+    desktop_dir, staging, live_exe, _ = _staged_over_live(tmp_path, monkeypatch)
+    _lock_the_live_rename(live_exe, monkeypatch)
+    main_desktop._promote_staged_desktop_app(desktop_dir, staging, integrity_check=lambda _p: None)
+    parked = main_desktop._pending_deferred_desktop_app(desktop_dir)
+    assert parked is not None
+
+    assert main_desktop._promote_deferred_desktop_app(desktop_dir) is None
+    assert live_exe.read_text(encoding="utf-8") == "old"
+    assert main_desktop._pending_deferred_desktop_app(desktop_dir) == parked

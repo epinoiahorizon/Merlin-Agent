@@ -176,6 +176,14 @@ _DESKTOP_STAGING_PREFIX = ".staging-"
 
 _DESKTOP_PREVIOUS_SUFFIX = ".previous"
 
+# A verified rebuild that cannot be swapped in because the RUNNING Desktop holds its exe lock is not
+# thrown away. Parking it (outside ``release/``, so no ``*-unpacked`` glob sees it) plus a marker lets
+# the next launch or update — when nothing holds the lock — finish the promotion, instead of every
+# ``merlin update`` reporting "Could not publish the desktop build" and discarding a good build.
+_DESKTOP_DEFERRED_PREFIX = ".deferred-"
+
+_DESKTOP_DEFERRED_MARKER = ".deferred-promotion.json"
+
 # A real-time file scanner (AV/EDR) holds a short exclusive handle on a freshly packed
 # release/win-unpacked tree; the promotion rename then fails with a sharing violation
 # (WinError 32 / 5 -> PermissionError) and succeeds a moment later on identical input (#112544).
@@ -244,14 +252,22 @@ def _sweep_interrupted_swap_artifacts(live_root: Path) -> None:
     shutil.rmtree(live_root.with_name(live_root.name + ".tmp"), ignore_errors=True)
 
 
-def _swap_staged_desktop_app(desktop_dir: Path, staging_dir: Path) -> Optional[Path]:
+def _swap_staged_desktop_app(
+    desktop_dir: Path, staging_dir: Path, *, retain_on_failure: bool = False
+) -> Optional[Path]:
     """Promote a VERIFIED staged pack over ``release/`` by two renames (live → ``.previous``, staged →
-    live); a failure between them rolls back. Returns the live exe or None (live app kept). Never raises."""
+    live); a failure between them rolls back. Returns the live exe or None (live app kept). Never raises.
+
+    ``retain_on_failure`` keeps the verified staged tree in place when the swap could not land (a
+    running Desktop still holding the exe lock), so the caller can park it for a later promotion
+    instead of discarding a build that will be valid the moment the app exits.
+    """
     staged_exe = _desktop_packaged_executable_in(staging_dir)
     if staged_exe is None:
         shutil.rmtree(staging_dir, ignore_errors=True)
         return None
     release_dir = desktop_dir / "release"
+    landed = False
     try:
         staged_root = _desktop_unpacked_root(staged_exe, staging_dir)
         live_root = release_dir / staged_root.name
@@ -283,12 +299,72 @@ def _swap_staged_desktop_app(desktop_dir: Path, staging_dir: Path) -> Optional[P
             raise
         if moved_aside:
             shutil.rmtree(previous, ignore_errors=True)
+        landed = True
     except (OSError, ValueError) as exc:
         logger.warning("desktop stage-and-swap failed, live app kept: %s", exc)
         return None
     finally:
-        shutil.rmtree(staging_dir, ignore_errors=True)
+        # A failed swap that will be parked keeps its verified tree; everything else is spent.
+        if landed or not retain_on_failure:
+            shutil.rmtree(staging_dir, ignore_errors=True)
     return live_root / staged_exe.relative_to(staged_root)
+
+
+def _defer_staged_desktop_app(desktop_dir: Path, staging_dir: Path) -> Optional[Path]:
+    """Park a verified staged pack the running app would not give up, with a marker; None on failure.
+
+    The update must not report failure over a build that is valid — it just cannot land while this
+    Desktop is open. Parking it (instead of the ``finally`` discard) means the next launch promotes
+    it, so a user who never quits the app still ends up on the new build after one restart.
+    """
+    if not staging_dir.is_dir():
+        return None
+    target = desktop_dir / f"{_DESKTOP_DEFERRED_PREFIX}{int(_time_mod.time())}-{os.getpid()}"
+    try:
+        for stale in desktop_dir.glob(f"{_DESKTOP_DEFERRED_PREFIX}*"):
+            if stale != target:
+                shutil.rmtree(stale, ignore_errors=True)
+        shutil.move(str(staging_dir), str(target))
+        (desktop_dir / _DESKTOP_DEFERRED_MARKER).write_text(
+            json.dumps({"staged": target.name, "parked_at": _time_mod.time()}), encoding="utf-8"
+        )
+    except OSError as exc:
+        logger.warning("could not park the staged desktop build at %s: %s", target, exc)
+        return None
+    return target
+
+
+def _pending_deferred_desktop_app(desktop_dir: Path) -> Optional[Path]:
+    """The parked staged pack named by the marker, if it is still on disk."""
+    marker = desktop_dir / _DESKTOP_DEFERRED_MARKER
+    try:
+        parked = json.loads(marker.read_text(encoding="utf-8")).get("staged")
+    except (OSError, ValueError):
+        return None
+    if not parked:
+        return None
+    candidate = desktop_dir / str(parked)
+    return candidate if candidate.is_dir() else None
+
+
+def _clear_deferred_desktop_app(desktop_dir: Path) -> None:
+    with contextlib.suppress(OSError):
+        (desktop_dir / _DESKTOP_DEFERRED_MARKER).unlink()
+    for stale in desktop_dir.glob(f"{_DESKTOP_DEFERRED_PREFIX}*"):
+        shutil.rmtree(stale, ignore_errors=True)
+
+
+def _promote_deferred_desktop_app(desktop_dir: Path) -> Optional[Path]:
+    """Land a parked build if the live tree is free now; keeps it parked when it is not. Never raises."""
+    parked = _pending_deferred_desktop_app(desktop_dir)
+    if parked is None:
+        return None
+    promoted = _swap_staged_desktop_app(desktop_dir, parked, retain_on_failure=True)
+    if promoted is None:
+        return None
+    _clear_deferred_desktop_app(desktop_dir)
+    logger.info("promoted the parked desktop build from %s", parked.name)
+    return promoted
 
 
 def _discard_desktop_staging(staging_dir: Path) -> None:
@@ -1551,8 +1627,20 @@ def _promote_staged_desktop_app(
             print(f"✗ The built {staged_executable.name} failed its integrity check: {error}\n"
                   f"    at: {staged_executable}")
         raise RuntimeError(f"Desktop build produced no launchable app. {_PREVIOUS_APP_KEPT}")
-    packaged_executable = _swap_staged_desktop_app(desktop_dir, staging_dir)
+    packaged_executable = _swap_staged_desktop_app(
+        desktop_dir, staging_dir, retain_on_failure=True
+    )
     if packaged_executable is None:
+        # The build is verified but the running Desktop holds its exe lock. Park it and report the
+        # deferral instead of failing an update whose agent half already succeeded: the next launch
+        # promotes it (_promote_deferred_desktop_app), so one restart lands it.
+        parked = _defer_staged_desktop_app(desktop_dir, staging_dir)
+        live_executable = _desktop_packaged_executable_in(desktop_dir / "release")
+        if parked is not None and live_executable is not None:
+            print(f"↻ The rebuilt desktop app is verified, but the running app still holds its files.")
+            print(f"    parked at: {parked}")
+            print("    It is promoted automatically the next time Merlin Desktop starts.")
+            return live_executable
         print(f"✗ Could not install the rebuilt desktop app into {desktop_dir / 'release'}")
         raise RuntimeError(f"Could not publish the desktop build. {_PREVIOUS_APP_KEPT}")
     return packaged_executable
@@ -1578,6 +1666,10 @@ def build_prepared_desktop(desktop_dir: Path, *, source_mode: bool, npm: str, en
                            icons: Path | None = None) -> Optional[Path]:
     """Build prepared desktop sources, then publish the verified staged app."""
     from pm.progress import run_contained
+
+    # An earlier update parked a verified build because the Desktop was open then; land it now that
+    # we are (usually) being run from a terminal. A no-op when nothing is parked or the lock is live.
+    _promote_deferred_desktop_app(desktop_dir)
 
     if not source_mode and sys.platform == "win32" and (ancestor := _desktop_ancestor_in(desktop_dir)):
         # The Desktop running this build holds the exe lock the promotion rename needs,
@@ -1825,6 +1917,13 @@ def cmd_gui(args: argparse.Namespace):
         _launch_bundled_desktop(args, env, config_electron_flags)
 
     packaged_executable = _desktop_packaged_executable(desktop_dir)
+
+    # Finish a promotion a previous update had to park (the app was open while it packed). This is
+    # the reliable moment: `merlin desktop` is being launched, so nothing holds the exe lock.
+    promoted_parked = _promote_deferred_desktop_app(desktop_dir)
+    if promoted_parked is not None:
+        packaged_executable = promoted_parked
+        print(f"↻ Installed the desktop build parked by the last update: {promoted_parked}")
 
     # The mutable preflight (freshness check → npm install → pack) mutates
     # checkout-scoped node_modules and apps/desktop/release. Serialize it

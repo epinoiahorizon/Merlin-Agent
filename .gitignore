@@ -120,6 +120,10 @@ apps/desktop/release/
 # stage-and-swap Desktop rebuild output (#86443); removed after the swap, but
 # a killed build must not leave the checkout dirty
 apps/desktop/.staging-*/
+# A verified Desktop rebuild parked because the running app still held its files; promoted on the
+# next launch, so it must survive in the tree without dirtying the checkout.
+apps/desktop/.deferred-*/
+apps/desktop/.deferred-promotion.json
 *.tsbuildinfo
 
 # Web UI assets — synced from @merlin/ui at build time via
