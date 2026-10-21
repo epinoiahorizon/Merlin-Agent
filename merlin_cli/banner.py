@@ -210,7 +210,7 @@ def format_banner_version_label() -> str:
             return f"{label} · installer"
         return label
 
-    base = f"Merlin Agent v{get_version_info().derived_version} ({RELEASE_DATE})"
+    base = f"Merlin Agent v{get_version_info().derived_version} ({RELEASE_DATE}) · Epinoia Horizon"
     from merlin_cli.config import load_config
     from merlin_cli.update_channel import resolve_update_channel
 
