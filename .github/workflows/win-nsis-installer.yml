@@ -1,0 +1,103 @@
+name: Windows NSIS Installer (commit build)
+
+# Certificate-free Windows installer lane, built by CI from an EXACT pushed
+# commit. Exists so a download never pins a commit GitHub has not seen
+# (the markpc 404) and never depends on one developer machine's toolchain.
+#
+# Produces: Merlin-Setup-<version>-x64.exe (unsigned NSIS, per-machine into
+# Program Files) as a workflow artifact + commit-receipt naming. No R2, no
+# feeds, no Store, no signing: MSIX in desktop-bundled-release.yml remains
+# the release lane. Run it from the default branch with the full 40-hex SHA
+# of a commit already on origin.
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'EXACT full 40-hex SHA already pushed to origin/main'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: win-nsis-installer-${{ inputs.commit }}
+  cancel-in-progress: true
+
+jobs:
+  nsis-x64:
+    name: Merlin-Setup (win32-x64, NSIS)
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - name: Admit the commit
+        shell: bash
+        env:
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          echo "$COMMIT" | grep -Eq '^[0-9a-f]{40}$' || { echo "::error::commit must be a full 40-hex SHA"; exit 1; }
+          git ls-remote origin "refs/heads/main" | grep -q "$(git rev-parse "$COMMIT" 2>/dev/null || echo "$COMMIT")" || true
+          # The authoritative check happens after checkout: the commit must be
+          # reachable on origin/main, else bootstrap would 404 exactly like the bug.
+          echo "COMMIT=$COMMIT" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit }}
+          fetch-depth: 0
+
+      - name: Verify the commit is on origin/main (bootstrap pins it)
+        shell: bash
+        env:
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor "$COMMIT" origin/main || {
+            echo "::error::$COMMIT is not an ancestor of origin/main — push it first"
+            exit 1
+          }
+
+      - name: Set up Python 3.11+
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node from .nvmrc
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install the JS workspace
+        shell: bash
+        run: npm ci
+
+      - name: Build and package the NSIS installer
+        shell: bash
+        env:
+          PYTHONUTF8: '1'
+        run: |
+          cd apps/desktop
+          npm run builder -- --win nsis -c.extraMetadata.version=0.1.4
+          test -f release/Merlin-Setup-0.1.4-x64.exe
+
+      - name: Stamp provenance beside the artifact
+        shell: bash
+        env:
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          cd apps/desktop/release
+          sha256sum Merlin-Setup-0.1.4-x64.exe > Merlin-Setup-0.1.4-x64.exe.sha256
+          { echo "commit=$COMMIT"; echo "built_by=win-nsis-installer.yml"; } > BUILD-INFO.txt
+
+      - name: Upload the installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Merlin-Setup-0.1.4-x64
+          path: |
+            apps/desktop/release/Merlin-Setup-0.1.4-x64.exe
+            apps/desktop/release/Merlin-Setup-0.1.4-x64.exe.sha256
+            apps/desktop/release/BUILD-INFO.txt
+          if-no-files-found: error
+          retention-days: 30
