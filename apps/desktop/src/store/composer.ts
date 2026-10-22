@@ -664,6 +664,43 @@ export function setComposerDraft(value: string) {
   $composerDraft.set(value)
 }
 
+/**
+ * Live draft sink.
+ *
+ * `$composerDraft` is inert — the composer's text lives in the assistant-ui
+ * runtime, so writing the atom updates nothing the user can see. Shell
+ * affordances (the Sanctum plates, future suggestion cards) need to reach the
+ * mounted composer without importing a runtime hook: the runtime only exists
+ * inside its provider, while this module does not. The composer hook registers
+ * its own setter here on mount and unregisters on unmount.
+ */
+type ComposerDraftSink = (text: string) => void
+
+let draftSink: ComposerDraftSink | null = null
+
+export function registerComposerDraftSink(sink: ComposerDraftSink): () => void {
+  draftSink = sink
+
+  return () => {
+    if (draftSink === sink) {
+      draftSink = null
+    }
+  }
+}
+
+/** Load text into the mounted composer. Returns false when no composer is up. */
+export function loadComposerDraft(text: string): boolean {
+  if (draftSink) {
+    draftSink(text)
+
+    return true
+  }
+
+  setComposerDraft(text)
+
+  return false
+}
+
 export function appendComposerDraft(value: string) {
   const text = value.trim()
 

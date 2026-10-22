@@ -29,7 +29,7 @@ const session = (overrides: Partial<SessionInfo> = {}): SessionInfo => ({
 describe('session row details', () => {
   it('formats deterministic metadata without ambiguous call wording', () => {
     expect(sessionRowDetails(session({ git_branch: 'feature/menu' }), en)).toEqual({
-      metadata: 'feature/menu · gemini-3.1-pro · 26 messages · 8 tool calls',
+      metadata: 'feature/menu · Gemini 3.1 Pro · 26 messages · 8 tool calls',
       preview: 'Explore Gmail-like density tiers for session rows.'
     })
   })
@@ -66,13 +66,30 @@ describe('session row details', () => {
         }),
         en
       )
-    ).toEqual({ metadata: 'gemini-3.1-pro · 26 messages · 8 tool calls', preview: null })
+    ).toEqual({ metadata: 'Gemini 3.1 Pro · 26 messages · 8 tool calls', preview: null })
   })
 
   it('omits the preview when it already supplies the displayed title', () => {
     expect(sessionRowDetails(session({ title: null }), en)).toEqual({
-      metadata: 'gemini-3.1-pro · 26 messages · 8 tool calls',
+      metadata: 'Gemini 3.1 Pro · 26 messages · 8 tool calls',
       preview: null
     })
+  })
+})
+
+describe('session row model label', () => {
+  // The sidebar names models the way the composer pill does — the prettifier in
+  // lib/model-status-label is the single source of that naming. Echoing the raw
+  // provider slug here is what made the list read like a config file.
+  it('prettifies the ids sessions actually carry', () => {
+    const label = (model: string) =>
+      sessionRowDetails(session({ git_branch: null, message_count: 0, model, tool_call_count: 0 }), en).metadata
+
+    expect(label('deepseek-flash')).toBe('DeepSeek Flash')
+    expect(label('glm-5.3-flash')).toBe('GLM 5.3 Flash')
+    // GPT ids keep their provider casing rule (`gpt-` → `GPT-`), which is what
+    // the composer pill already prints for this same model.
+    expect(label('clario/gpt-6-sol')).toBe('GPT-6-sol')
+    expect(label('deepseek/deepseek-v4-pro')).toBe('DeepSeek V4 Pro')
   })
 })

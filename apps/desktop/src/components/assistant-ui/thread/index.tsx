@@ -11,9 +11,11 @@ import { type RestoreMessageTarget } from '@/components/assistant-ui/thread/type
 import { UserEditComposer } from '@/components/assistant-ui/thread/user-edit-composer'
 import { UserMessage } from '@/components/assistant-ui/thread/user-message'
 import { Intro, type IntroProps } from '@/components/chat/intro'
+import { SanctumIntro } from '@/components/chat/sanctum-intro'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import type { MerlinGateway } from '@/merlin'
 import { useI18n } from '@/i18n'
+import { useTheme } from '@/themes'
 import { notifyError } from '@/store/notifications'
 
 type ThreadLoadingState = 'response' | 'session'
@@ -73,6 +75,8 @@ export const Thread = memo(function Thread({
   const { t } = useI18n()
   const copy = t.assistant.thread
   const { isHistorical } = useTranscriptWindow()
+  // The Sanctum skin carries a hand-cut splash; every other skin keeps core's.
+  const { themeName } = useTheme()
 
   if (isHistorical) {
     onBranchInNewChat = undefined
@@ -163,7 +167,15 @@ export const Thread = memo(function Thread({
   // nothing in it yet gets whichever plugin owns it. The slot often renders
   // nothing, which costs an empty container — harmless, since there is no
   // content to lay out until the first message swaps this branch out.
-  const emptyBody = intro ? <Intro {...intro} /> : sessionId ? <ChatEmptySlot sessionId={sessionId} /> : null
+  const emptyBody = intro ? (
+    themeName.startsWith('sanctum') ? (
+      <SanctumIntro {...intro} />
+    ) : (
+      <Intro {...intro} />
+    )
+  ) : sessionId ? (
+    <ChatEmptySlot sessionId={sessionId} />
+  ) : null
 
   const emptyPlaceholder = emptyBody ? (
     <div className="flex min-h-0 w-full flex-col items-center justify-center pt-[var(--composer-measured-height)]">

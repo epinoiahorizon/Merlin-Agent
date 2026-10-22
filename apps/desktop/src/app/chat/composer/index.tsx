@@ -81,6 +81,7 @@ import { useStatusDrawer } from './hooks/use-status-drawer'
 import { useSessionStatusPresence } from './hooks/use-status-presence'
 import { shouldConvertPasteToAttachment } from './large-paste'
 import { ActionBadges } from './micro-actions'
+import { isRepeatedPaste } from './paste-guard'
 import { chipTypedPathOnSpace, pathifyRefs } from './path-refs'
 import { QueuePanel } from './queue-panel'
 import { RestoredDraftNotice } from './restored-draft-notice'
@@ -591,6 +592,14 @@ export function ChatBar({
     // doesn't dump multiline padding into the composer. Internal newlines are
     // preserved — only the edges are cleaned up.
     const pastedText = sanitizeComposerInput(event.clipboardData.getData('text').trim())
+
+    // A held ⌘V — or the same payload arriving twice because the window router
+    // also saw this event — must not insert the text twice (paste-guard.ts).
+    if (pastedText && isRepeatedPaste(pastedText)) {
+      event.preventDefault()
+
+      return
+    }
 
     if (!pastedText) {
       event.preventDefault()
