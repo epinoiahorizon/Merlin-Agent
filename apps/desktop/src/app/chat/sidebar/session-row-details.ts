@@ -1,3 +1,4 @@
+import { displayModelName } from '@/lib/model-status-label'
 import type { SessionListDensity } from '@/store/session-list-density'
 import type { SessionInfo } from '@/types/merlin'
 
@@ -11,7 +12,17 @@ export interface SessionRowFormatters {
   toolCallCount: (count: number) => string
 }
 
-const modelLabel = (model: null | string) => model?.split('/').pop()?.trim() || null
+// Session rows used to echo the raw provider slug (`deepseek-flash`,
+// `clario/gpt-6-sol`). The sidebar is a place people compare sessions, so it
+// speaks the same model names the composer pill and status bar do: one
+// prettifier (lib/model-status-label) for every surface, never a second copy of
+// the naming rules here.
+const modelLabel = (model: null | string) => {
+  const trimmed = model?.trim()
+
+  return trimmed ? displayModelName(trimmed) : null
+}
+
 const oneLine = (value: null | string) => value?.replace(/\s+/g, ' ').trim() || null
 
 export const sessionRowEstimate = (density: SessionListDensity) =>

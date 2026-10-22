@@ -1,6 +1,7 @@
 import { useStore } from '@nanostores/react'
 import { useEffect, useRef, useState } from 'react'
 
+import { SanctumBootSplash } from '@/components/sanctum-boot-splash'
 import { DecodeText } from '@/components/ui/decode-text'
 import { prefersReducedMotion } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
@@ -8,6 +9,7 @@ import { $desktopBoot } from '@/store/boot'
 import { $gatewaySwitching } from '@/store/gateway-switch'
 import { guidedOnboardingActive } from '@/store/onboarding-gate'
 import { $gatewayState } from '@/store/session'
+import { useTheme } from '@/themes'
 
 // Decode mechanics live in the shared <DecodeText> primitive
 // (components/ui/decode-text.tsx). "LOAD" stays legible via prefix={4}.
@@ -41,6 +43,11 @@ export function GatewayConnectingOverlay() {
   const gatewayState = useStore($gatewayState)
   const boot = useStore($desktopBoot)
   const gatewaySwitching = useStore($gatewaySwitching)
+  // The Sanctum skin boots with its own ceremony; every other skin keeps the
+  // decode-text mark. Read synchronously from the profile's stored skin, so the
+  // first painted frame is already the right one.
+  const { themeName } = useTheme()
+  const sanctumBoot = themeName.startsWith('sanctum')
   const [previewing] = useState(forcedPreview)
   const reduce = prefersReducedMotion()
   // Under reduced motion, skip the multi-phase exit choreography (text-out →
@@ -156,17 +163,21 @@ export function GatewayConnectingOverlay() {
       // in styles.css.
       data-glass-opaque=""
     >
-      <DecodeText
-        active={phase === 'live' && (previewing || connecting)}
-        className={cn(
-          'pl-[0.4em] text-(--theme-primary) transition duration-300 ease-out',
-          leaving ? 'translate-y-2 opacity-0 saturate-0' : 'translate-y-0 opacity-100 saturate-100'
-        )}
-        cursor
-        loop
-        prefix={4}
-        text={TEXT}
-      />
+      {sanctumBoot ? (
+        <SanctumBootSplash leaving={leaving} progress={boot.progress} status={boot.message} />
+      ) : (
+        <DecodeText
+          active={phase === 'live' && (previewing || connecting)}
+          className={cn(
+            'pl-[0.4em] text-(--theme-primary) transition duration-300 ease-out',
+            leaving ? 'translate-y-2 opacity-0 saturate-0' : 'translate-y-0 opacity-100 saturate-100'
+          )}
+          cursor
+          loop
+          prefix={4}
+          text={TEXT}
+        />
+      )}
     </div>
   )
 }

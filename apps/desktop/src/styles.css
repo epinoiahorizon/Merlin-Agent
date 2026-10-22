@@ -116,6 +116,34 @@
   src: url('./fonts/JetBrainsMono-Italic.woff2') format('woff2');
 }
 
+/* Sanctum display faces (variable, latin subset) — bundled rather than fetched
+   so the ceremonial splash, the empty transcript and the brand lockups render
+   identically on a fresh install with no network. Both are SIL OFL 1.1; see
+   src/fonts/OFL-NOTICE.md for the attribution that licence requires. */
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./fonts/Cinzel-Variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./fonts/CormorantGaramond-Variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./fonts/CormorantGaramond-Italic-Variable.woff2') format('woff2');
+}
+
 @theme inline {
   --color-background: var(--dt-background);
   --color-foreground: var(--dt-foreground);
@@ -3777,4 +3805,497 @@ html[data-hud-window] [data-slot='popover-content'] {
 
 [data-hud-shell] [data-slot='composer-bounds'] *::-webkit-scrollbar {
   display: none;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ᛟ Sanctum splash — the skin-gated empty transcript.
+   Rendered by components/chat/sanctum-intro.tsx when the active skin is a
+   sanctum one. Colours resolve from the theme tokens so it never fights the
+   palette; only the relic's indigo is a brand constant (it is the hat).
+   ───────────────────────────────────────────────────────────────────────── */
+[data-slot='sanctum-crest'] {
+  /* The relic is the one brand constant the skin carries: pin its palette on
+     the SVG itself so every mount (empty transcript, boot ceremony, composer
+     avatar) paints it, instead of each parent having to re-declare it. */
+  --si-relic-indigo: #0d2840;
+  --si-relic-indigo-line: #04101c;
+  --si-relic-gold: #e6c04a;
+}
+
+[data-slot='sanctum-intro'] {
+  --si-relic-indigo: #0d2840;
+  --si-relic-indigo-line: #04101c;
+  --si-relic-gold: #e6c04a;
+  --si-cyan: #2aa198;
+  --si-ember: #cb4b16;
+  --si-moss: #859900;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: min(52rem, 100%);
+  margin: 0 auto;
+  padding: 0.25rem 0.75rem 0.5rem;
+  text-align: center;
+  pointer-events: auto;
+}
+
+[data-slot='sanctum-intro'] .si__crest {
+  width: 7.5rem;
+  height: 7.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 50% 38%,
+    color-mix(in srgb, var(--color-midground, #b58900) 26%, transparent),
+    transparent 72%
+  );
+}
+
+[data-slot='sanctum-intro'] .si__crestSvg {
+  width: 6.5rem;
+  height: 6.5rem;
+}
+
+[data-slot='sanctum-crest'] .si-crest__ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-midground, #b58900) 52%, transparent);
+  stroke-width: 1.1;
+  stroke-dasharray: 5 5;
+}
+
+[data-slot='sanctum-crest'] .si-crest__stars {
+  fill: color-mix(in srgb, var(--color-foreground) 70%, transparent);
+}
+
+[data-slot='sanctum-crest'] .si-crest__shadow {
+  fill: rgb(0 0 0 / 0.3);
+}
+
+[data-slot='sanctum-crest'] .si-crest__body {
+  fill: var(--si-relic-indigo);
+  stroke: var(--si-relic-indigo-line);
+  stroke-width: 1.6;
+}
+
+[data-slot='sanctum-crest'] .si-crest__rim {
+  fill: var(--si-relic-gold);
+}
+
+[data-slot='sanctum-crest'] .si-crest__runes {
+  fill: none;
+  stroke: var(--si-relic-gold);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+[data-slot='sanctum-intro'] .si__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-top: 0.35rem;
+  font-family: 'Cinzel', 'Palatino Linotype', Georgia, serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-midground, #b58900) 85%, var(--color-foreground));
+}
+
+[data-slot='sanctum-intro'] .si__title {
+  margin: 0.4rem 0 0;
+  max-width: 30ch;
+  font-family: 'Cinzel', 'Palatino Linotype', Georgia, serif;
+  font-size: clamp(1.2rem, 2.4vw, 1.7rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: var(--color-foreground);
+  text-wrap: balance;
+}
+
+[data-slot='sanctum-intro'] .si__quote {
+  margin: 0.5rem 0 0;
+  max-width: 54ch;
+  font-family: 'Cormorant Garamond', 'Palatino Linotype', Georgia, serif;
+  font-style: italic;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: var(--color-muted-foreground);
+  text-wrap: pretty;
+}
+
+[data-slot='sanctum-intro'] .si__plates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  width: 100%;
+  margin-top: 1.1rem;
+  text-align: left;
+}
+
+[data-slot='sanctum-intro'] .si__plate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-lg, 0.75rem);
+  border: 1px solid color-mix(in srgb, var(--color-border) 88%, transparent);
+  background: color-mix(in srgb, var(--color-card) 88%, transparent);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+[data-slot='sanctum-intro'] .si__plate:hover {
+  border-color: color-mix(in srgb, var(--color-midground, #b58900) 65%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px -18px rgb(0 0 0 / 0.65);
+}
+
+[data-slot='sanctum-intro'] .si__plate:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-midground, #b58900) 70%, transparent);
+  outline-offset: 2px;
+}
+
+[data-slot='sanctum-intro'] .si__plateHead {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: 'Cinzel', 'Palatino Linotype', Georgia, serif;
+  font-size: 0.585rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--si-tone, var(--color-midground, #b58900));
+}
+
+[data-slot='sanctum-intro'] .si__rune {
+  font-family: 'Noto Sans Runic', 'Segoe UI Historic', 'Segoe UI Symbol', serif;
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+[data-slot='sanctum-intro'] .si__plateTitle {
+  font-family: 'Cinzel', 'Palatino Linotype', Georgia, serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-foreground);
+}
+
+[data-slot='sanctum-intro'] .si__plateBlurb {
+  font-family: 'Cormorant Garamond', 'Palatino Linotype', Georgia, serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: var(--color-muted-foreground);
+}
+
+[data-slot='sanctum-intro'] .si__plate--gold {
+  --si-tone: color-mix(in srgb, var(--color-midground, #b58900) 92%, var(--color-foreground));
+}
+[data-slot='sanctum-intro'] .si__plate--cyan {
+  --si-tone: var(--si-cyan);
+}
+[data-slot='sanctum-intro'] .si__plate--ember {
+  --si-tone: var(--si-ember);
+}
+[data-slot='sanctum-intro'] .si__plate--moss {
+  --si-tone: var(--si-moss);
+}
+
+@media (max-width: 900px) {
+  [data-slot='sanctum-intro'] .si__plates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ᛟ Sanctum chat pane — the astral plate, baked opaque.
+   The window runs under Mica (DWMWA_SYSTEMBACKDROP_TYPE = 1), so anything the
+   pane leaves translucent is composited with whatever the desktop shows: a
+   faint blurred photograph behind the transcript, which reads as a ghost image
+   in an empty pane. Two gradients could never fully close that hole (their
+   alpha IS the bleed), so the plate is pre-composited into Solarized base03 and
+   the pane paints that opaque bitmap instead. Nothing behind the window can
+   reach the transcript area now.
+   ───────────────────────────────────────────────────────────────────────── */
+[data-merlin-theme='sanctum'] [data-chat-surface] {
+  background-color: #002b36;
+  background-image: url('./assets/sanctum-pane.webp');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Parchment polarity: the same plate baked into base3, or the light skin would
+   read as a dirty wash. */
+[data-merlin-theme='sanctum-light'] [data-chat-surface] {
+  background-color: #fdf6e3;
+  background-image: url('./assets/sanctum-pane-light.webp');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* The unfocused dim — and the real source of the "ghost photo".
+   Core dims an unfocused pane by fading the WHOLE surface to 0.72 opacity. On a
+   Mica window that is a hole, not a dim: the desktop composites straight through
+   the pane, so whatever is behind the app reads as a faint image over the
+   transcript — and it vanishes the moment the window is focused again, which is
+   exactly how it was reported. Recede with brightness/saturation instead: the
+   cue survives, the alpha (and the bleed) does not. */
+[data-merlin-theme='sanctum'] [data-chat-surface][data-chat-unfocused] {
+  opacity: 1;
+  filter: grayscale(0.2) brightness(0.9) saturate(0.95);
+}
+
+[data-merlin-theme='sanctum-light'] [data-chat-surface][data-chat-unfocused] {
+  opacity: 1;
+  filter: grayscale(0.15) brightness(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot='sanctum-intro'] .si__plate {
+    transition: none;
+  }
+  [data-slot='sanctum-intro'] .si__plate:hover {
+    transform: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ᛟ Sanctum boot ceremony — what the window shows while the gateway comes up.
+   Rendered by components/sanctum-boot-splash.tsx from inside the connecting
+   overlay, on sanctum skins only. The gold → teal → base03 wash is the skin's
+   signature (same status as the relic's indigo), so it stays a brand constant;
+   everything laid on top of it is type and a real progress track.
+   ───────────────────────────────────────────────────────────────────────── */
+[data-slot='sanctum-boot'] {
+  --sb-core: #f7bd0a;
+  --sb-mid: #dc9a00;
+  --sb-rim: #0b4b57;
+  --sb-deep: #002b36;
+  --sb-ink: #002b36;
+  --sb-paper: #fdf6e3;
+  --sb-cyan: #2aa198;
+  /* Layered ABOVE the astral plate (set inline as --sbs-scrim, url(...)). The
+     centre stays deep enough for Cinzel and the progress track to read while
+     the plate's zodiac wheel and clouds carry the edges untouched. */
+  --sbs-scrim: radial-gradient(
+    ellipse 66% 62% at 50% 46%,
+    rgb(0 18 26 / 0.88) 0%,
+    rgb(0 22 30 / 0.74) 44%,
+    rgb(0 26 34 / 0.4) 72%,
+    rgb(0 30 40 / 0.12) 100%
+  );
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background-color: var(--sb-deep);
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  background-size: cover, cover;
+}
+
+[data-slot='sanctum-boot'] .sbs__stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.45;
+}
+
+[data-slot='sanctum-boot'] .sbs__stars svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+[data-slot='sanctum-boot'] .sbs__starField {
+  fill: var(--sb-paper);
+}
+
+[data-slot='sanctum-boot'] .sbs__twinkle {
+  animation: sbs-twinkle 3s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes sbs-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+[data-slot='sanctum-boot'] .sbs__inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(34rem, 92vw);
+  padding: 1.5rem;
+  text-align: center;
+  transition:
+    opacity 320ms ease-out,
+    transform 320ms ease-out;
+}
+
+/* Leaving: the content drops away first, the wash holds a beat, then the
+   overlay fades — same choreography the decode text has always had. */
+[data-slot='sanctum-boot'].sbs--leaving .sbs__inner {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+[data-slot='sanctum-boot'] .sbs__emblem {
+  width: 14.5rem;
+  height: 14.5rem;
+  filter: drop-shadow(0 18px 40px rgb(0 0 0 / 0.35));
+}
+
+[data-slot='sanctum-boot'] .sbs__ring {
+  transform-origin: 130px 130px;
+  animation: sbs-spin 44s linear infinite;
+}
+
+[data-slot='sanctum-boot'] .sbs__float {
+  transform-origin: 130px 130px;
+  animation: sbs-float 3.4s ease-in-out infinite;
+}
+
+@keyframes sbs-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1.5deg);
+  }
+}
+
+[data-slot='sanctum-boot'] .sbs__pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sbs-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes sbs-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+[data-slot='sanctum-boot'] .sbs__glow {
+  animation: sbs-glow 2.6s ease-in-out infinite;
+}
+
+@keyframes sbs-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px #ffd24a);
+    opacity: 0.8;
+  }
+  50% {
+    filter: drop-shadow(0 0 9px #ffd24a);
+    opacity: 1;
+  }
+}
+
+@keyframes sbs-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+[data-slot='sanctum-boot'] .sbs__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  margin: 1.1rem 0 0;
+  padding: 0.3rem 0.85rem;
+  border: 1px solid color-mix(in srgb, #b58900 78%, transparent);
+  border-radius: 999px;
+  background: rgb(0 18 26 / 0.72);
+  backdrop-filter: blur(2px);
+  color: var(--sb-paper);
+  font-family: 'Cinzel', 'Palatino Linotype', Georgia, serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+[data-slot='sanctum-boot'] .sbs__title {
+  margin: 0.9rem 0 0.1rem;
+  font-family: 'Cinzel', 'Palatino Linotype', Georgia, serif;
+  font-size: clamp(1.5rem, 3.4vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0.01em;
+  /* Ivory, not base03: the astral plate is dark, so the title is the light. */
+  color: var(--sb-paper);
+  text-shadow: 0 2px 22px rgb(0 12 18 / 0.75);
+  text-wrap: balance;
+}
+
+[data-slot='sanctum-boot'] .sbs__status {
+  margin: 0.55rem 0 0;
+  min-height: 1.4em;
+  font-family: 'Cormorant Garamond', 'Palatino Linotype', Georgia, serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: rgb(253 246 227 / 0.82);
+  text-shadow: 0 1px 14px rgb(0 12 18 / 0.7);
+  text-wrap: pretty;
+}
+
+[data-slot='sanctum-boot'] .sbs__bar {
+  width: min(21rem, 70vw);
+  height: 0.55rem;
+  margin-top: 1.5rem;
+  padding: 1px;
+  border: 1px solid rgb(253 246 227 / 0.38);
+  border-radius: 999px;
+  background: rgb(0 18 26 / 0.6);
+  box-shadow: 0 6px 18px -10px rgb(0 0 0 / 0.8);
+  overflow: hidden;
+}
+
+[data-slot='sanctum-boot'] .sbs__bar > i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--sb-cyan), #b58900, var(--sb-paper));
+  transition: width 420ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot='sanctum-boot'] .sbs__twinkle,
+  [data-slot='sanctum-boot'] .sbs__ring,
+  [data-slot='sanctum-boot'] .sbs__float,
+  [data-slot='sanctum-boot'] .sbs__pulse,
+  [data-slot='sanctum-boot'] .sbs__glow {
+    animation: none;
+  }
+  [data-slot='sanctum-boot'] .sbs__inner,
+  [data-slot='sanctum-boot'] .sbs__bar > i {
+    transition: none;
+  }
 }

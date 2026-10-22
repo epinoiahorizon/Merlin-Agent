@@ -158,7 +158,12 @@ function resolveCopy(personality?: string, seed?: number): IntroCopy {
   return pickCopy(copies, seed)
 }
 
-export function Intro({ personality, seed }: IntroProps) {
+/**
+ * The splash copy this mount resolved — headline, body and the rotation seed.
+ * Exported so a themed splash (e.g. the Sanctum crest) speaks in the same
+ * configured voice instead of hardcoding a second English corpus.
+ */
+export function useIntroCopy({ personality, seed }: IntroProps): IntroCopy & { rotationSeed: number } {
   const [mountSeed] = useState(() => Math.floor(Math.random() * 100000))
   const { t } = useI18n()
   const rotationSeed = mountSeed + (seed ?? 0)
@@ -168,7 +173,11 @@ export function Intro({ personality, seed }: IntroProps) {
   const bodies =
     t.intro.stock[key] ?? (NEUTRAL_PERSONALITIES.has(key) ? t.intro.stock.none : t.intro.custom(personality || ''))
 
-  const body = bodies?.[Math.abs(rotationSeed) % bodies.length] ?? copy.body
+  return { headline: copy.headline, body: bodies?.[Math.abs(rotationSeed) % bodies.length] ?? copy.body, rotationSeed }
+}
+
+export function Intro({ personality, seed }: IntroProps) {
+  const { body } = useIntroCopy({ personality, seed })
 
   return (
     <div

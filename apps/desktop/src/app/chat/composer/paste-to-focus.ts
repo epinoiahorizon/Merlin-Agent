@@ -17,6 +17,7 @@ import { isEditableTarget } from '@/lib/keybinds/combo'
 import { composerFocusBlockedBySurface } from '@/lib/keybinds/composer-focus-keys'
 
 import { requestComposerAttachImages, requestComposerFocus, requestComposerInsert } from './focus'
+import { isRepeatedPaste } from './paste-guard'
 import { pathifyRefs } from './path-refs'
 import { extractClipboardImageBlobs } from './text-utils'
 import { linkifyUrls } from './url-refs'
@@ -33,6 +34,12 @@ export function routeClipboardToComposer(clipboard: DataTransfer): boolean {
 
   // A bare `data:` URL IS the image attached above — not text to insert.
   if (text && !DATA_IMAGE_URL_RE.test(text)) {
+    // One clipboard payload, one insert: a repeated key (or the composer's own
+    // handler seeing the same event) must not double the text.
+    if (isRepeatedPaste(text)) {
+      return true
+    }
+
     // Same chipping the focused paste path applies: links land as `@url:`
     // chips, bare `@path` tokens promote. The insert focuses the composer.
     requestComposerInsert(pathifyRefs(linkifyUrls(text)), { mode: 'inline' })

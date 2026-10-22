@@ -14,6 +14,7 @@ import { isElementInHiddenPane } from '@/components/pane-shell/pane-visibility'
 import { sanitizeComposerInput } from '@/lib/composer-input-sanitize'
 import { useStoreSelector } from '@/lib/use-session-slice'
 import {
+  registerComposerDraftSink,
   adoptGoneSessionDraft,
   adoptNewSessionDraft,
   type ComposerAttachment,
@@ -117,6 +118,10 @@ export function useComposerDraft({
     },
     [aui]
   )
+
+  // Publish this composer's setter so shell affordances (Sanctum plates) can
+  // load a draft without needing the runtime provider in scope.
+  useEffect(() => registerComposerDraftSink(setComposerText), [setComposerText])
 
   const editorRef = useRef<HTMLDivElement | null>(null)
   const draftRef = useRef('')
