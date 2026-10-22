@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { BUILTIN_THEME_LIST, DEFAULT_TYPOGRAPHY, atlasTheme } from './presets'
+import { atlasTheme, BUILTIN_THEME_LIST, DEFAULT_TYPOGRAPHY } from './presets'
 
 // #40364: none of the UI text/mono fonts carry emoji glyphs, so every font
 // stack must end with a color-emoji fallback or emoji render as tofu on

@@ -1,7 +1,7 @@
+import { loadComposerDraft } from '@/store/composer'
+
 import type { IntroProps } from './intro'
 import { SanctumCrest } from './sanctum-crest'
-
-import { loadComposerDraft } from '@/store/composer'
 
 /**
  * ᛟ The Sanctum splash — the empty transcript under the Sanctum skin.
@@ -75,9 +75,17 @@ const PLATES: Plate[] = [
 function sanctumGreeting(): string {
   const hour = new Date().getHours()
 
-  if (hour < 11) return 'Hail at dawn, Archmage'
-  if (hour < 17) return 'Well met this solar hour'
-  if (hour < 21) return 'Greetings at eventide'
+  if (hour < 11) {
+    return 'Hail at dawn, Archmage'
+  }
+
+  if (hour < 17) {
+    return 'Well met this solar hour'
+  }
+
+  if (hour < 21) {
+    return 'Greetings at eventide'
+  }
 
   return 'Greetings under the astral watch'
 }
@@ -85,7 +93,6 @@ function sanctumGreeting(): string {
 const SANCTUM_QUOTE =
   'Speak your command; the Staff of Merlin shall channel the astral threads and unfurl living relics in Solarized harmony.'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function SanctumIntro(_props: IntroProps) {
   const headline = sanctumGreeting()
   const body = SANCTUM_QUOTE

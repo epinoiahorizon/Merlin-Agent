@@ -13,10 +13,10 @@ import { UserMessage } from '@/components/assistant-ui/thread/user-message'
 import { Intro, type IntroProps } from '@/components/chat/intro'
 import { SanctumIntro } from '@/components/chat/sanctum-intro'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import type { MerlinGateway } from '@/merlin'
 import { useI18n } from '@/i18n'
-import { useTheme } from '@/themes'
+import type { MerlinGateway } from '@/merlin'
 import { notifyError } from '@/store/notifications'
+import { useTheme } from '@/themes'
 
 type ThreadLoadingState = 'response' | 'session'
 
