@@ -67,6 +67,7 @@ jobs:
           }
 
       - name: Set up Python 3.11+
+        id: py
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -85,6 +86,11 @@ jobs:
         shell: bash
         env:
           PYTHONUTF8: '1'
+          # DMG packaging shells out to a vendored dmgbuild, which the build
+          # helpers launch through scripts/build/python.mjs — that refuses to
+          # guess and dies without this ("Set MERLIN_PYTHON to the prepared
+          # build interpreter"). Point it at the interpreter this job installed.
+          MERLIN_PYTHON: ${{ steps.py.outputs.python-path }}
           # No Developer ID in this repo: build an unsigned app rather than fail
           # the whole lane looking for an identity that does not exist.
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
