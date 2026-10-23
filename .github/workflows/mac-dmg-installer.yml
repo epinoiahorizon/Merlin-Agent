@@ -1,0 +1,107 @@
+name: macOS Installer (commit build)
+
+# Certificate-free macOS installer lane, built by CI from an EXACT pushed
+# commit — the macOS twin of win-nsis-installer.yml.
+#
+# Produces: Merlin-Setup-<version>-<arch>.dmg (+ .zip) as workflow artifacts.
+# UNSIGNED and NOT notarized: this repository holds no Apple Developer secrets,
+# so Gatekeeper will warn on first launch (right-click → Open, or
+# `xattr -dr com.apple.quarantine /Applications/Merlin.app`). Signed DMGs stay
+# in desktop-bundled-release.yml, which needs those secrets.
+#
+# Run it from the default branch with the full 40-hex SHA of a commit already
+# on origin.
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'EXACT full 40-hex SHA already pushed to origin/main'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mac-dmg-installer-${{ inputs.commit }}
+  cancel-in-progress: false
+
+jobs:
+  dmg:
+    name: Merlin-Setup (macOS ${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-14
+            arch: arm64
+          - runner: macos-13
+            arch: x64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - name: Admit the commit
+        shell: bash
+        env:
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          echo "$COMMIT" | grep -Eq '^[0-9a-f]{40}$' || { echo "::error::commit must be a full 40-hex SHA"; exit 1; }
+          echo "COMMIT=$COMMIT" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit }}
+          fetch-depth: 0
+
+      - name: Verify the commit is on origin/main
+        shell: bash
+        env:
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor "$COMMIT" origin/main || {
+            echo "::error::$COMMIT is not an ancestor of origin/main — push it first"
+            exit 1
+          }
+
+      - name: Set up Python 3.11+
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node from .nvmrc
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install the JS workspace
+        shell: bash
+        run: npm ci
+
+      - name: Build and package the DMG
+        shell: bash
+        env:
+          PYTHONUTF8: '1'
+          # No Developer ID in this repo: build an unsigned app rather than fail
+          # the whole lane looking for an identity that does not exist.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          set -eu
+          cd apps/desktop
+          npm run build
+          npm run builder -- --mac dmg zip "--${{ matrix.arch }}" \
+            -c.extraMetadata.version=0.1.5 \
+            '-c.mac.artifactName=Merlin-Setup-${version}-${arch}.${ext}'
+          ls -la release/*.dmg release/*.zip
+
+      - name: Upload the installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Merlin-Setup-0.1.5-${{ matrix.arch }}-mac
+          path: |
+            apps/desktop/release/*.dmg
+            apps/desktop/release/*.zip
+          if-no-files-found: error
+          retention-days: 30

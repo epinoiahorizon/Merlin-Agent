@@ -1,0 +1,66 @@
+name: Publish build artifact to a release
+
+# Hands an artifact a commit-build lane already produced to a GitHub release,
+# server-side. Exists so publishing never depends on downloading a 100–250 MB
+# installer to a workstation and re-uploading it over a slow link.
+#
+# Refuses to replace an asset that is already published: accepted bytes stay
+# immutable (see docs/developer-guide/stable-releases.md).
+
+on:
+  workflow_dispatch:
+    inputs:
+      run-id:
+        description: 'Run id that produced the artifact'
+        required: true
+        type: string
+      artifact:
+        description: 'Artifact name (exactly as the producing workflow uploaded it)'
+        required: true
+        type: string
+      tag:
+        description: 'Release tag to attach the asset to'
+        required: true
+        default: 'v0.1.0-win-preview'
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    name: Attach ${{ inputs.artifact }} to ${{ inputs.tag }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Download the artifact from its run
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.run-id }}
+          name: ${{ inputs.artifact }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: dist
+
+      - name: Publish each installer (never clobber)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -eu
+          cd dist
+          ls -la
+          shopt -s nullglob
+          found=0
+          for f in *.exe *.dmg *.zip; do
+            found=1
+            if gh release view "$TAG" --json assets -q '.assets[].name' | grep -qx "$f"; then
+              echo "::error::$f already exists on $TAG — refusing to replace published bytes"
+              exit 1
+            fi
+            echo "uploading $f ($(stat -c%s "$f") bytes)"
+            gh release upload "$TAG" "$f"
+          done
+          [ "$found" = 1 ] || { echo "::error::no installer in the artifact"; exit 1; }
+          echo "release assets now:"
+          gh release view "$TAG" --json assets -q '.assets[] | "\(.name) \(.size) bytes"'
