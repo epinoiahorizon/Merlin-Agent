@@ -33,7 +33,17 @@ const productOwner = 'merlin-frontend-product-v1\n'
 const developerOutputs = ['ui-tui/dist', 'merlin_cli/web_dist', 'apps/desktop/dist', 'apps/desktop/build/native-deps']
 
 function developerOutput(source, out) {
-  return source && developerOutputs.some(name => path.resolve(out) === path.join(path.resolve(source), name))
+  if (!source) return false
+  const resolved = path.resolve(out)
+  return developerOutputs.some(name => {
+    const root = path.join(path.resolve(source), name)
+    // `run-electron-builder` stages PER-TARGET trees beside the shared one
+    // (`build/native-deps-darwin-arm64`, `build/native-deps-win32-x64`). Same
+    // compiler, same home — the exact-path list missed them, so a macOS package
+    // run died on "Output must be outside source or in a supported generated
+    // destination" before it could produce a DMG.
+    return resolved === root || resolved.startsWith(`${root}-`)
+  })
 }
 
 // A destination name alone does not confer ownership of its existing contents.
