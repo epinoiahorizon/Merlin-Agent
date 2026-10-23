@@ -19,8 +19,8 @@ platform-gated features are supported), see **[Platform Support](./platform-supp
 Download the package for your platform from the
 [Merlin website](https://merlin-agent.epinoiahorizon.com/).
 
-- **Windows:** download **`Merlin-Setup-<version>-x64.exe`** from the
-  [releases page](https://github.com/epinoiahorizon/Merlin-Agent/releases) (or
+- **Windows:** download **`Merlin-Setup-0.1.5-x64.exe`** from the
+  [releases page](https://github.com/epinoiahorizon/Merlin-Agent/releases/download/v0.1.0-win-preview/Merlin-Setup-0.1.5-x64.exe) (or
   the download button on the landing page) and run it. It installs per-machine
   into `C:\Program Files\Merlin`, adds Start Menu and desktop shortcuts, and
   registers an uninstaller in Apps & Features. The preview build is unsigned,
@@ -28,8 +28,13 @@ Download the package for your platform from the
   The `.appinstaller` download is the signed lane instead: open it with Windows
   App Installer and it installs the signed MSIX bundle and records its update
   source. Microsoft Store packages have separate Store ownership.
-- **macOS:** open the DMG, then copy `Merlin.app` to Applications. The ZIP
-  artifact carries the signed app used by the automatic updater.
+- **macOS (Apple Silicon):** download
+  **`Merlin-Setup-0.1.5-arm64.dmg`** from the
+  [same release](https://github.com/epinoiahorizon/Merlin-Agent/releases/download/v0.1.0-win-preview/Merlin-Setup-0.1.5-arm64.dmg),
+  open it, then copy `Merlin.app` to Applications. This preview build is
+  **unsigned and not notarized** — Gatekeeper refuses the first launch, so
+  right-click the app → **Open** (or run
+  `xattr -dr com.apple.quarantine /Applications/Merlin.app` once).
 
 Bundled packages contain the agent, Python, supported dependencies, and prebuilt
 interfaces. First launch does not build that base runtime. Provider access and

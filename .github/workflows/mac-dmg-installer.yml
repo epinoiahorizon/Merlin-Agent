@@ -33,11 +33,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Apple Silicon only: macOS on x86 is not a supported platform
+        # (website/docs/getting-started/platform-support.md). A second leg here
+        # would publish a DMG the docs say does not exist.
         include:
           - runner: macos-14
             arch: arm64
-          - runner: macos-13
-            arch: x64
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
     steps:
