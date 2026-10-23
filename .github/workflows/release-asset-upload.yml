@@ -45,6 +45,9 @@ jobs:
       - name: Publish each installer (never clobber)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # `gh` resolves the repo from the git remote; the artifact directory is
+          # not a checkout, so name it explicitly (otherwise: "not a git repository").
+          GH_REPO: ${{ github.repository }}
           TAG: ${{ inputs.tag }}
         run: |
           set -eu
