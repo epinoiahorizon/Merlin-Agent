@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { useI18n } from '@/i18n'
 import {
   getElevenLabsVoices,
   getMerlinConfigSchema,
@@ -8,7 +9,6 @@ import {
   profileScopeKey,
   saveMerlinConfigRecord
 } from '@/merlin'
-import { useI18n } from '@/i18n'
 import { notifyError } from '@/store/notifications'
 import type { MerlinConfigRecord } from '@/types/merlin'
 

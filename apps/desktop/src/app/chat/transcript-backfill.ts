@@ -15,8 +15,8 @@
  * drift on the next page.
  */
 
-import { getOlderSessionMessages, type ProfileScope } from '@/merlin'
 import { type ChatMessage, chatMessageText, toChatMessages } from '@/lib/chat-messages'
+import { getOlderSessionMessages, type ProfileScope } from '@/merlin'
 import {
   recordTranscriptBackfillPage,
   tailStateFromPage,

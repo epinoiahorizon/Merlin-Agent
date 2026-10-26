@@ -11,12 +11,12 @@ import { GlyphSpinner } from '@/components/ui/glyph-spinner'
 import { HighlightMatches } from '@/components/ui/highlight-matches'
 import { RowButton } from '@/components/ui/row-button'
 import { Switch } from '@/components/ui/switch'
-import type { MerlinGateway } from '@/merlin'
 import { useI18n } from '@/i18n'
 import { Plus, Search, X } from '@/lib/icons'
 import { modelOptionsQueryKey, requestModelOptions } from '@/lib/model-options'
 import { displayModelName, modelDisplayParts } from '@/lib/model-status-label'
 import { foldIncludes, normalize } from '@/lib/text'
+import type { MerlinGateway } from '@/merlin'
 import { confirm } from '@/store/confirm'
 import {
   $customModels,

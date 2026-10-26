@@ -4,10 +4,10 @@ import { test } from 'vitest'
 
 import {
   DEFAULT_HEALTH_PROBE_TIMEOUT_MS,
+  isAtlasCloudAgentUrl,
   isAuthRejectionError,
   isGatedMissingHealthError,
   isMissingHealthEndpointError,
-  isAtlasCloudAgentUrl,
   isReauthRequiredError,
   isServerSideHttpError,
   makeAtlasCloudBackendDownError,

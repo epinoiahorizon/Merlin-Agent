@@ -1,9 +1,9 @@
 import type { ConnectionAnswer, ConnectorPolicyGetResult } from '@merlin/shared'
 import { useCallback, useRef, useState } from 'react'
 
-import type { ProfileScope } from '@/merlin'
 import { translateNow } from '@/i18n'
 import { queryClient } from '@/lib/query-client'
+import type { ProfileScope } from '@/merlin'
 import { notifyError } from '@/store/notifications'
 
 import type { SaveResult } from '../use-tools-editor'

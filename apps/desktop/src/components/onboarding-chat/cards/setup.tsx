@@ -9,9 +9,9 @@ import { Chip } from '@/components/onboarding-chat/chip'
 import {
   accentsFor,
   AccentSwatch,
+  ATLAS_ACCENT,
   LayoutPreviewCard,
   LAYOUTS,
-  ATLAS_ACCENT,
   orderConnectorPicks
 } from '@/components/onboarding-chat/options'
 import type { LayoutNode } from '@/components/pane-shell/tree/model'
