@@ -410,7 +410,8 @@ async function _downloadOrBranch(installRef, cached, emit, fallbackBranch, downl
  * a short backoff. A 404 is NOT retried — that is an answer, not a hiccup, and the
  * pinned-ref fallback above is the only thing allowed to act on it.
  */
-const TRANSIENT_DOWNLOAD = /ECONNRESET|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|EPIPE|socket hang up|HTTP (?:5\d\d|429)/i
+const TRANSIENT_DOWNLOAD =
+  /ECONNRESET|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|EPIPE|socket hang up|HTTP (?:5\d\d|429)/i
 const DOWNLOAD_RETRY_DELAYS_MS = [750, 2500]
 
 async function _downloadWithRetry(download, ref, destPath, emit) {

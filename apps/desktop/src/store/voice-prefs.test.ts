@@ -5,8 +5,8 @@ vi.mock('@/merlin', () => ({
   saveMerlinConfig: vi.fn(async () => undefined)
 }))
 
-import { saveMerlinConfig } from '@/merlin'
 import { isVoiceStopCommand } from '@/lib/voice-stop-word'
+import { saveMerlinConfig } from '@/merlin'
 
 import {
   $bargeInEnabled,

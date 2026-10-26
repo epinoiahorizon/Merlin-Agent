@@ -1663,7 +1663,8 @@ export const ru = defineLocale({
       useBackend: 'Использовать этот бэкенд',
       atlasIncluded: 'Входит в подписку Atlas — войдите в Atlas Portal, чтобы активировать.',
       atlasAuthNeededTitle: 'Войдите в Atlas Portal',
-      atlasAuthNeededMessage: provider => `${provider} сохранён, но не активируется, пока вы не войдёте в Atlas Portal.`,
+      atlasAuthNeededMessage: provider =>
+        `${provider} сохранён, но не активируется, пока вы не войдёте в Atlas Portal.`,
       atlasAuthSignIn: 'Войти',
       atlasAuthDoneTitle: 'Atlas Portal подключён',
       atlasAuthDoneMessage: 'Ваши бэкенды по подписке теперь активны.',

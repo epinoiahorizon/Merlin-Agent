@@ -341,7 +341,9 @@ test('resolveInstallScript falls back to the branch when the pinned commit is no
         refs.push(ref)
 
         if (ref === commit) {
-          throw new Error(`Failed to download install.ps1: HTTP 404 from https://raw.githubusercontent.com/epinoiahorizon/Merlin-Agent/${ref}/scripts/install.ps1`)
+          throw new Error(
+            `Failed to download install.ps1: HTTP 404 from https://raw.githubusercontent.com/epinoiahorizon/Merlin-Agent/${ref}/scripts/install.ps1`
+          )
         }
 
         fs.mkdirSync(path.dirname(destPath), { recursive: true })
@@ -355,7 +357,10 @@ test('resolveInstallScript falls back to the branch when the pinned commit is no
     assert.equal(result.source, 'download')
     assert.equal(result.commit, null)
     assert.match(fs.readFileSync(cached, 'utf8'), /branch installer/)
-    assert.ok(lines.some(line => /not on the remote/.test(line)), 'the fallback must be logged')
+    assert.ok(
+      lines.some(line => /not on the remote/.test(line)),
+      'the fallback must be logged'
+    )
   } finally {
     fs.rmSync(home, { recursive: true, force: true })
   }
