@@ -47,6 +47,13 @@ _CODEX_EXPIRES_IN = 15 * 60  # OpenAI's effective limit
 _CANCELLED: Any = object()
 _OAUTH_SESSION_TTL_SECONDS = 15 * 60
 
+# Accounts deliberately kept out of the desktop provider list. ``atlas`` is the publisher's own
+# portal account: this build ships no seat for it, so its card and its catalog row are filtered
+# above. The auth layer still resolves it for the CLI (``merlin portal``, ``merlin auth add
+# atlas``) and for the free-tier/guest flows, which is why the filter lives here, not in
+# ``provider_catalog()``.
+_HIDDEN_ACCOUNT_PROVIDERS: frozenset[str] = frozenset({"atlas"})
+
 
 def _http_response_error_detail(resp: Any) -> str:
     """Best-effort extraction of a short provider error detail."""
@@ -644,17 +651,23 @@ def _oauth_provider_disconnect_hint(provider: Dict[str, Any], status: Dict[str, 
 def _build_oauth_catalog() -> list[Dict[str, Any]]:
     """Accounts-tab provider list: ``_OAUTH_PROVIDER_CATALOG`` cards first (curated
     order, win on metadata), then every other accounts-tab ``provider_catalog()`` entry
-    in ``merlin model`` order, so plugin-added OAuth/external providers appear automatically."""
+    in ``merlin model`` order, so plugin-added OAuth/external providers appear automatically.
+
+    ``_HIDDEN_ACCOUNT_PROVIDERS`` is filtered from both sources — the desktop has no seat for
+    those accounts (the publisher's own ``atlas`` portal), while their auth plumbing stays
+    reachable from the CLI (``merlin portal``, ``merlin auth add atlas``).
+    """
     rows: list[Dict[str, Any]] = []
     seen: set[str] = set()
     for entry in _OAUTH_PROVIDER_CATALOG:
-        if entry["id"] not in seen:
-            seen.add(entry["id"])
-            rows.append(dict(entry))
+        if entry["id"] in seen or entry["id"] in _HIDDEN_ACCOUNT_PROVIDERS:
+            continue
+        seen.add(entry["id"])
+        rows.append(dict(entry))
     try:
         from merlin_cli.provider_catalog import provider_catalog
         for d in provider_catalog():
-            if d.tab != "accounts" or d.slug in seen:
+            if d.tab != "accounts" or d.slug in seen or d.slug in _HIDDEN_ACCOUNT_PROVIDERS:
                 continue
             seen.add(d.slug)
             rows.append({
