@@ -12,8 +12,8 @@ import { mergeOlderTranscriptPage } from '@/app/chat/transcript-backfill'
 import { useMessageStream } from '@/app/session/hooks/use-message-stream'
 import { useSessionStateCache } from '@/app/session/hooks/use-session-state-cache'
 import { stubThreadEnvironment } from '@/components/assistant-ui/test-utils'
-import { getLatestSessionMessages } from '@/merlin'
 import { chatMessageText, toChatMessages } from '@/lib/chat-messages'
+import { getLatestSessionMessages } from '@/merlin'
 import { resetLiveSync } from '@/store/live-sync'
 import {
   $busy,

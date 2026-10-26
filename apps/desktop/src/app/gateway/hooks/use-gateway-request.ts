@@ -2,9 +2,9 @@ import { isGatewayReauthRequired } from '@merlin/shared'
 import { useStore } from '@nanostores/react'
 import { useCallback, useEffect, useRef } from 'react'
 
-import type { MerlinGateway } from '@/merlin'
 import { resolveDesktopGatewayWsUrl } from '@/lib/gateway-ws-url'
 import { RECONNECT_ATTEMPT_TIMEOUT_MS, withTimeout } from '@/lib/with-timeout'
+import type { MerlinGateway } from '@/merlin'
 import { $gateway, activeGateway, ensureActiveGatewayOpen, isActivePrimary } from '@/store/gateway'
 import { $gatewayState, setConnection } from '@/store/session'
 

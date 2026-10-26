@@ -37,10 +37,7 @@ test('a destroyed window never takes the keyboard', () => {
   // ensureMainWindow checks isDestroyed(), but the close can land between that
   // check and this call; touching the native handle then throws "Object has
   // been destroyed" as an uncaught main-process exception.
-  assert.equal(
-    shouldFocusToTakeKeyboard({ isDestroyed: () => true, isFocused: () => false }),
-    false
-  )
+  assert.equal(shouldFocusToTakeKeyboard({ isDestroyed: () => true, isFocused: () => false }), false)
 })
 
 test('a window that dies mid-check does not throw', () => {
