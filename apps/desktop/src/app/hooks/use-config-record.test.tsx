@@ -3,9 +3,9 @@ import { act, cleanup, renderHook, waitFor } from '@testing-library/react'
 import { createElement } from 'react'
 import { afterEach, expect, it, vi } from 'vitest'
 
+import { queryClient } from '@/lib/query-client'
 import type * as MerlinApi from '@/merlin'
 import { bindConfigReadOrigin, getMerlinConfigRecord } from '@/merlin'
-import { queryClient } from '@/lib/query-client'
 import { $connection } from '@/store/session'
 
 import {

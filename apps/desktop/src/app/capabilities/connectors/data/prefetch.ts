@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 
-import type { ProfileScope } from '@/merlin'
 import { queryClient } from '@/lib/query-client'
+import type { ProfileScope } from '@/merlin'
 
 import type { ConnectorCardModel } from '../types'
 
