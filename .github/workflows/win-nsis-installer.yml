@@ -93,7 +93,7 @@ jobs:
           { echo "commit=$COMMIT"; echo "built_by=win-nsis-installer.yml"; } > BUILD-INFO.txt
 
       - name: Upload the installer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Merlin-Setup-0.1.5-x64
           path: |
