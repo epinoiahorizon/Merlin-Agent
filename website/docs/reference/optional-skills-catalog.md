@@ -282,6 +282,7 @@ merlin skills uninstall <skill-name>
 
 | Skill | Description |
 |-------|-------------|
+| [**awwwards-3d**](../user-guide/skills/optional/web-development/web-development-awwwards-3d.md) | Build cinematic Awwwards-style 3D web scenes that render. |
 | [**cloudflare-temporary-deploy**](../user-guide/skills/optional/web-development/web-development-cloudflare-temporary-deploy.md) | Deploy a Worker live, no account, via wrangler --temporary. |
 | [**har-derived-api-client**](../user-guide/skills/optional/web-development/web-development-har-derived-api-client.md) | Record a site's XHR into a HAR, derive an HTTP client. |
 | [**page-agent**](../user-guide/skills/optional/web-development/web-development-page-agent.md) | Embed an in-page natural-language GUI copilot in web apps. |

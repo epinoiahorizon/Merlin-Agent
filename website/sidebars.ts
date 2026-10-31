@@ -645,6 +645,7 @@ const sidebars: SidebarsConfig = {
                   key: 'skills-optional-web-development',
                   collapsed: true,
                   items: [
+                    'user-guide/skills/optional/web-development/web-development-awwwards-3d',
                     'user-guide/skills/optional/web-development/web-development-cloudflare-temporary-deploy',
                     'user-guide/skills/optional/web-development/web-development-har-derived-api-client',
                     'user-guide/skills/optional/web-development/web-development-page-agent',

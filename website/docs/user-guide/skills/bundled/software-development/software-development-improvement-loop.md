@@ -73,7 +73,10 @@ process discipline is the multiplier).
 
 5. **Verify the upgrade** — a lesson qualifies as learned only when re-running
    the original scenario passes with it applied. Where that's expensive,
-   leave an exact re-run command in the skill for next time.
+   leave an exact re-run command in the skill for next time. For skills that
+   TRIGGER from descriptions, verify with the eval arm (`references/skill-evals.md`):
+   re-run trigger + grader evals after the edit; a skill edit without re-run
+   evals is an unverified lesson wearing a verified costume.
 
 6. **Weekly sweep** — read the newest lessons in the most-used skills;
    delete duplicates; promote recurring patterns from task skills into
@@ -111,6 +114,25 @@ An agent that follows this loop reliably approaches smartest-operator status
 within 2–3 weeks of real work — not because it thinks harder, but because it
 never pays the same toll twice.
 
+## Trajectory Mining (batch variant of step 1)
+
+After a batch of agent runs (cron jobs, delegate sweeps, eval sweeps), upgrade
+lessons from ONE-AT-A-TIME capture to BATCH distillation of the recorded
+trajectories (~/.merlin/trajectories/, session logs):
+
+1. Cluster the runs by failure/success shape — never read them one by one.
+2. Attribute causality two-sidedly (bipartite rule): for each skill rule, ask
+   which runs it was ACTIVE in, and whether those runs succeeded or failed.
+   A rule that is active equally in successful and failed runs explains
+   nothing; a rule missing from successful runs is a candidate gap; a rule
+   present only in failures may be the cause. Edit (or remove) only rules the
+   attribution implicates — do NOT rewrite a skill from an unattributed summary.
+3. Distill recurring workarounds found in >1 trajectory into imperative rules
+   (step 3's format), then prune the one-off traces (memory-hygiene owns the
+   file lifecycle).
+4. Keep the optimizer honest: this loop is evidence→rule, not evidence→opinion.
+   If two runs contradict, keep the rule marked low-confidence or drop it.
+
 ## Pitfalls (incl. deploy-step hazards)
 
 - Logging incidents instead of rules — the incident is data; the rule is the asset.
@@ -128,3 +150,9 @@ never pays the same toll twice.
       session's touched suites, grep-level checks re-run clean, commit message
       carries the proof command, and the change's prevented-failure is stated
       in one sentence before push.
+
+## References
+
+- `references/skill-evals.md` — the verification arm: per-skill eval-case
+  formula (4 cases incl. one `expect_trigger: false` guard), deterministic
+  graders, comparator A/B for risky edits, and the roll-out ledger.
