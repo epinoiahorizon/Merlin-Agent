@@ -4,4 +4,4 @@
  * (bundled installs with a damaged payload) and any future doc links point
  * at the same place.
  */
-export const DESKTOP_DOCS_URL = 'https://merlin-agent.epinoiahorizon.com/docs/user-guide/desktop'
+export const DESKTOP_DOCS_URL = 'https://docs.withmerlin.online/docs/user-guide/desktop'

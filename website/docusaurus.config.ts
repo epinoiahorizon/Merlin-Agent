@@ -147,7 +147,7 @@ const config: Config = {
           position: 'left',
         },
         {
-          href: 'https://merlin-agent.epinoiahorizon.com/',
+          href: 'https://withmerlin.online/',
           label: 'Download',
           position: 'left',
         },
@@ -156,7 +156,7 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://merlin-agent.epinoiahorizon.com',
+          href: 'https://withmerlin.online',
           label: 'Home',
           position: 'right',
         },
@@ -195,7 +195,7 @@ const config: Config = {
         {
           title: 'More',
           items: [
-            { label: 'Desktop Download', href: 'https://merlin-agent.epinoiahorizon.com/' },
+            { label: 'Desktop Download', href: 'https://withmerlin.online/' },
             { label: 'GitHub', href: 'https://github.com/epinoiahorizon/Merlin-Agent' },
             { label: 'Epinoia Horizon', href: 'https://epinoiahorizon.com' },
           ],

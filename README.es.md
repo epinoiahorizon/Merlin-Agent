@@ -4,10 +4,10 @@
 
 # Merlin Agent ☤
 <p align="center">
-  <a href="https://merlin-agent.epinoiahorizon.com/">Merlin Agent</a> | <a href="https://merlin-agent.epinoiahorizon.com/">Merlin Desktop</a>
+  <a href="https://withmerlin.online/">Merlin Agent</a> | <a href="https://withmerlin.online/">Merlin Desktop</a>
 </p>
 <p align="center">
-  <a href="https://merlin-agent.epinoiahorizon.com/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentación"></a>
+  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentación"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/Licencia-MIT-green?style=for-the-badge" alt="Licencia: MIT"></a>
   <a href="https://epinoiahorizon.com"><img src="https://img.shields.io/badge/Creado%20por-Epinoia%20Horizon-blueviolet?style=for-the-badge" alt="Creado por Epinoia Horizon"></a>
@@ -41,7 +41,7 @@ Usa cualquier modelo que quieras — [Atlas Portal](https://portal.epinoiahorizo
 ### Linux, macOS, WSL2
 
 ```bash
-curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
+curl -fsSL https://withmerlin.online/install.sh | bash
 ```
 
 ### Windows (nativo, PowerShell)
@@ -51,7 +51,7 @@ curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
 Ejecuta esto en PowerShell:
 
 ```powershell
-iex (irm https://merlin-agent.epinoiahorizon.com/install.ps1)
+iex (irm https://withmerlin.online/install.ps1)
 ```
 
 El instalador de código fuente usa PM para Python 3.14, Node.js, npm,
@@ -59,7 +59,7 @@ ripgrep, FFmpeg y las dependencias de Python. Si falta Git, descarga el archivo
 verificado de Git for Windows en el almacén de Merlin, sin reemplazar el Git
 del sistema. MSIX/App Installer es una distribución separada.
 
-> **Android / Termux:** Hay un paquete APT en pruebas para dispositivos aarch64. Incluye Python, Node.js y la TUI. Sigue la [guía de Termux](https://merlin-agent.epinoiahorizon.com/docs/getting-started/termux), no el script de instalación para escritorio y servidor.
+> **Android / Termux:** Hay un paquete APT en pruebas para dispositivos aarch64. Incluye Python, Node.js y la TUI. Sigue la [guía de Termux](https://docs.withmerlin.online/docs/getting-started/termux), no el script de instalación para escritorio y servidor.
 >
 > **Windows:** Windows nativo es totalmente compatible — el comando de PowerShell de arriba instala todo. Si prefieres usar WSL2, el comando de Linux también funciona allí. La instalación nativa de Windows se encuentra en `%LOCALAPPDATA%\merlin`; WSL2 instala en `~/.merlin` como en Linux.
 
@@ -86,7 +86,7 @@ merlin update       # Actualiza a la última versión
 merlin doctor       # Diagnostica cualquier problema
 ```
 
-📖 **[Documentación completa →](https://merlin-agent.epinoiahorizon.com/docs/)**
+📖 **[Documentación completa →](https://docs.withmerlin.online/docs/)**
 
 ---
 
@@ -103,7 +103,7 @@ Un comando desde una instalación nueva:
 merlin setup --portal
 ```
 
-Esto te autentica vía OAuth, establece Atlas como tu proveedor y activa el Tool Gateway. Comprueba qué está conectado en cualquier momento con `merlin portal info`. Detalles completos en la [página de documentación del Tool Gateway](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/tool-gateway).
+Esto te autentica vía OAuth, establece Atlas como tu proveedor y activa el Tool Gateway. Comprueba qué está conectado en cualquier momento con `merlin portal info`. Detalles completos en la [página de documentación del Tool Gateway](https://docs.withmerlin.online/docs/user-guide/features/tool-gateway).
 
 Puedes seguir usando tus propias claves por herramienta cuando quieras — el gateway es por backend, no todo o nada.
 
@@ -125,31 +125,31 @@ Merlin tiene dos puntos de entrada: inicia la interfaz de terminal con `merlin`,
 | Interrumpir trabajo actual          | `Ctrl+C` o enviar un nuevo mensaje            | `/stop` o enviar un nuevo mensaje                                                 |
 | Estado específico de plataforma     | `/platforms`                                  | `/status`, `/sethome`                                                             |
 
-Para las listas de comandos completas, consulta la [guía de CLI](https://merlin-agent.epinoiahorizon.com/docs/user-guide/cli) y la [guía del Gateway de Mensajería](https://merlin-agent.epinoiahorizon.com/docs/user-guide/messaging).
+Para las listas de comandos completas, consulta la [guía de CLI](https://docs.withmerlin.online/docs/user-guide/cli) y la [guía del Gateway de Mensajería](https://docs.withmerlin.online/docs/user-guide/messaging).
 
 ---
 
 ## Documentación
 
-Toda la documentación está en **[merlin-agent.epinoiahorizon.com/docs](https://merlin-agent.epinoiahorizon.com/docs/)**:
+Toda la documentación está en **[docs.withmerlin.online/docs](https://docs.withmerlin.online/docs/)**:
 
 | Sección                                                                                             | Contenido                                                    |
 | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| [Inicio rápido](https://merlin-agent.epinoiahorizon.com/docs/getting-started/quickstart)              | Instalar → configurar → primera conversación en 2 minutos   |
-| [Uso de CLI](https://merlin-agent.epinoiahorizon.com/docs/user-guide/cli)                             | Comandos, atajos de teclado, personalidades, sesiones        |
-| [Configuración](https://merlin-agent.epinoiahorizon.com/docs/user-guide/configuration)               | Archivo de configuración, proveedores, modelos, todas las opciones |
-| [Gateway de Mensajería](https://merlin-agent.epinoiahorizon.com/docs/user-guide/messaging)           | Telegram, Discord, Slack, WhatsApp, Signal, Home Assistant   |
-| [Seguridad](https://merlin-agent.epinoiahorizon.com/docs/user-guide/security)                        | Aprobación de comandos, emparejamiento por DM, aislamiento en contenedor |
-| [Herramientas y Toolsets](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/tools)   | Más de 40 herramientas, sistema de toolsets, backends de terminal |
-| [Sistema de Habilidades](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/skills)   | Memoria procedimental, Skills Hub, creación de habilidades   |
-| [Memoria](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/memory)                   | Memoria persistente, perfiles de usuario, mejores prácticas  |
-| [Integración MCP](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/mcp)              | Conecta cualquier servidor MCP para capacidades extendidas   |
-| [Programación Cron](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/cron)           | Tareas programadas con entrega a plataforma                  |
-| [Archivos de Contexto](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/context-files) | Contexto de proyecto que da forma a cada conversación      |
-| [Arquitectura](https://merlin-agent.epinoiahorizon.com/docs/developer-guide/architecture)            | Estructura del proyecto, bucle del agente, clases principales |
-| [Contribuir](https://merlin-agent.epinoiahorizon.com/docs/developer-guide/contributing)              | Configuración de desarrollo, proceso de PR, estilo de código |
-| [Referencia de CLI](https://merlin-agent.epinoiahorizon.com/docs/reference/cli-commands)             | Todos los comandos y flags                                   |
-| [Variables de Entorno](https://merlin-agent.epinoiahorizon.com/docs/reference/environment-variables) | Referencia completa de variables de entorno                  |
+| [Inicio rápido](https://docs.withmerlin.online/docs/getting-started/quickstart)              | Instalar → configurar → primera conversación en 2 minutos   |
+| [Uso de CLI](https://docs.withmerlin.online/docs/user-guide/cli)                             | Comandos, atajos de teclado, personalidades, sesiones        |
+| [Configuración](https://docs.withmerlin.online/docs/user-guide/configuration)               | Archivo de configuración, proveedores, modelos, todas las opciones |
+| [Gateway de Mensajería](https://docs.withmerlin.online/docs/user-guide/messaging)           | Telegram, Discord, Slack, WhatsApp, Signal, Home Assistant   |
+| [Seguridad](https://docs.withmerlin.online/docs/user-guide/security)                        | Aprobación de comandos, emparejamiento por DM, aislamiento en contenedor |
+| [Herramientas y Toolsets](https://docs.withmerlin.online/docs/user-guide/features/tools)   | Más de 40 herramientas, sistema de toolsets, backends de terminal |
+| [Sistema de Habilidades](https://docs.withmerlin.online/docs/user-guide/features/skills)   | Memoria procedimental, Skills Hub, creación de habilidades   |
+| [Memoria](https://docs.withmerlin.online/docs/user-guide/features/memory)                   | Memoria persistente, perfiles de usuario, mejores prácticas  |
+| [Integración MCP](https://docs.withmerlin.online/docs/user-guide/features/mcp)              | Conecta cualquier servidor MCP para capacidades extendidas   |
+| [Programación Cron](https://docs.withmerlin.online/docs/user-guide/features/cron)           | Tareas programadas con entrega a plataforma                  |
+| [Archivos de Contexto](https://docs.withmerlin.online/docs/user-guide/features/context-files) | Contexto de proyecto que da forma a cada conversación      |
+| [Arquitectura](https://docs.withmerlin.online/docs/developer-guide/architecture)            | Estructura del proyecto, bucle del agente, clases principales |
+| [Contribuir](https://docs.withmerlin.online/docs/developer-guide/contributing)              | Configuración de desarrollo, proceso de PR, estilo de código |
+| [Referencia de CLI](https://docs.withmerlin.online/docs/reference/cli-commands)             | Todos los comandos y flags                                   |
+| [Variables de Entorno](https://docs.withmerlin.online/docs/reference/environment-variables) | Referencia completa de variables de entorno                  |
 
 ---
 

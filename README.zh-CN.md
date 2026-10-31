@@ -5,7 +5,7 @@
 # Merlin Agent ☤
 
 <p align="center">
-  <a href="https://merlin-agent.epinoiahorizon.com/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentation"></a>
+  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
   <a href="https://epinoiahorizon.com"><img src="https://img.shields.io/badge/Built%20by-Epinoia%20Horizon-blueviolet?style=for-the-badge" alt="Built by Epinoia Horizon"></a>
@@ -36,16 +36,16 @@
 ## 快速安装
 
 ```bash
-curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
+curl -fsSL https://withmerlin.online/install.sh | bash
 ```
 
 支持 Linux、macOS 和 WSL2。安装程序会自动处理平台特定的配置。
 
-> **Android / Termux：** aarch64 设备可使用预发布的 APT 软件包，其中包含 Python、Node.js 和 TUI。请按照 [Termux 指南](https://merlin-agent.epinoiahorizon.com/docs/getting-started/termux)安装，不要使用桌面和服务器的安装脚本。
+> **Android / Termux：** aarch64 设备可使用预发布的 APT 软件包，其中包含 Python、Node.js 和 TUI。请按照 [Termux 指南](https://docs.withmerlin.online/docs/getting-started/termux)安装，不要使用桌面和服务器的安装脚本。
 >
 > **Windows：** 在 PowerShell 中运行：
 > ```powershell
-> iex (irm https://merlin-agent.epinoiahorizon.com/install.ps1)
+> iex (irm https://withmerlin.online/install.ps1)
 > ```
 > 安装完成后，可能需要重启终端，然后运行 `merlin` 开始对话。
 
@@ -72,7 +72,7 @@ merlin update       # 更新到最新版本
 merlin doctor       # 诊断问题
 ```
 
-📖 **[完整文档 →](https://merlin-agent.epinoiahorizon.com/docs/)**
+📖 **[完整文档 →](https://docs.withmerlin.online/docs/)**
 
 ---
 
@@ -89,7 +89,7 @@ Merlin 始终允许你使用任意服务商，这点不会改变。但如果你�
 merlin setup --portal
 ```
 
-它会通过 OAuth 登录、把 Atlas 设为推理服务商，并启用 Tool Gateway。随时用 `merlin portal info` 查看路由状态。完整说明见 [Tool Gateway 文档](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/tool-gateway)。
+它会通过 OAuth 登录、把 Atlas 设为推理服务商，并启用 Tool Gateway。随时用 `merlin portal info` 查看路由状态。完整说明见 [Tool Gateway 文档](https://docs.withmerlin.online/docs/user-guide/features/tool-gateway)。
 
 你随时可以按工具单独切回自己的 API Key — Gateway 是按工具粒度生效的，不是一刀切。
 
@@ -111,31 +111,31 @@ Merlin 有两种入口：用 `merlin` 启动终端 UI，或运行网关从 Teleg
 | 中断当前工作 | `Ctrl+C` 或发送新消息 | `/stop` 或发送新消息 |
 | 平台特定状态 | `/platforms` | `/status`、`/sethome` |
 
-完整命令列表请参阅 [CLI 指南](https://merlin-agent.epinoiahorizon.com/docs/user-guide/cli) 和 [消息网关指南](https://merlin-agent.epinoiahorizon.com/docs/user-guide/messaging)。
+完整命令列表请参阅 [CLI 指南](https://docs.withmerlin.online/docs/user-guide/cli) 和 [消息网关指南](https://docs.withmerlin.online/docs/user-guide/messaging)。
 
 ---
 
 ## 文档
 
-所有文档位于 **[merlin-agent.epinoiahorizon.com/docs](https://merlin-agent.epinoiahorizon.com/docs/)**：
+所有文档位于 **[docs.withmerlin.online/docs](https://docs.withmerlin.online/docs/)**：
 
 | 章节 | 内容 |
 |------|------|
-| [快速开始](https://merlin-agent.epinoiahorizon.com/docs/getting-started/quickstart) | 安装 → 设置 → 2 分钟内开始首次对话 |
-| [CLI 使用](https://merlin-agent.epinoiahorizon.com/docs/user-guide/cli) | 命令、快捷键、人格、会话 |
-| [配置](https://merlin-agent.epinoiahorizon.com/docs/user-guide/configuration) | 配置文件、提供商、模型、所有选项 |
-| [消息网关](https://merlin-agent.epinoiahorizon.com/docs/user-guide/messaging) | Telegram、Discord、Slack、WhatsApp、Signal、Home Assistant |
-| [安全](https://merlin-agent.epinoiahorizon.com/docs/user-guide/security) | 命令审批、DM 配对、容器隔离 |
-| [工具与工具集](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/tools) | 40+ 工具、工具集系统、终端后端 |
-| [技能系统](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/skills) | 过程记忆、技能中心、创建技能 |
-| [记忆](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/memory) | 持久记忆、用户画像、最佳实践 |
-| [MCP 集成](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/mcp) | 连接任意 MCP 服务器扩展能力 |
-| [定时调度](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/cron) | 定时任务与平台投递 |
-| [上下文文件](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/context-files) | 影响每次对话的项目上下文 |
-| [架构](https://merlin-agent.epinoiahorizon.com/docs/developer-guide/architecture) | 项目结构、代理循环、关键类 |
-| [贡献](https://merlin-agent.epinoiahorizon.com/docs/developer-guide/contributing) | 开发设置、PR 流程、代码风格 |
-| [CLI 参考](https://merlin-agent.epinoiahorizon.com/docs/reference/cli-commands) | 所有命令和标志 |
-| [环境变量](https://merlin-agent.epinoiahorizon.com/docs/reference/environment-variables) | 完整环境变量参考 |
+| [快速开始](https://docs.withmerlin.online/docs/getting-started/quickstart) | 安装 → 设置 → 2 分钟内开始首次对话 |
+| [CLI 使用](https://docs.withmerlin.online/docs/user-guide/cli) | 命令、快捷键、人格、会话 |
+| [配置](https://docs.withmerlin.online/docs/user-guide/configuration) | 配置文件、提供商、模型、所有选项 |
+| [消息网关](https://docs.withmerlin.online/docs/user-guide/messaging) | Telegram、Discord、Slack、WhatsApp、Signal、Home Assistant |
+| [安全](https://docs.withmerlin.online/docs/user-guide/security) | 命令审批、DM 配对、容器隔离 |
+| [工具与工具集](https://docs.withmerlin.online/docs/user-guide/features/tools) | 40+ 工具、工具集系统、终端后端 |
+| [技能系统](https://docs.withmerlin.online/docs/user-guide/features/skills) | 过程记忆、技能中心、创建技能 |
+| [记忆](https://docs.withmerlin.online/docs/user-guide/features/memory) | 持久记忆、用户画像、最佳实践 |
+| [MCP 集成](https://docs.withmerlin.online/docs/user-guide/features/mcp) | 连接任意 MCP 服务器扩展能力 |
+| [定时调度](https://docs.withmerlin.online/docs/user-guide/features/cron) | 定时任务与平台投递 |
+| [上下文文件](https://docs.withmerlin.online/docs/user-guide/features/context-files) | 影响每次对话的项目上下文 |
+| [架构](https://docs.withmerlin.online/docs/developer-guide/architecture) | 项目结构、代理循环、关键类 |
+| [贡献](https://docs.withmerlin.online/docs/developer-guide/contributing) | 开发设置、PR 流程、代码风格 |
+| [CLI 参考](https://docs.withmerlin.online/docs/reference/cli-commands) | 所有命令和标志 |
+| [环境变量](https://docs.withmerlin.online/docs/reference/environment-variables) | 完整环境变量参考 |
 
 ---
 
@@ -170,7 +170,7 @@ merlin claw migrate --overwrite  # 覆盖已有冲突
 
 ## 贡献
 
-欢迎贡献！请参阅 [贡献指南](https://merlin-agent.epinoiahorizon.com/docs/developer-guide/contributing) 了解开发设置、代码风格和 PR 流程。
+欢迎贡献！请参阅 [贡献指南](https://docs.withmerlin.online/docs/developer-guide/contributing) 了解开发设置、代码风格和 PR 流程。
 
 PM 引导、Python 3.14 测试环境和规范验证命令见
 [开发环境配置](CONTRIBUTING.md#development-setup)。
