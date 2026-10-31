@@ -592,3 +592,48 @@ class TestCacheHitBaselineReset:
         with patch.object(cli_mod, "CLI_CONFIG", {"display": {"status_bar": {"fields": ["model", "duration"]}}}):
             text = cli_obj._build_status_bar_text(width=80)
         assert "weekly-digest" not in text
+
+
+def _find_incantation_control(cli_obj):
+    """Build the grimoire widgets once and return the panel's FormattedTextControl."""
+    from prompt_toolkit.layout.controls import FormattedTextControl
+
+    widgets = cli_obj._grimoire_widgets()
+    for widget in widgets:
+        control = getattr(widget, "content", None)
+        if not isinstance(control, FormattedTextControl):
+            continue
+        fragments = control.text()
+        text = "".join(
+            frag[1] if isinstance(frag, (tuple, list)) and len(frag) > 1 else str(frag)
+            for frag in fragments
+        )
+        if "Incantation" in text:
+            return control
+    raise AssertionError("SPELLBOOK panel missing the ᛟ Incantation row")
+
+
+def _render_control(control) -> str:
+    fragments = control.text()
+    return "".join(
+        frag[1] if isinstance(frag, (tuple, list)) and len(frag) > 1 else str(frag)
+        for frag in fragments
+    )
+
+
+class TestGrimoireIncantationLive:
+    """The SPELLBOOK panel's ᛟ Incantation row must repaint live on model switches —
+    the panel is the single source of truth; a restart to resync it is a bug."""
+
+    def test_incantation_row_repaints_on_model_switch_without_layout_rebuild(self):
+        cli_obj = _make_cli(model="deepseek-v4.1-flash:1017")
+        control = _find_incantation_control(cli_obj)
+        assert "deepseek-v4.1-flash:1017" in _render_control(control)
+
+        # /model updates cli.model in place; the SAME panel control must follow
+        # on its next render without the layout being rebuilt.
+        cli_obj.model = "deepseek-v4-pro:0813"
+        text = _render_control(control)
+        assert "deepseek-v4-pro:0813" in text
+        assert "deepseek-v4.1-flash:1017" not in text
+
