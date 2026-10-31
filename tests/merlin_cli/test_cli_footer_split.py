@@ -82,7 +82,9 @@ def test_footer_survives_a_row_appearing_between_measure_and_paint(monkeypatch):
     _render_once(layout, kb, style, tty)
 
     assert "Window too small" not in tty.text
-    assert "❯" in tty.text, "the composer prompt must survive the frame"
+    from merlin_cli.skin_engine import get_active_skin
+    prompt_symbol = get_active_skin().get_branding("prompt_symbol") or "❯"
+    assert prompt_symbol in tty.text, "the composer prompt must survive the frame"
 
 
 def test_footer_split_clips_from_the_top_when_minimums_overflow():

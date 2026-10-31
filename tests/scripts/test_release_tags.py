@@ -79,8 +79,8 @@ def test_github_repo_parsed_from_ssh_and_https_urls(tmp_path, release_repo):
     assert release.remote_github_repo("origin") == "epinoiahorizon/Merlin-Agent"
     assert release.remote_github_repo("gitlab") is None
     subprocess.run(['git', 'config', 'url.https://github.com/fork/.pushInsteadOf',
-                    'https://github.com/AtlasResearch/'], cwd=tmp_path, check=True)
-    assert release.remote_github_repo('origin') == 'fork/merlin-agent'
+                    'https://github.com/epinoiahorizon/'], cwd=tmp_path, check=True)
+    assert release.remote_github_repo('origin') == 'fork/Merlin-Agent'
     subprocess.run(['git', 'config', 'remote.origin.pushurl', 'ssh://git@github.com:22/other/repo.git'],
                    cwd=tmp_path, check=True)
     assert release.remote_github_repo('origin') == 'other/repo'
