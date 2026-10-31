@@ -338,7 +338,7 @@ def _pending_deferred_desktop_app(desktop_dir: Path) -> Optional[Path]:
     """The parked staged pack named by the marker, if it is still on disk."""
     marker = desktop_dir / _DESKTOP_DEFERRED_MARKER
     try:
-        parked = json.loads(marker.read_text(encoding="utf-8")).get("staged")
+        parked = json.loads(marker.read_text(encoding="utf-8-sig")).get("staged")
     except (OSError, ValueError):
         return None
     if not parked:

@@ -114,7 +114,7 @@ _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
             "status_bar_critical": "#b71c1c",
             "shell_dollar": "#1a6fb0",
             "completion_menu_bg": "#fdf6e3",
-            "completion_menu_current_bg": "#eee8d5",
+            "completion_menu_current_bg": "#e8dcc8",
             "selection_bg": "#d8d0bb",
             "status_bar_bg": "#fdf6e3",
             "voice_status_bg": "#fdf6e3"},
@@ -213,7 +213,7 @@ _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
             "status_bar_critical": "#b71c1c",
             "shell_dollar": "#1a6fb0",
             "completion_menu_bg": "#fdf6e3",
-            "completion_menu_current_bg": "#eee8d5",
+            "completion_menu_current_bg": "#e8dcc8",
             "selection_bg": "#d8d0bb",
             "status_bar_bg": "#fdf6e3",
             "voice_status_bg": "#fdf6e3"},
@@ -273,7 +273,7 @@ _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
             "status_bar_bad": "#dc322f",
             "status_bar_critical": "#dc322f",
             "session_label": "#268bd2",
-            "session_border": "#073642",
+            "session_border": "#586e75",
             "completion_menu_bg": "#073642",
             "completion_menu_current_bg": "#0d4250",
             "selection_bg": "#0d4250",
@@ -302,7 +302,7 @@ _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
             "status_bar_critical": "#b71c1c",
             "shell_dollar": "#1a6fb0",
             "completion_menu_bg": "#fdf6e3",
-            "completion_menu_current_bg": "#eee8d5",
+            "completion_menu_current_bg": "#e8dcc8",
             "selection_bg": "#d8d0bb",
             "status_bar_bg": "#fdf6e3",
             "voice_status_bg": "#fdf6e3"},
@@ -633,6 +633,11 @@ def _build_skin_config(data: Dict[str, Any]) -> SkinConfig:
         return {}
 
     def merged(key: str) -> Dict[str, Any]:
+        if key == "branding":
+            # agent_tui_title is skin identity, not a palette default: inheriting it
+            # would print the default skin's title on every other skin's banner.
+            base = {k: v for k, v in default.get(key, {}).items() if k != "agent_tui_title"}
+            return {**base, **section(key)}
         return {**default.get(key, {}), **section(key)}
     # Paired palettes are NOT merged over the default skin's blocks: an empty block means
     # "no hand-tuned variant for that polarity" and consumers (the TUI) fall back to `colors`
