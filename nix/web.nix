@@ -4,6 +4,7 @@ merlinNpmLib.buildNpmPackage {
   dirs = [
     "web"
     "apps/shared"
+    "apps/vendor/merlin-ui"
     "scripts/build/web.mjs"
     "scripts/build/freshness.mjs"
     "scripts/build/frontend-common.mjs"

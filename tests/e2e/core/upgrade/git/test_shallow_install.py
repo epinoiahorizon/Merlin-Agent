@@ -1,7 +1,8 @@
 """Shallow and stale installs through the real ``merlin update``.
 
-N-1's ``scripts/install.sh`` clones ``--depth 1 --single-branch``: that is the checkout every
-N-1 user has. Three installs run concurrently over smart HTTP:
+N-1's ``scripts/install.sh`` now clones ``--filter=tree:0``: the depth-1 shape is seeded
+explicitly (``preclone``) for installs the pre-tree:0 installer left. Three installs run
+concurrently over smart HTTP:
 
 * ``depth1``: N-1's own depth-1 install, updated to HEAD and then to one more release. The first
   update must not download the whole project history to move one release (#123254: on a real
@@ -32,7 +33,8 @@ ORPHAN = "orphan divergence"
 
 
 def _depth1(root) -> dict:
-    cm, w = G.start_world(root / "depth1", base=G.n1_base(), installer_ref=G.n1_tag())
+    cm, w = G.start_world(root / "depth1", base=G.n1_base(), installer_ref=G.n1_tag(),
+                          preclone=["--depth", "1", "--single-branch"])
     run = {"cm": cm, "w": w, "shape0": w.install_shape}
     w.set_main(I.head_sha())
     run["mark1"] = w.srv.mark()
@@ -46,7 +48,8 @@ def _depth1(root) -> dict:
 
 
 def _checked(root) -> dict:
-    cm, w = G.start_world(root / "checked", base=G.n1_base(), installer_ref=G.n1_tag())
+    cm, w = G.start_world(root / "checked", base=G.n1_base(), installer_ref=G.n1_tag(),
+                          preclone=["--depth", "1", "--single-branch"])
     run = {"cm": cm, "w": w, "shape0": w.install_shape, "checks": []}
     between = I.git("rev-list", "--first-parent", f"{G.n1_base()}..{I.head_sha()}", cwd=I.H.WORKTREE).split()
     for k in (len(between) * 3 // 4, len(between) // 2, len(between) // 4):

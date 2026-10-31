@@ -163,7 +163,7 @@ def test_page_fields_screenshots_readme_url_and_maintainer_slug(mod, tmp_path):
     assert entries["gh"]["readme"] is True
     assert entries["gh"]["readmeUrl"] == (
         "https://raw.githubusercontent.com/example/gh/38fe0fb53eff98d477f807432e965429e665ca33/catalog/README.md")
-    assert entries["gh"]["maintainerSlug"] == "atlas-research"
+    assert entries["gh"]["maintainerSlug"] == "epinoia-horizon"
     assert entries["gl"]["readmeUrl"] == "https://gitlab.com/group/proj/-/raw/38fe0fb53eff98d477f807432e965429e665ca33/README.md"
     assert entries["other"]["readme"] is False and entries["other"]["readmeUrl"] == ""
     assert entries["plain"]["readme"] is True and entries["plain"]["readmeUrl"].endswith("/README.md")

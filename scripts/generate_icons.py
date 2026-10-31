@@ -434,8 +434,10 @@ def compose_svg(art: IconArt, girl: str, bg: str) -> str:
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}">\n'
         f'  <defs><clipPath id="icon-silhouette">{clip}</clipPath></defs>\n'
         f"  {inner.strip()}\n"
-        f"{badge}"
         f'  <g clip-path="url(#icon-silhouette)">{ET.tostring(portrait, encoding="unicode")}</g>\n'
+        # The SHA badge paints LAST: the mark's plate/hat must never hide the build
+        # prefix (it is the readable identity of a commit icon).
+        f"{badge}"
         "</svg>\n"
     )
 

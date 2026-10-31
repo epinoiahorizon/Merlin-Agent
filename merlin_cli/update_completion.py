@@ -136,7 +136,7 @@ def _prepare(request: dict, request_path: Path, result_path: Path) -> int:
     import pm
     from pm import receipt
     from pm.client import ensure_tools_for_sync
-    from pm.environments import activation_environment, project_python
+    from pm.environments import activation_environment, project_python, runtime_facts_path
 
     root = Path(request["source"])
     update_id = request["receipt"]["update_id"]
@@ -151,8 +151,13 @@ def _prepare(request: dict, request_path: Path, result_path: Path) -> int:
             # This file runs from the new tree, so its lockfile carries the new
             # pins; tools (incl. bumped uv/python) land before the sync uses them.
             ensure_tools_for_sync()
+            # Main-era installs have no PM ledger: carry the extras their venv held so
+            # the first generation keeps the user's features (messaging SDKs, MCP client).
+            # Established PM installs retain their recorded extras instead.
+            from pm.extras import legacy_selection
+            extras = legacy_selection(root) if not runtime_facts_path(root).is_file() else None
             # An update never fails because of a plugin: misfits are disabled and reported.
-            pm.sync_venv(explicit=True, project_root=root, evict_incompatible_plugins=True)
+            pm.sync_venv(extras, explicit=True, project_root=root, evict_incompatible_plugins=True)
             collect_superseded_generations(root)
         finally:
             request["pm_receipt"] = receipt.last_for_update(update_id)

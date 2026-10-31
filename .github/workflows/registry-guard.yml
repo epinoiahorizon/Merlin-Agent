@@ -13,6 +13,7 @@ name: Registry resolution guard
 
 on:
   push:
+    branches: [main]
     paths:
       - 'package.json'
       - 'package-lock.json'
