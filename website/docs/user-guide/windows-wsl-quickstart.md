@@ -101,7 +101,7 @@ The `metadata` mount option above is important — without it, files on `/mnt/c/
 Once you have a WSL2 shell open:
 
 ```bash
-curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
+curl -fsSL https://withmerlin.online/install.sh | bash
 source ~/.bashrc
 merlin
 ```

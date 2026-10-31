@@ -179,7 +179,7 @@ merlin-agent/
 ├── skills/                   # Habilidades incluidas (copiadas a ~/.merlin/skills/ en la instalación)
 ├── optional-skills/          # Habilidades opcionales oficiales (descubribles vía hub, no activadas por defecto)
 ├── tests/                    # Suite de tests
-├── website/                  # Sitio de documentación (merlin-agent.epinoiahorizon.com)
+├── website/                  # Sitio de documentación (withmerlin.online)
 │
 ├── cli-config.yaml.example   # Configuración de ejemplo (copiada a ~/.merlin/config.yaml)
 └── AGENTS.md                 # Guía de desarrollo para asistentes de codificación IA

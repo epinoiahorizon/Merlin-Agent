@@ -17,7 +17,7 @@ platform-gated features are supported), see **[Platform Support](./platform-supp
 ### Desktop packages on macOS or Windows
 
 Download the package for your platform from the
-[Merlin website](https://merlin-agent.epinoiahorizon.com/).
+[Merlin website](https://withmerlin.online/).
 
 - **Windows:** download **`Merlin-Setup-0.1.5-x64.exe`** from the
   [releases page](https://github.com/epinoiahorizon/Merlin-Agent/releases/download/v0.1.0-win-preview/Merlin-Setup-0.1.5-x64.exe) (or
@@ -53,14 +53,14 @@ For a command-line only install without Merlin Desktop, run:
 
 #### Linux / macOS / WSL2
 ```bash
-curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
+curl -fsSL https://withmerlin.online/install.sh | bash
 ```
 
 #### Windows (native)
 
 Run in powershell:
 ```powershell
-iex (irm https://merlin-agent.epinoiahorizon.com/install.ps1) 
+iex (irm https://withmerlin.online/install.ps1) 
 ```
 
 If you want to install & run Merlin Desktop after a command-line only install, simply run
@@ -202,7 +202,7 @@ configuration, and launcher must belong to that user.
 2. As the service user, run the regular installer:
 
    ```bash
-   curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
+   curl -fsSL https://withmerlin.online/install.sh | bash
    ```
 
 3. Add the actual launcher directory to the service user's shell environment:
