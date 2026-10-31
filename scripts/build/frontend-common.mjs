@@ -41,8 +41,13 @@ function developerOutput(source, out) {
     // (`build/native-deps-darwin-arm64`, `build/native-deps-win32-x64`). Same
     // compiler, same home — the exact-path list missed them, so a macOS package
     // run died on "Output must be outside source or in a supported generated
-    // destination" before it could produce a DMG.
-    return resolved === root || resolved.startsWith(`${root}-`)
+    // destination" before it could produce a DMG. Only that one builder ever
+    // stages suffixed trees, so the broad `startsWith(root + '-')` rule is
+    // narrowed to exactly those per-platform/arch names; a broad suffix rule
+    // also admitted lookalike dirs (web_dist-copy, dist-copy, native-deps-copy).
+    return resolved === root ||
+      (name === 'apps/desktop/build/native-deps' &&
+        /^-(?:darwin|win32|linux)-(?:x64|arm64|ia32|armv7l)$/.test(resolved.slice(root.length)))
   })
 }
 

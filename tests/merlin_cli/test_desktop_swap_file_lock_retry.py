@@ -146,7 +146,7 @@ def test_locked_promotion_parks_the_verified_build_instead_of_failing_the_update
     assert live_exe.read_text(encoding="utf-8") == "old"
     parked = main_desktop._pending_deferred_desktop_app(desktop_dir)
     assert parked is not None and parked.is_dir()
-    assert (parked / "win-unpacked" / "Merlin.exe").read_text(encoding="utf-8") == "new"
+    assert (parked / _packaged_exe_rel()).read_text(encoding="utf-8") == "new"
     out = capsys.readouterr().out
     assert "parked at:" in out and "promoted automatically" in out
 
