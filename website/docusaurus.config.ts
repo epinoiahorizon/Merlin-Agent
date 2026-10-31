@@ -8,7 +8,7 @@ const config: Config = {
   tagline: 'The self-improving AI agent by Epinoia Horizon',
   favicon: 'img/favicon.ico',
 
-  url: 'https://merlin-agent.epinoiahorizon.com',
+  url: 'https://docs.withmerlin.online',
   baseUrl: '/docs/',
 
   organizationName: 'epinoiahorizon',
