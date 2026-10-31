@@ -58,9 +58,9 @@ def test_pool_subdir_is_in_the_path_and_the_index(tmp_path):
     make_deb(pool / "merlin-agent_0.21.5_aarch64.deb", "merlin-agent", "0.21.5-1")
     out = tmp_path / "repo"
     assert _stage(pool, out, "merlin-stable", pool_subdir="rc.2-v0.21.5") == 3
-    deb = out / "pool" / "rc.2-v0.21.5" / "h" / "merlin-agent_0.21.5_aarch64.deb"
+    deb = out / "pool" / "rc.2-v0.21.5" / "m" / "merlin-agent_0.21.5_aarch64.deb"
     assert deb.is_file()
-    assert _pool_keys(out, "merlin-stable") == {"pool/rc.2-v0.21.5/h/merlin-agent_0.21.5_aarch64.deb"}
+    assert _pool_keys(out, "merlin-stable") == {"pool/rc.2-v0.21.5/m/merlin-agent_0.21.5_aarch64.deb"}
 
 
 def test_no_pool_subdir_keeps_the_plain_layout(tmp_path):
@@ -69,8 +69,8 @@ def test_no_pool_subdir_keeps_the_plain_layout(tmp_path):
     make_deb(pool / "merlin-agent_1.2.3_aarch64.deb", "merlin-agent", "1.2.3-1")
     out = tmp_path / "repo"
     assert _stage(pool, out, "merlin-canary") == 3
-    assert (out / "pool" / "h" / "merlin-agent_1.2.3_aarch64.deb").is_file()
-    assert _pool_keys(out, "merlin-canary") == {"pool/h/merlin-agent_1.2.3_aarch64.deb"}
+    assert (out / "pool" / "m" / "merlin-agent_1.2.3_aarch64.deb").is_file()
+    assert _pool_keys(out, "merlin-canary") == {"pool/m/merlin-agent_1.2.3_aarch64.deb"}
 
 
 def test_two_attempts_of_one_version_use_different_pool_keys(tmp_path):

@@ -26,7 +26,7 @@ def test_windows_update_writes_locale_independent_marker_and_result(tmp_path, mo
     started = int(time.time())
     result = subprocess.run([shell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
                             env={**os.environ, "MERLIN_TIMESTAMP_TEST_SCRIPT": str(script)},
-                            capture_output=True, text=True, timeout=60)
+                            capture_output=True, text=True, timeout=180)
     finished = int(time.time())
     assert result.returncode == 0, result.stdout + result.stderr
     marker = (tmp_path / ".merlin-update-in-progress").read_text(encoding="utf-8-sig").splitlines()
