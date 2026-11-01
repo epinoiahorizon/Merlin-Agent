@@ -443,6 +443,42 @@ class TestStatusBarFieldConfig:
         assert "%" in text  # explicit opt-in wins
 
 
+class TestGrimoireLiveModel:
+    """ᛟ Incantation reads the LIVE model on every repaint, not a layout-build snapshot.
+
+    The TUI layout is built once at startup; a mid-session /model switch must show the
+    new model on the very next repaint without any layout rebuild."""
+
+    def test_incantation_repaints_after_mid_session_model_switch(self):
+        cli_obj = _make_cli("deepseek-v4.1-flash:1017")
+        panel, _slots = cli_obj._grimoire_widgets()
+        text_fn = panel.content.text  # FormattedTextControl callable, re-evaluated per repaint
+
+        def rendered():
+            return "".join(seg[1] for seg in text_fn())
+
+        assert "deepseek-v4.1-flash:1017" in rendered()
+
+        # What /model does to the live CLI: the attribute updates, the layout does not rebuild.
+        cli_obj.model = "deepseek-v4-pro:0813"
+
+        after = rendered()
+        assert "deepseek-v4-pro:0813" in after
+        assert "deepseek-v4.1-flash:1017" not in after
+
+    def test_runes_refresh_with_live_skill_bundles(self):
+        """Same capture class as the model: ᛞ Runes must not freeze at build time."""
+        cli_obj = _make_cli()
+        panel, _slots = cli_obj._grimoire_widgets()
+        text_fn = panel.content.text
+
+        def rendered():
+            return "".join(seg[1] for seg in text_fn())
+
+        with patch.object(cli_mod, "get_skill_bundles", return_value={"a": None, "b": None, "c": None}):
+            after = rendered()
+        assert "3 active skills" in after
+
 
 class TestCacheHitRate:
     def test_cache_hit_rate_shown_in_wide_terminal(self):
