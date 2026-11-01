@@ -61,14 +61,14 @@ For aarch64 Android devices, use the separate [Termux APT guide](./termux.md).
 
 #### Linux / macOS / WSL2
 ```bash
-curl -fsSL https://withmerlin.online/install.sh | bash
+curl -fsSL https://epinoiahorizon.com/install.sh | bash
 ```
 
 #### Windows (native)
 
 Run in powershell:
 ```powershell
-iex (irm https://withmerlin.online/install.ps1) 
+iex (irm https://epinoiahorizon.com/install.ps1) 
 ```
 
 After it finishes, reload your shell:

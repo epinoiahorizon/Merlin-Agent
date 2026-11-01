@@ -42,7 +42,7 @@
 <div dir="ltr">
 
 ```bash
-curl -fsSL https://withmerlin.online/install.sh | bash
+curl -fsSL https://epinoiahorizon.com/install.sh | bash
 ```
 
 </div>
@@ -56,7 +56,7 @@ curl -fsSL https://withmerlin.online/install.sh | bash
 <div dir="ltr">
 
 ```powershell
-iex (irm https://withmerlin.online/install.ps1)
+iex (irm https://epinoiahorizon.com/install.ps1)
 ```
 
 </div>

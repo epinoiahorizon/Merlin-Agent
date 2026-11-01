@@ -41,7 +41,7 @@ Usa cualquier modelo que quieras — [Atlas Portal](https://portal.epinoiahorizo
 ### Linux, macOS, WSL2
 
 ```bash
-curl -fsSL https://withmerlin.online/install.sh | bash
+curl -fsSL https://epinoiahorizon.com/install.sh | bash
 ```
 
 ### Windows (nativo, PowerShell)
@@ -51,7 +51,7 @@ curl -fsSL https://withmerlin.online/install.sh | bash
 Ejecuta esto en PowerShell:
 
 ```powershell
-iex (irm https://withmerlin.online/install.ps1)
+iex (irm https://epinoiahorizon.com/install.ps1)
 ```
 
 El instalador de código fuente usa PM para Python 3.14, Node.js, npm,
