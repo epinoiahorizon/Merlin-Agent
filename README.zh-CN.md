@@ -17,9 +17,9 @@
 >
 > 本仓库的 git 历史自 2026-09-30 的 fork 导入开始，不含上游历史。
 
-**Merlin Agent 是该开源代理的桌面打包版本，由 [Epinoia Horizon](https://epinoiahorizon.com) 制作与支持。** 从经验中创建技能、在使用中改进、检索过往对话——这些都是上游核心，已在上方注明。Merlin 是其外围的发行版：无需终端的安装程序与应用窗口、为不想收集五个 API 密钥的人准备的 [Atlas Portal](https://portal.epinoiahorizon.com)、由我们负责的 Windows 支持路径，以及我们自己的修复。
+**Merlin Agent 是该开源代理的桌面打包版本，由 [Epinoia Horizon](https://epinoiahorizon.com) 制作与支持。** 从经验中创建技能、在使用中改进、检索过往对话——这些都是上游核心，已在上方注明。Merlin 是其外围的发行版：无需终端的安装程序与应用窗口、由我们负责的 Windows 支持路径，以及我们自己的修复。
 
-支持任意模型——[Atlas Portal](https://portal.epinoiahorizon.com)、[OpenRouter](https://openrouter.ai)（200+ 模型）、[NVIDIA NIM](https://build.nvidia.com)（Nemotron）、[小米 MiMo](https://platform.xiaomimimo.com)、[z.ai/GLM](https://z.ai)、[Kimi/Moonshot](https://platform.moonshot.ai)、[MiniMax](https://www.minimax.io)、[Hugging Face](https://huggingface.co)、OpenAI，或自定义端点。使用 `merlin model` 即可切换——无需改代码，无锁定。
+支持任意模型——[OpenRouter](https://openrouter.ai)（200+ 模型）、[NVIDIA NIM](https://build.nvidia.com)（Nemotron）、[小米 MiMo](https://platform.xiaomimimo.com)、[z.ai/GLM](https://z.ai)、[Kimi/Moonshot](https://platform.moonshot.ai)、[MiniMax](https://www.minimax.io)、[Hugging Face](https://huggingface.co)、OpenAI，或自定义端点。使用 `merlin model` 即可切换——无需改代码，无锁定。
 
 <table>
 <tr><td><b>真正的终端界面</b></td><td>完整的 TUI，支持多行编辑、斜杠命令自动补全、对话历史、中断重定向和流式工具输出。</td></tr>
@@ -73,25 +73,6 @@ merlin doctor       # 诊断问题
 ```
 
 📖 **[完整文档 →](https://docs.withmerlin.online/docs/)**
-
----
-
-## 省去到处收集 API Key — Atlas Portal
-
-Merlin 始终允许你使用任意服务商，这点不会改变。但如果你不想为模型、网页搜索、图像生成、TTS、云浏览器分别去申请五个不同的 API Key，**[Atlas Portal](https://portal.epinoiahorizon.com)** 用一个订阅就能覆盖全部：
-
-- **300+ 模型** — 用 `/model <name>` 随时切换
-- **Tool Gateway** — 网页搜索、图像生成（FAL）、文本转语音（OpenAI）、云浏览器（Browser Use），全部通过订阅托管。无需额外注册任何账户。
-
-全新安装时一条命令即可：
-
-```bash
-merlin setup --portal
-```
-
-它会通过 OAuth 登录、把 Atlas 设为推理服务商，并启用 Tool Gateway。随时用 `merlin portal info` 查看路由状态。完整说明见 [Tool Gateway 文档](https://docs.withmerlin.online/docs/user-guide/features/tool-gateway)。
-
-你随时可以按工具单独切回自己的 API Key — Gateway 是按工具粒度生效的，不是一刀切。
 
 ---
 
