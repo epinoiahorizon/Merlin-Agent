@@ -20,9 +20,9 @@
 >
 > Git history in this repository starts at the fork import (2026-09-30); upstream's history is not mirrored here.
 
-**Merlin Agent is the self-improving AI agent made and supported by [Epinoia Horizon](https://epinoiahorizon.com)** — a packaged distribution built on the open-source Hermes Agent core (MIT, © 2025 Nous Research, credited above). It creates skills from experience, improves them during use, searches its own past conversations and keeps a deepening model of who you are across sessions. Merlin is the distribution around that core: an installer and an app window that need no terminal, [Atlas Portal](https://portal.epinoiahorizon.com) for people who would rather not collect five API keys, a Windows-focused support path that ends at us, and our own fixes on top.
+**Merlin Agent is the self-improving AI agent made and supported by [Epinoia Horizon](https://epinoiahorizon.com)** — a packaged distribution built on the open-source Hermes Agent core (MIT, © 2025 Nous Research, credited above). It creates skills from experience, improves them during use, searches its own past conversations and keeps a deepening model of who you are across sessions. Merlin is the distribution around that core: an installer and an app window that need no terminal, a Windows-focused support path that ends at us, and our own fixes on top.
 
-Use any model you want — Atlas Portal, OpenRouter, OpenAI, your own endpoint, and [many others](https://docs.withmerlin.online/docs/integrations/providers). Switch with `merlin model` — no code changes, no lock-in.
+Use any model you want — OpenRouter, OpenAI, your own endpoint, and [many others](https://docs.withmerlin.online/docs/integrations/providers). Switch with `merlin model` — no code changes, no lock-in.
 
 <table>
 <tr><td><b>A real terminal interface</b></td><td>Full TUI with multiline editing, slash-command autocomplete, conversation history, interrupt-and-redirect, and streaming tool output.</td></tr>
@@ -43,7 +43,6 @@ We do not maintain a competing agent core. Merlin tracks upstream and ports its 
 Changed in this distribution:
 
 - **Brand and packaging** — name, icon, palette, docs site and domain, README copy, installer and store metadata.
-- **Atlas Portal** — a hosted model and tool gateway wired into setup (`merlin setup --portal`), with its own transport and rate guard (`agent/atlas_wire.py`, `agent/atlas_rate_guard.py`). Entirely ours, independent of upstream.
 - **Desktop runtime hardening** — backend discovery and exit recovery, host attach and spawn gating, pool limits and reclamation in the Electron app.
 - **Policy seal** — memory and skills stay dormant unless you invoke them explicitly; the seal lives in `agent/prompt_builder.py`.
 - **Our defaults, our support** — a curated default config, this issue tracker, and the Windows support path.
@@ -147,25 +146,6 @@ merlin doctor       # Diagnose any issues
 ```
 
 📖 **[Full documentation →](https://docs.withmerlin.online/docs/)**
-
----
-
-## Skip the API-key collection — Atlas Portal
-
-Merlin works with whatever provider you want — that's not changing. But if you'd rather not collect five separate API keys for the model, web search, image generation, TTS, and a cloud browser, **[Atlas Portal](https://portal.epinoiahorizon.com)** covers all of them under one subscription:
-
-- **300+ models** — pick any of them with `/model <name>`
-- **Tool Gateway** — web search, image generation (FAL), text-to-speech (OpenAI), cloud browser (Browser Use), all routed through your sub. No extra accounts.
-
-One command from a fresh install:
-
-```bash
-merlin setup --portal
-```
-
-That logs you in via OAuth, sets Atlas as your provider, and turns on the Tool Gateway. Check what's wired up any time with `merlin portal info`. Full details on the [Tool Gateway docs page](https://docs.withmerlin.online/docs/user-guide/features/tool-gateway).
-
-You can still bring your own keys per-tool whenever you want — the gateway is per-backend, not all-or-nothing.
 
 ---
 
