@@ -27,6 +27,9 @@ from merlin_cli.proxy.metering import ModelPrice
 REFERENCE_URL = "https://openrouter.ai/api/v1/models"
 DEFAULT_MARKUP_BPS = 1500  # 15 %
 MIN_MARGIN_MICROS_PER_M = 1000  # never sell closer than $0.001 / 1M to the wholesale rate
+# Default UA for discovery/probing. Relay hosts behind Cloudflare can ban non-browser fingerprints
+# (error 1010) before the API key is even checked, so a per-upstream ``user_agent`` overrides this.
+DEFAULT_USER_AGENT = "merlin-proxy/1.0"
 
 _SUFFIX_PATTERNS = (
     re.compile(r"[-_]?(\d{8})$"),      # -20260115 / _0605
@@ -130,10 +133,10 @@ def load_reference(source: str | Path | None = None, timeout_s: float = 25.0) ->
 
 
 # -- discovery -------------------------------------------------------------------------------
-def fetch_models(base_url: str, api_key: str = "", timeout_s: float = 20.0) -> list[str]:
+def fetch_models(base_url: str, api_key: str = "", timeout_s: float = 20.0, user_agent: str = "") -> list[str]:
     """Model ids served by an OpenAI-compatible upstream (``GET {base}/models``)."""
     url = f"{base_url.rstrip('/')}/models"
-    headers = {"Accept": "application/json", "User-Agent": "merlin-proxy-catalog/1.0"}
+    headers = {"Accept": "application/json", "User-Agent": user_agent or DEFAULT_USER_AGENT}
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
     request = urllib.request.Request(url, headers=headers)
@@ -228,7 +231,9 @@ def sync_prices(
     for spec in specs:
         api_key = spec.keys[0] if getattr(spec, "keys", ()) else ""
         try:
-            models = fetch_models(spec.base_url, api_key)
+            models = fetch_models(
+                spec.base_url, api_key, user_agent=getattr(spec, "user_agent", "") or ""
+            )
         except RuntimeError as exc:
             report.entries.append(CatalogEntry(spec.name, "*", None, reason=f"discovery failed: {exc}"))
             continue

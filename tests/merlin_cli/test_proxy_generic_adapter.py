@@ -115,6 +115,21 @@ def test_env_overrides_the_default_upstream(tmp_path, monkeypatch) -> None:
     assert adapter.route("unlisted-model").name == "second"
 
 
+def test_user_agent_is_per_upstream(tmp_path) -> None:
+    cfg = {
+        "upstreams": [
+            {"name": "waf", "base_url": "https://waf/v1", "api_key": "k", "models": ["waf-*"],
+             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/141.0.0.0"},
+            {"name": "plain", "base_url": "https://plain/v1", "api_key": "k", "models": ["plain-*"]},
+        ]
+    }
+    adapter = GenericUpstreamAdapter(_cfg(tmp_path, cfg))
+    assert adapter.request_overrides("waf-model") == {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/141.0.0.0"
+    }
+    assert adapter.request_overrides("plain-model") == {}
+
+
 def test_allowed_paths_are_the_union(tmp_path) -> None:
     adapter = GenericUpstreamAdapter(_cfg(tmp_path, TWO_UPSTREAMS))
     assert adapter.allowed_paths == frozenset({"/chat/completions", "/models", "/completions", "/embeddings", "/responses"})

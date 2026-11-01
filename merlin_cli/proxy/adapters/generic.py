@@ -74,6 +74,7 @@ class UpstreamSpec:
     models: tuple[str, ...]
     allowed_paths: FrozenSet[str]
     is_default: bool
+    user_agent: str = ""
 
     @property
     def has_key(self) -> bool:
@@ -173,6 +174,7 @@ def parse_specs(raw: dict, source: Path) -> tuple[list[UpstreamSpec], str]:
                 models=tuple(str(m) for m in (entry.get("models") or [])),
                 allowed_paths=frozenset(entry.get("allowed_paths") or DEFAULT_ALLOWED_PATHS),
                 is_default=bool(entry.get("default")),
+                user_agent=_expand_env(str(entry.get("user_agent") or "")).strip(),
             )
         )
     default_name = str(raw.get("default") or "").strip()
@@ -275,6 +277,14 @@ class GenericUpstreamAdapter(UpstreamAdapter):
 
     def get_credential(self) -> UpstreamCredential:
         return self.get_credential_for("")
+
+    def request_overrides(self, model: str = "") -> dict:
+        """Apply this upstream's ``user_agent`` to forwarded requests (WAF-safe UA)."""
+        try:
+            spec = self.route(model)
+        except UpstreamConfigError:
+            return {}
+        return {"User-Agent": spec.user_agent} if spec.user_agent else {}
 
     def get_credential_for(self, model: str = "") -> UpstreamCredential:
         spec = self.route(model)

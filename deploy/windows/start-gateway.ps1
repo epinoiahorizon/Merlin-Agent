@@ -49,6 +49,20 @@ $env:MERLIN_PROXY_QRIS_FILE = $qrisPath
 $env:MERLIN_PROXY_ADMIN_TOKEN = (Get-Content $tokenPath -Raw).Trim()
 $env:PYTHONUNBUFFERED = '1'
 
+# Rahasia upstream (API key relay) hidup di gateway.env, bukan di proxy_upstreams.json — file itu
+# boleh dibaca siapa pun yang menginspeksi konfigurasi, yang ini tidak.
+$envFile = Join-Path $DataDir 'gateway.env'
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        if ($_ -match '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$') {
+            Set-Item -Path ("Env:" + $Matches[1]) -Value $Matches[2].Trim()
+        }
+    }
+    Write-Host "gateway.env dimuat: $envFile"
+} else {
+    Write-Warning "gateway.env tidak ada — upstream dengan api_key_env akan gagal (401)."
+}
+
 $logDir = Join-Path $DataDir 'logs'
 if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
 
