@@ -44,15 +44,14 @@ foreach ($required in @($cloudflared, $configPath, $startScript)) {
     if (-not (Test-Path $required)) { throw "Tidak ditemukan: $required" }
 }
 
-Write-Host "1/3 Memasang cloudflared sebagai service..." -ForegroundColor Cyan
+Write-Host "1/3 Melepas service cloudflared (tunnel kini dijalankan oleh task)..." -ForegroundColor Cyan
 # Matikan proses tunnel yang berjalan manual supaya tidak dobel koneksi.
 Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 2
 
 # cloudflared menulis log ke stderr. Dengan $ErrorActionPreference='Stop', Windows PowerShell 5.1
-# memperlakukan stderr program native sebagai error fatal dan skrip berhenti di langkah pertama
-# (kejadian nyata: uninstall sukses tapi skrip abort, tunnel tertinggal mati). Panggilan native
-# karena itu dijalankan dengan preferensi 'Continue' dan diperiksa lewat $LASTEXITCODE.
+# memperlakukan stderr program native sebagai error fatal dan skrip berhenti
+# (kejadian nyata: uninstall sukses tapi skrip abort, tunnel tertinggal mati).
 function Invoke-Cloudflared {
     param([string[]]$Arguments)
     $previous = $ErrorActionPreference
@@ -66,56 +65,26 @@ function Invoke-Cloudflared {
     return @{ Output = $output; Code = $code }
 }
 
-$uninstall = Invoke-Cloudflared -Arguments @('--config', $configPath, 'service', 'uninstall')
-Write-Host ("   uninstall: exit {0}" -f $uninstall.Code) -ForegroundColor DarkGray
-
-$install = Invoke-Cloudflared -Arguments @('--config', $configPath, 'service', 'install')
-if ($install.Code -ne 0) {
-    $install.Output | Select-Object -Last 6 | ForEach-Object { Write-Host "   $_" -ForegroundColor Red }
-    throw "cloudflared service install gagal (exit $($install.Code))."
-}
-Set-Service -Name cloudflared -StartupType Automatic
-
-# cloudflared 2025.8.1 memasang service TANPA --config: ImagePath-nya hanya cloudflared.exe, dan
-# service (LocalSystem) membaca config dari profil SYSTEM. Akibatnya service tampak "Running" tapi
-# tidak tersambung ke Cloudflare (client melihat 530). Solusinya: sediakan config.yml + kredensial
-# di lokasi yang dibaca service.
-$systemCf = Join-Path $env:WINDIR 'System32\config\systemprofile\.cloudflared'
-New-Item -ItemType Directory -Force -Path $systemCf | Out-Null
-$credsSource = Get-ChildItem -Path (Join-Path $env:USERPROFILE '.cloudflared') -Filter '*.json' -ErrorAction SilentlyContinue |
-    Where-Object { $_.Name -match '^[0-9a-f-]{36}\.json$' } | Select-Object -First 1
-if (-not $credsSource) { throw "Kredensial tunnel tidak ditemukan di $env:USERPROFILE\.cloudflared\*.json" }
-$credsTarget = Join-Path $systemCf 'creds.json'
-Copy-Item $credsSource.FullName $credsTarget -Force
-
-$configText = Get-Content $configPath -Raw
-$configText = [regex]::Replace($configText, '(?m)^credentials-file:.*$', ('credentials-file: ' + $credsTarget))
-$targetConfig = Join-Path $systemCf 'config.yml'
-# Tulis TANPA BOM: Set-Content -Encoding UTF8 di PowerShell 5.1 menyisipkan BOM, dan parser YAML
-# cloudflared menolaknya — service lalu mati segera setelah start ("Stopped" tanpa pesan jelas).
-$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText($targetConfig, $configText, $utf8NoBom)
-Write-Host ("   config service: {0}" -f $targetConfig) -ForegroundColor DarkGray
-# Jangan pakai Restart-Service -Force: ia menunggu tanpa batas ketika service lambat berhenti
-# (gejala nyata: "Waiting for service ... to stop" berulang sampai jendela macet). Tunggu maksimal
-# 15 detik, lalu matikan prosesnya.
-sc.exe stop cloudflared | Out-Null
-for ($i = 0; $i -lt 15; $i++) {
-    if ((Get-Service cloudflared -ErrorAction SilentlyContinue).Status -eq 'Stopped') { break }
-    Start-Sleep -Seconds 1
-}
-if ((Get-Service cloudflared -ErrorAction SilentlyContinue).Status -ne 'Stopped') {
-    Write-Host "   service tidak mau stop — memaksa berhenti" -ForegroundColor DarkYellow
+# Service cloudflared 2025.8.1 memasang dirinya TANPA --config, dan sebagai LocalSystem ia membaca
+# config dari profil SYSTEM — hasilnya "Running" tapi tidak tersambung (Cloudflare 530). Tunnel
+# sekarang dijalankan sebagai proses biasa oleh Scheduled Task, jadi service lama dilepas agar tidak
+# berebut tunnel yang sama.
+if (Get-Service cloudflared -ErrorAction SilentlyContinue) {
+    $uninstall = Invoke-Cloudflared -Arguments @('--config', $configPath, 'service', 'uninstall')
+    Write-Host ("   uninstall service: exit {0}" -f $uninstall.Code) -ForegroundColor DarkGray
+    for ($i = 0; $i -lt 10; $i++) {
+        if (-not (Get-Service cloudflared -ErrorAction SilentlyContinue)) { break }
+        Start-Sleep -Seconds 1
+    }
     Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 3
+    if (Get-Service cloudflared -ErrorAction SilentlyContinue) {
+        Write-Warning "   service masih terdaftar; jalankan 'sc.exe delete cloudflared' sekali, lalu ulangi."
+    } else {
+        Write-Host "   service cloudflared dilepas" -ForegroundColor Green
+    }
+} else {
+    Write-Host "   tidak ada service cloudflared — bagus, tunnel akan jalan dari task" -ForegroundColor Green
 }
-sc.exe start cloudflared | Out-Null
-Start-Sleep -Seconds 4
-$svc = Get-Service cloudflared
-if ($svc.Status -ne 'Running') {
-    Write-Host "   cloudflared tidak running — cek Windows Event Viewer (Application log)" -ForegroundColor Red
-}
-Write-Host ("   cloudflared: {0} / {1}" -f $svc.Status, $svc.StartType) -ForegroundColor Green
 
 Write-Host "2/3 Memasang Scheduled Task untuk gateway + dashboard (saat logon)..." -ForegroundColor Cyan
 $action = New-ScheduledTaskAction -Execute 'powershell.exe' `
@@ -131,19 +100,21 @@ Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Se
 Write-Host "   task '$TaskName' terdaftar (trigger: logon $env:USERNAME)" -ForegroundColor Green
 
 Write-Host "3/3 Menjalankan sekarang..." -ForegroundColor Cyan
-# Hentikan instance yang mungkin masih jalan manual, supaya tugas tidak mati karena port terpakai.
+# Hentikan instance yang mungkin masih jalan manual, supaya tugas tidak mati karena port terpakai
+# dan tunnel tidak dobel koneksi.
 foreach ($port in @($GatewayPort, $DashboardPort)) {
     Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | ForEach-Object {
         Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue
     }
 }
-Start-Sleep -Seconds 2
+Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 3
 Start-ScheduledTask -TaskName $TaskName
-Start-Sleep -Seconds 12
+Start-Sleep -Seconds 15
 
 foreach ($check in @(
-        @{ Name = 'tunnel'; Url = 'http://127.0.0.1:8645/health' },
-        @{ Name = 'dashboard'; Url = 'http://127.0.0.1:8680/api/status' })) {
+        @{ Name = 'gateway(local)'; Url = 'http://127.0.0.1:8645/health' },
+        @{ Name = 'dashboard(local)'; Url = 'http://127.0.0.1:8680/api/status' })) {
     try {
         # -UseBasicParsing: tanpa itu Windows PowerShell memunculkan prompt "Script Execution Risk"
         # dan menunggu jawaban, bukan memeriksa apa pun.
@@ -154,17 +125,32 @@ foreach ($check in @(
     }
 }
 
-if ((Get-Service cloudflared -ErrorAction SilentlyContinue).Status -ne 'Running') {
-    $svcLog = Join-Path $env:WINDIR 'System32\config\systemprofile\.cloudflared\cloudflared.log'
-    Write-Host ""
-    Write-Host "Diagnosa service cloudflared:" -ForegroundColor Yellow
-    Write-Host ("  ImagePath: {0}" -f (Get-CimInstance Win32_Service -Filter "Name='cloudflared'").PathName)
-    if (Test-Path $svcLog) {
-        Write-Host "  log terakhir:" -ForegroundColor Yellow
-        Get-Content $svcLog -Tail 8 | ForEach-Object { Write-Host ("    " + $_) }
-    } else {
-        Write-Host ("  log belum ada: {0}" -f $svcLog) -ForegroundColor Yellow
+# Verifikasi PUBLIK, bukan localhost: tunnel bisa mati sementara gateway lokal tetap 200 (persis
+# kasus yang menyesatkan sebelumnya: "tunnel: HTTP 200" padahal Cloudflare menjawab 530).
+if (Test-Path $tunnelConfig) {
+    $hostnames = (Get-Content $tunnelConfig | Select-String -Pattern '^\s*-\s*hostname:\s*(\S+)').Matches |
+        ForEach-Object { $_.Groups[1].Value }
+    foreach ($hostname in $hostnames) {
+        $url = "https://$hostname/health"
+        if ($hostname -notmatch '^api\.') { $url = "https://$hostname/" }
+        for ($attempt = 1; $attempt -le 5; $attempt++) {
+            try {
+                $r = Invoke-WebRequest -Uri $url -TimeoutSec 12 -UseBasicParsing
+                Write-Host ("   publik {0}: HTTP {1}" -f $hostname, $r.StatusCode) -ForegroundColor Green
+                break
+            } catch {
+                if ($attempt -eq 5) {
+                    Write-Warning ("   publik {0}: gagal — cek {1}" -f $hostname, (Join-Path $logDir 'tunnel.log.err'))
+                } else {
+                    Start-Sleep -Seconds 3
+                }
+            }
+        }
     }
+}
+
+if ((Get-Service cloudflared -ErrorAction SilentlyContinue).Status -eq 'Running') {
+    Write-Warning "service cloudflared masih jalan — ia akan berebut tunnel dengan proses di atas; uninstall service-nya."
 }
 
 $public = (Get-Content $configPath | Select-String -Pattern 'hostname:\s*(\S+)' -AllMatches).Matches.Value
