@@ -168,12 +168,77 @@ def cmd_proxy_catalog(args: Any) -> int:
         store.close()
 
 
+def cmd_proxy_probe(args: Any) -> int:
+    """``merlin proxy probe <run|status>`` — liveness, latency and model-identity checks."""
+    from merlin_cli.proxy import probe as pr
+    from merlin_cli.proxy.adapters.generic import GenericUpstreamAdapter
+
+    action = getattr(args, "probe_command", None) or "status"
+    store = pr.ProbeStore()
+    try:
+        if action == "status":
+            rows = store.summary(hours=int(getattr(args, "hours", 24) or 24))
+            if not rows:
+                _err("No probes recorded yet. Run `merlin proxy probe run`.")
+                return 0
+            print(f"{'upstream':14} {'model':36} {'up%':>5} {'p50':>9} {'p95':>9}  identity")
+            for row in rows:
+                print(
+                    f"{row['upstream'][:14]:14} {row['model'][:36]:36} {row['uptime_pct']:>5.1f}"
+                    f" {row['p50_ms']:>7.0f}ms {row['p95_ms']:>7.0f}ms  {row['identity']}"
+                )
+            return 0
+
+        adapter = GenericUpstreamAdapter(getattr(args, "config", None))
+        config_error = adapter.config_error()
+        if config_error:
+            _err(config_error)
+            return 2
+        if getattr(args, "reset_baseline", False):
+            cleared = store.reset_baseline()
+            _err(f"cleared {cleared} stored fingerprint baseline(s)")
+        specs = adapter.specs()
+        models_by_upstream: dict[str, list[str]] = {}
+        explicit = list(getattr(args, "model", None) or [])
+        if explicit:
+            models_by_upstream = {spec.name: explicit for spec in specs}
+        elif getattr(args, "discover", False):
+            from merlin_cli.proxy import catalog as cat
+
+            for spec in specs:
+                try:
+                    models_by_upstream[spec.name] = cat.fetch_models(
+                        spec.base_url, spec.keys[0] if spec.keys else ""
+                    )
+                except RuntimeError as exc:
+                    _err(f"discovery failed for {spec.name}: {exc}")
+        results = pr.probe_specs(
+            store,
+            specs,
+            models_by_upstream,
+            limit=int(getattr(args, "limit", 0) or 0),
+            timeout_s=float(getattr(args, "timeout", 20) or 20),
+        )
+        if not results:
+            _err("Nothing to probe: no models declared for these upstreams (use --model or --discover).")
+            return 2
+        for result, verdict in results:
+            print(
+                f"{result.upstream[:14]:14} {result.model[:36]:36} status={result.status:<4}"
+                f" {result.latency_ms:>8.0f}ms  {verdict}"
+            )
+        return 1 if any(verdict == pr.IDENTITY_CHANGED for _, verdict in results) else 0
+    finally:
+        store.close()
+
+
 _SUBCOMMANDS = {
     "start": cmd_proxy_start,
     "status": cmd_proxy_status,
     "providers": cmd_proxy_list_providers,
     "list": cmd_proxy_list_providers,
     "catalog": cmd_proxy_catalog,
+    "probe": cmd_proxy_probe,
 }
 
 
