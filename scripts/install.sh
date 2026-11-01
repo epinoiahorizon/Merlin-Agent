@@ -507,7 +507,7 @@ clone_failure_message() {
     printf '%s\n' \
         "  fixes, in order of likelihood:" \
         "    1. Send the proxy this machine already uses through the environment:" \
-        "         https_proxy=http://127.0.0.1:7890 curl -fsSL https://epinoiahorizon.com/install.sh | bash" \
+        "         https_proxy=http://127.0.0.1:7890 curl -fsSL https://withmerlin.online/install.sh | bash" \
         "    2. Pin the repo host to IPv4 (a host with no IPv6 route):" \
         "         git config --global http.curloptResolve $host:443:<ipv4>" \
         "    3. Install from a mirror instead of GitHub:" \

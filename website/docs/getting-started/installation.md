@@ -48,8 +48,9 @@ not a bundled local runtime. See [Merlin Desktop](../user-guide/desktop.md).
 The macOS installer is **Apple Silicon only**. macOS on x86 (Intel) processors is [not a supported platform](./platform-support.md#unsupported).
 :::
 
-### Without Merlin Desktop:
-For a command-line only install without Merlin Desktop, run:
+### Without Merlin Desktop
+
+For a command-line only install without Merlin Desktop, use one of the commands below.
 
 #### Linux / macOS / WSL2
 ```bash
