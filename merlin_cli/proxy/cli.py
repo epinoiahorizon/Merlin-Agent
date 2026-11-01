@@ -279,16 +279,49 @@ def cmd_proxy_dashboard(args: Any) -> int:
         webhook_secret=os.environ.get("MERLIN_PROXY_WEBHOOK_SECRET", ""),
         invoice_ttl_s=int(getattr(args, "ttl", 1800) or 1800),
     )
+    if not os.environ.get("MERLIN_PROXY_ADMIN_TOKEN"):
+        token = getattr(app, "admin_token", "")
+        _err(f"  admin token:   {token}  (generated — simpan; dipakai untuk konfirmasi bayar)")
     web.run_app(app, host=host, port=port, print=None)
     return 0
 
 
 def cmd_proxy_payments(args: Any) -> int:
-    """Reconcile money-in: expire stale invoices, list unmatched payments, claim one."""
+    """Reconcile money-in: expire stale invoices, import a statement, list/claim unmatched payments."""
     from merlin_cli.proxy.tenants import LedgerStore
 
     store = LedgerStore(os.environ.get("MERLIN_PROXY_LEDGER") or None)
     try:
+        ingest_file = getattr(args, "ingest", None)
+        if ingest_file:
+            from pathlib import Path
+
+            from merlin_cli.proxy import statement
+
+            path = Path(ingest_file)
+            if not path.exists():
+                _err(f"file tidak ditemukan: {path}")
+                return 2
+            rows = statement.parse(
+                path.read_text(encoding="utf-8", errors="replace"), getattr(args, "format", "auto") or "auto"
+            )
+            if not rows:
+                _err("tidak ada baris transaksi yang terbaca — cek format/kolom nominal")
+                return 2
+            report = statement.ingest(
+                store,
+                rows,
+                provider=getattr(args, "provider", "dana") or "dana",
+                dry_run=bool(getattr(args, "dry_run", False)),
+            )
+            print(report.summary())
+            for item in report.items[:25]:
+                extra = f" -> {item.get('invoice')}" if item.get("invoice") else ""
+                print(f"  Rp {item['amount']:>10,}  {item['result']}{extra}")
+            if len(report.items) > 25:
+                print(f"  … {len(report.items) - 25} more")
+            return 0 if report.unmatched == 0 else 1
+
         claim_id = getattr(args, "claim", None)
         if claim_id:
             invoice_id = getattr(args, "invoice", None)
