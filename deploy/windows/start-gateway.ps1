@@ -81,7 +81,8 @@ $launcherBody = @(
     'from merlin_cli.proxy.entry import main',
     'raise SystemExit(main(sys.argv[1:]))'
 ) -join "`r`n"
-Set-Content -Path $launcher -Value $launcherBody -Encoding UTF8
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($launcher, $launcherBody, $utf8NoBom)
 
 # Start-Process tidak mengutip argumen; setiap path yang mengandung spasi harus dibungkus sendiri.
 function Q([string]$value) { return '"' + $value + '"' }
