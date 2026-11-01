@@ -229,5 +229,22 @@ def build_gateway_parser(
         help="Report what would change without writing to the ledger")
     proxy_catalog_sub.add_parser("list", help="Show the current price book and last changes")
     proxy_catalog.set_defaults(catalog_command="list")
+
+    proxy_probe = proxy_subparsers.add_parser(
+        "probe", help="Probe upstreams: liveness, latency, and model-identity fingerprint")
+    proxy_probe_sub = proxy_probe.add_subparsers(dest="probe_command")
+    probe_run = proxy_probe_sub.add_parser("run", help="Probe each upstream's models once")
+    probe_run.add_argument("--config", default=None, help="Path to proxy_upstreams.json")
+    probe_run.add_argument("--model", action="append", default=None,
+        help="Model id to probe (repeatable; default: the models declared per upstream)")
+    probe_run.add_argument("--discover", action="store_true",
+        help="Ask the upstream for its model list instead of using the declared models")
+    probe_run.add_argument("--limit", type=int, default=0, help="Probe at most N models per upstream")
+    probe_run.add_argument("--timeout", type=float, default=20.0, help="Per-probe timeout in seconds")
+    probe_run.add_argument("--reset-baseline", dest="reset_baseline", action="store_true",
+        help="Forget stored fingerprints first (use after an intentional model/version change)")
+    probe_status = proxy_probe_sub.add_parser("status", help="Show uptime, p50/p95 and identity verdicts")
+    probe_status.add_argument("--hours", type=int, default=24, help="Window in hours (default 24)")
+    proxy_probe.set_defaults(probe_command="status")
     proxy_parser.set_defaults(func=cmd_proxy)
     gateway_parser.set_defaults(func=cmd_gateway)
