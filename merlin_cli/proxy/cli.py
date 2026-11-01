@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import sys
 from typing import Any
 
@@ -103,11 +104,76 @@ def cmd_proxy_list_providers(args: Any) -> int:
     return 0
 
 
+def cmd_proxy_catalog(args: Any) -> int:
+    """``merlin proxy catalog <sync|list>`` — price book maintenance."""
+    from merlin_cli.proxy import catalog as cat
+    from merlin_cli.proxy.adapters.generic import GenericUpstreamAdapter
+    from merlin_cli.proxy.tenants import LedgerStore
+
+    action = getattr(args, "catalog_command", None) or "list"
+    store = LedgerStore(os.environ.get("MERLIN_PROXY_LEDGER") or None)
+    try:
+        if action == "list":
+            rows = store.models()
+            if not rows:
+                _err("No prices yet. Run `merlin proxy catalog sync`.")
+                return 0
+            print(f"{'model':38} {'in':>12} {'out':>12} {'cache':>12}  (micros / 1M tokens)")
+            for row in rows:
+                cache = row["cache_read_micros_per_m"]
+                print(
+                    f"{row['model'][:38]:38} {row['in_micros_per_m']:>12,} {row['out_micros_per_m']:>12,}"
+                    f" {('-' if cache is None else format(cache, ',')):>12}"
+                )
+            changes = store.price_history(limit=5)
+            if changes:
+                print("\nlast price changes:")
+                for change in changes:
+                    print(
+                        f"  {change['model']}: in={change['in_micros_per_m']:,}"
+                        f" out={change['out_micros_per_m']:,} [{change['source']}]"
+                    )
+            return 0
+
+        adapter = GenericUpstreamAdapter(getattr(args, "config", None))
+        config_error = adapter.config_error()
+        if config_error:
+            _err(config_error)
+            return 2
+        specs = adapter.specs()
+        markup_bps = getattr(args, "markup_bps", None)
+        book = cat.load_reference(getattr(args, "reference", None))
+        report = cat.sync_prices(
+            store,
+            specs,
+            book,
+            markup_bps=cat.DEFAULT_MARKUP_BPS if markup_bps is None else int(markup_bps),
+            dry_run=bool(getattr(args, "dry_run", False)),
+        )
+        print(report.summary())
+        priced = [e for e in report.entries if e.price is not None]
+        for entry in priced[:40]:
+            price = entry.price
+            if price is None:  # narrowed by the filter above; keeps type checkers honest
+                continue
+            ref = f" <- {entry.reference_id}" if entry.reference_id != entry.model else ""
+            print(
+                f"  {entry.model[:34]:34} in={price.in_micros_per_m:>10,}"
+                f" out={price.out_micros_per_m:>10,}{ref}"
+            )
+        if len(priced) > 40:
+            print(f"  … {len(priced) - 40} more")
+        return 0 if not report.unpriced else 1
+    finally:
+        store.close()
+
+
 _SUBCOMMANDS = {
     "start": cmd_proxy_start,
     "status": cmd_proxy_status,
     "providers": cmd_proxy_list_providers,
     "list": cmd_proxy_list_providers,
+    "catalog": cmd_proxy_catalog,
 }
 
 

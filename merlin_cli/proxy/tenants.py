@@ -49,6 +49,15 @@ CREATE TABLE IF NOT EXISTS prices (
     cache_read_micros_per_m  INTEGER,
     updated_at               INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS price_history (
+    id                       INTEGER PRIMARY KEY AUTOINCREMENT,
+    model                    TEXT NOT NULL,
+    in_micros_per_m          INTEGER NOT NULL,
+    out_micros_per_m         INTEGER NOT NULL,
+    cache_read_micros_per_m  INTEGER,
+    source                   TEXT NOT NULL DEFAULT 'manual',
+    effective_from           INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS holds (
     request_id TEXT PRIMARY KEY,
     tenant_id  TEXT NOT NULL,
@@ -225,16 +234,54 @@ class LedgerStore:
         in_micros_per_m: int,
         out_micros_per_m: int,
         cache_read_micros_per_m: Optional[int] = None,
-    ) -> None:
+        source: str = "manual",
+    ) -> bool:
+        """Upsert a model price. Returns ``True`` when the value changed (history row appended).
+
+        Re-pricing to the identical numbers is a no-op by design: ``price_history`` must stay a
+        record of *changes*, otherwise a nightly sync fills it with noise and hides real moves.
+        """
+        now = int(time.time())
+        new = (int(in_micros_per_m), int(out_micros_per_m), cache_read_micros_per_m)
+        changed = False
         with self._tx() as conn:
-            conn.execute(
-                "INSERT INTO prices (model, in_micros_per_m, out_micros_per_m, cache_read_micros_per_m, updated_at)"
-                " VALUES (?, ?, ?, ?, ?)"
-                " ON CONFLICT(model) DO UPDATE SET in_micros_per_m = excluded.in_micros_per_m,"
-                " out_micros_per_m = excluded.out_micros_per_m,"
-                " cache_read_micros_per_m = excluded.cache_read_micros_per_m, updated_at = excluded.updated_at",
-                (model, int(in_micros_per_m), int(out_micros_per_m), cache_read_micros_per_m, int(time.time())),
-            )
+            row = conn.execute(
+                "SELECT in_micros_per_m, out_micros_per_m, cache_read_micros_per_m FROM prices WHERE model = ?",
+                (model,),
+            ).fetchone()
+            same = row is not None and (
+                row["in_micros_per_m"], row["out_micros_per_m"], row["cache_read_micros_per_m"]
+            ) == new
+            if same:
+                conn.execute("UPDATE prices SET updated_at = ? WHERE model = ?", (now, model))
+            else:
+                conn.execute(
+                    "INSERT INTO prices (model, in_micros_per_m, out_micros_per_m, cache_read_micros_per_m, updated_at)"
+                    " VALUES (?, ?, ?, ?, ?)"
+                    " ON CONFLICT(model) DO UPDATE SET in_micros_per_m = excluded.in_micros_per_m,"
+                    " out_micros_per_m = excluded.out_micros_per_m,"
+                    " cache_read_micros_per_m = excluded.cache_read_micros_per_m, updated_at = excluded.updated_at",
+                    (model, new[0], new[1], new[2], now),
+                )
+                conn.execute(
+                    "INSERT INTO price_history (model, in_micros_per_m, out_micros_per_m, cache_read_micros_per_m,"
+                    " source, effective_from) VALUES (?, ?, ?, ?, ?, ?)",
+                    (model, new[0], new[1], new[2], source, now),
+                )
+                changed = True
+        return changed
+
+    def price_history(self, model: Optional[str] = None, limit: int = 50) -> list[dict]:
+        """Newest-first price changes (optionally for one model)."""
+        if model:
+            rows = self._conn.execute(
+                "SELECT * FROM price_history WHERE model = ? ORDER BY id DESC LIMIT ?", (model, limit)
+            ).fetchall()
+        else:
+            rows = self._conn.execute(
+                "SELECT * FROM price_history ORDER BY id DESC LIMIT ?", (limit,)
+            ).fetchall()
+        return [dict(row) for row in rows]
 
     def price_for(self, model: str) -> Optional[ModelPrice]:
         row = self._conn.execute(

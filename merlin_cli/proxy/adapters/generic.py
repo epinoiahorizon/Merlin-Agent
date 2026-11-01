@@ -232,6 +232,10 @@ class GenericUpstreamAdapter(UpstreamAdapter):
         except UpstreamConfigError as exc:
             return str(exc)
 
+    def specs(self) -> list[UpstreamSpec]:
+        """Configured upstreams (raises ``UpstreamConfigError`` when the config is unusable)."""
+        return list(self._load())
+
     def _load(self) -> list[UpstreamSpec]:
         with self._lock:
             if self._specs is None:
