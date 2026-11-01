@@ -253,15 +253,14 @@ def create_app(adapter: UpstreamAdapter, meter: Optional["Meter"] = None) -> "we
             key = await asyncio.to_thread(active_meter.authenticate, _bearer_token(request))
             if key is None:
                 return _json_error(401, "invalid or revoked Merlin API key", code="invalid_api_key")
+        body = await request.read()
+        model = _model_from_body(body)
+        request_id = _request_id(request)
         try:
-            cred = await asyncio.to_thread(adapter.get_credential)
+            cred = await asyncio.to_thread(adapter.get_credential_for, model)
         except Exception as exc:
             logger.warning("proxy: credential resolution failed: %s", exc)
             return _json_error(401, str(exc), code="upstream_auth_failed")
-        # Body read into memory once (chat/embeddings payloads are small); switch to streaming
-        # if large multipart uploads ever need forwarding.
-        body = await request.read()
-        request_id = _request_id(request)
         hold = None
         if active_meter is not None and key is not None:
             if rel_path in _METERED_PATHS:
@@ -269,9 +268,7 @@ def create_app(adapter: UpstreamAdapter, meter: Optional["Meter"] = None) -> "we
                 # streamed response carries no token counts at all.
                 body, _ = ensure_include_usage(body)
             try:
-                hold = await asyncio.to_thread(
-                    active_meter.hold, key, _model_from_body(body), request_id, estimate_usage(body)
-                )
+                hold = await asyncio.to_thread(active_meter.hold, key, model, request_id, estimate_usage(body))
             except InsufficientBalance as exc:
                 return _json_error(402, str(exc), code="insufficient_balance")
             if hold is None:
