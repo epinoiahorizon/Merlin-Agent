@@ -253,5 +253,24 @@ def build_gateway_parser(
     proxy_dash.add_argument("--port", type=int, default=None, help="Bind port (default: 8680)")
     proxy_dash.add_argument("--qris", default=None,
         help="Static QRIS: image path (.png/.jpg), text file with the payload, or the raw payload")
+    proxy_dash.add_argument("--ttl", type=int, default=1800,
+        help="Invoice lifetime in seconds (default 1800); expired invoices free their nominal")
+
+    proxy_payments = proxy_subparsers.add_parser(
+        "payments", help="Reconcile top-ups: expire stale invoices, list/claim unmatched payments")
+    proxy_payments.add_argument("--expire", action="store_true", help="Expire invoices past their TTL first")
+    proxy_payments.add_argument("--claim", default=None, help="Payment id to attach to an invoice")
+    proxy_payments.add_argument("--invoice", default=None, help="Invoice id for --claim")
+    proxy_payments.add_argument("--limit", type=int, default=50, help="Max rows to list")
+
+    proxy_maint = proxy_subparsers.add_parser(
+        "maintenance", help="Cron pass: expire invoices, re-price models, probe upstreams")
+    proxy_maint.add_argument("--config", default=None, help="Path to proxy_upstreams.json")
+    proxy_maint.add_argument("--reference", default=None, help="Price reference URL or JSON file")
+    proxy_maint.add_argument("--markup-bps", dest="markup_bps", type=int, default=None)
+    proxy_maint.add_argument("--skip-catalog", dest="skip_catalog", action="store_true")
+    proxy_maint.add_argument("--skip-probe", dest="skip_probe", action="store_true")
+    proxy_maint.add_argument("--limit", type=int, default=0, help="Probe at most N models per upstream")
+    proxy_maint.add_argument("--timeout", type=float, default=20.0)
     proxy_parser.set_defaults(func=cmd_proxy)
     gateway_parser.set_defaults(func=cmd_gateway)

@@ -6,6 +6,7 @@ import asyncio
 import logging
 import os
 import sys
+import time
 from typing import Any
 
 from merlin_cli.proxy.adapters import ADAPTERS, get_adapter
@@ -271,10 +272,117 @@ def cmd_proxy_dashboard(args: Any) -> int:
     from aiohttp import web
 
     app = create_dashboard_app(
-        ledger, probes, payload, admin_token=os.environ.get("MERLIN_PROXY_ADMIN_TOKEN", "")
+        ledger,
+        probes,
+        payload,
+        admin_token=os.environ.get("MERLIN_PROXY_ADMIN_TOKEN", ""),
+        webhook_secret=os.environ.get("MERLIN_PROXY_WEBHOOK_SECRET", ""),
+        invoice_ttl_s=int(getattr(args, "ttl", 1800) or 1800),
     )
     web.run_app(app, host=host, port=port, print=None)
     return 0
+
+
+def cmd_proxy_payments(args: Any) -> int:
+    """Reconcile money-in: expire stale invoices, list unmatched payments, claim one."""
+    from merlin_cli.proxy.tenants import LedgerStore
+
+    store = LedgerStore(os.environ.get("MERLIN_PROXY_LEDGER") or None)
+    try:
+        claim_id = getattr(args, "claim", None)
+        if claim_id:
+            invoice_id = getattr(args, "invoice", None)
+            if not invoice_id:
+                _err("--claim butuh --invoice <invoice_id>")
+                return 2
+            credited = store.claim_payment(claim_id, invoice_id)
+            print(f"claimed {claim_id} -> {invoice_id}: credited {credited:,} micros")
+            return 0 if credited else 1
+        if getattr(args, "expire", False):
+            print(f"expired {store.expire_invoices()} invoice(s)")
+        rows = store.payments(status="unmatched", limit=int(getattr(args, "limit", 50) or 50))
+        if not rows:
+            print("no unmatched payments")
+            return 0
+        print(f"{'payment':26} {'amount':>12} {'provider':12} received")
+        for row in rows:
+            when = time.strftime("%Y-%m-%d %H:%M", time.localtime(row["received_at"]))
+            print(f"{row['id']:26} {row['amount_idr']:>12,} {row['provider'][:12]:12} {when}")
+        print("\nclaim one with: merlin proxy payments --claim <payment> --invoice <invoice>")
+        return 0
+    finally:
+        store.close()
+
+
+def cmd_proxy_maintenance(args: Any) -> int:
+    """One cron-friendly pass: expire invoices, re-price models, probe identity/latency."""
+    from merlin_cli.proxy import catalog as cat
+    from merlin_cli.proxy import probe as pr
+    from merlin_cli.proxy.adapters.generic import GenericUpstreamAdapter
+    from merlin_cli.proxy.tenants import LedgerStore
+
+    ledger = LedgerStore(os.environ.get("MERLIN_PROXY_LEDGER") or None)
+    probes = pr.ProbeStore(os.environ.get("MERLIN_PROXY_PROBES") or None)
+    rc = 0
+    try:
+        print(f"invoices expired : {ledger.expire_invoices()}")
+
+        adapter = GenericUpstreamAdapter(getattr(args, "config", None))
+        config_error = adapter.config_error()
+        if config_error:
+            _err(config_error)
+            return 2
+        specs = adapter.specs()
+        if not specs:
+            _err("no upstreams configured")
+            return 2
+
+        if not getattr(args, "skip_catalog", False):
+            book = cat.load_reference(getattr(args, "reference", None))
+            report = cat.sync_prices(
+                ledger,
+                specs,
+                book,
+                markup_bps=int(getattr(args, "markup_bps", None) or cat.DEFAULT_MARKUP_BPS),
+            )
+            print(report.summary())
+            if report.unpriced:
+                rc = 1
+        else:
+            print("catalog sync     : skipped")
+
+        if not getattr(args, "skip_probe", False):
+            models: dict[str, list[str]] = {}
+            for spec in specs:
+                try:
+                    models[spec.name] = cat.fetch_models(spec.base_url, spec.keys[0] if spec.keys else "")
+                except RuntimeError as exc:
+                    _err(f"discovery failed for {spec.name}: {exc}")
+            results = pr.probe_specs(
+                probes,
+                specs,
+                models,
+                limit=int(getattr(args, "limit", 0) or 0),
+                timeout_s=float(getattr(args, "timeout", 20) or 20),
+            )
+            changed = [result for result, verdict in results if verdict == pr.IDENTITY_CHANGED]
+            down = [result for result, verdict in results if not result.ok]
+            print(
+                f"probes           : {len(results)} model(s), "
+                f"{len(changed)} identity changed, {len(down)} failed"
+            )
+            for result in changed:
+                print(f"  IDENTITY_CHANGED {result.upstream}:{result.model}")
+            for result in down:
+                print(f"  DOWN {result.upstream}:{result.model} ({result.note or result.status})")
+            if changed or down:
+                rc = 1
+        else:
+            print("probes           : skipped")
+        return rc
+    finally:
+        ledger.close()
+        probes.close()
 
 
 _SUBCOMMANDS = {
@@ -285,6 +393,8 @@ _SUBCOMMANDS = {
     "catalog": cmd_proxy_catalog,
     "probe": cmd_proxy_probe,
     "dashboard": cmd_proxy_dashboard,
+    "payments": cmd_proxy_payments,
+    "maintenance": cmd_proxy_maintenance,
 }
 
 

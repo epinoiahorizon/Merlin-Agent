@@ -18,7 +18,7 @@ import random
 import time
 from typing import Optional
 
-from merlin_cli.proxy import qris
+from merlin_cli.proxy import qris, topup
 from merlin_cli.proxy.tenants import DuplicateInvoiceAmount, LedgerStore
 
 try:
@@ -73,7 +73,9 @@ def _resolve_tenant(ledger: LedgerStore, name: str) -> str:
     return ledger.create_tenant(name)
 
 
-def _new_invoice(ledger: LedgerStore, tenant_id: str, base_amount: int, static_payload: str) -> dict:
+def _new_invoice(
+    ledger: LedgerStore, tenant_id: str, base_amount: int, static_payload: str, ttl_s: int = 1800
+) -> dict:
     """Invoice with a unique nominal so a QRIS notification maps to exactly one customer.
 
     Up to 999 distinct pendings can share a base amount; past that the caller gets the last error
@@ -88,7 +90,7 @@ def _new_invoice(ledger: LedgerStore, tenant_id: str, base_amount: int, static_p
         except qris.QrisError:
             payload = ""
         try:
-            return ledger.create_invoice(tenant_id, amount, payload)
+            return ledger.create_invoice(tenant_id, amount, payload, ttl_s=ttl_s)
         except DuplicateInvoiceAmount as exc:
             last_error = exc
             continue
@@ -223,6 +225,8 @@ def create_dashboard_app(
     static_payload: str = "",
     admin_token: str = "",
     currency: str = "IDR",
+    webhook_secret: str = "",
+    invoice_ttl_s: int = 1800,
 ):
     """Build the aiohttp dashboard app."""
     if not AIOHTTP_AVAILABLE:
@@ -254,7 +258,7 @@ def create_dashboard_app(
         if not tenant_name or not raw_amount.isdigit() or int(raw_amount) <= 0:
             return web.Response(text="tenant dan nominal (angka) wajib diisi", status=400)
         tenant_id = _resolve_tenant(ledger, tenant_name)
-        invoice = _new_invoice(ledger, tenant_id, int(raw_amount), static_payload)
+        invoice = _new_invoice(ledger, tenant_id, int(raw_amount), static_payload, ttl_s=invoice_ttl_s)
         raise web.HTTPSeeOther(location=f"/?invoice={invoice['id']}")
 
     async def handle_qr(request: "web.Request") -> "web.Response":
@@ -279,10 +283,46 @@ def create_dashboard_app(
             return web.json_response({"invoice": invoice_id, "credited_micros": credited})
         raise web.HTTPSeeOther(location=f"/?invoice={invoice_id}")
 
+    async def handle_webhook(request: "web.Request") -> "web.Response":
+        """Acquirer callback: verify, match by unique nominal, never lose an event."""
+        raw = await request.read()
+        signature = request.headers.get("X-Signature") or request.headers.get("X-Callback-Signature", "")
+        if not topup.verify_signature(webhook_secret, raw, signature):
+            return web.json_response({"error": "bad signature"}, status=401)
+        payload = topup.parse_body(raw)
+        if payload is None:
+            return web.json_response({"error": "body must be a JSON object"}, status=400)
+        result = topup.apply_payment(
+            ledger, payload, provider=str(request.headers.get("X-Provider", "")), raw=raw.decode("utf-8", "replace")
+        )
+        return web.json_response(result)
+
+    async def handle_payments(request: "web.Request") -> "web.Response":
+        if admin_token and request.headers.get("X-Admin-Token", "") != admin_token:
+            return web.json_response({"error": "admin token required"}, status=403)
+        rows = ledger.payments(status=request.query.get("status", ""), limit=int(request.query.get("limit", 50)))
+        return web.json_response({"payments": rows, "unmatched": len(ledger.payments(status="unmatched", limit=500))})
+
+    async def handle_claim(request: "web.Request") -> "web.Response":
+        if admin_token and request.headers.get("X-Admin-Token", "") != admin_token:
+            return web.json_response({"error": "admin token required"}, status=403)
+        try:
+            body = await request.json()
+        except ValueError:
+            body = {}
+        invoice_id = str((body or {}).get("invoice") or "")
+        if not invoice_id:
+            return web.json_response({"error": "invoice is required"}, status=400)
+        credited = ledger.claim_payment(request.match_info.get("payment_id", ""), invoice_id)
+        return web.json_response({"invoice": invoice_id, "credited_micros": credited})
+
     app.router.add_get("/", handle_index)
     app.router.add_get("/api/status", handle_status)
     app.router.add_post("/topup", handle_topup)
     app.router.add_post("/api/invoices/{invoice_id}/pay", handle_pay)
+    app.router.add_post("/api/webhooks/qris", handle_webhook)
+    app.router.add_get("/api/payments", handle_payments)
+    app.router.add_post("/api/payments/{payment_id}/claim", handle_claim)
     app.router.add_get("/qr/{invoice_id}.png", handle_qr)
     return app
 
