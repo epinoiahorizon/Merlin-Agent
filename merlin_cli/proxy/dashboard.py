@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import html
 import random
+import secrets
 import time
 from typing import Optional
 
@@ -97,7 +98,14 @@ def _new_invoice(
     raise DuplicateInvoiceAmount(str(last_error) if last_error else "could not allocate a unique amount")
 
 
-def _page(ledger: LedgerStore, probes, static_payload: str, invoice_id: str = "", currency: str = "IDR") -> str:
+def _page(
+    ledger: LedgerStore,
+    probes,
+    static_payload: str,
+    invoice_id: str = "",
+    currency: str = "IDR",
+    show_pay_button: bool = False,
+) -> str:
     merchant = qris.merchant_name(static_payload) or "merchant"
     rows_status = probes.summary(hours=24) if probes is not None else []
     prices = ledger.models()
@@ -190,10 +198,18 @@ def _page(ledger: LedgerStore, probes, static_payload: str, invoice_id: str = ""
                 f'<div class="qr"><img alt="QRIS" width="260" src="/qr/{html.escape(invoice["id"])}.png"></div>'
                 '<p class="note">Scan dengan aplikasi bank / e-wallet apa pun yang mendukung QRIS, '
                 "lalu bayar <strong>tepat</strong> sejumlah nominal di atas.</p>"
-                f'<form method="post" action="/api/invoices/{html.escape(invoice["id"])}/pay">'
-                '<button class="ghost" type="submit">Tandai sudah dibayar</button></form>'
-                "</div>"
             )
+            if show_pay_button:
+                parts.append(
+                    f'<form method="post" action="/api/invoices/{html.escape(invoice["id"])}/pay">'
+                    '<button class="ghost" type="submit">Tandai sudah dibayar</button></form>'
+                )
+            else:
+                parts.append(
+                    '<p class="note">Konfirmasi dilakukan operator: <code>merlin proxy payments '
+                    "--claim &lt;payment&gt; --invoice &lt;id&gt;</code> atau impor mutasi.</p>"
+                )
+            parts.append("</div>")
         elif invoice:
             parts.append(f'<p class="note">Invoice {html.escape(invoice_id)} sudah {html.escape(invoice["status"])}.</p>')
 
@@ -232,10 +248,26 @@ def create_dashboard_app(
     if not AIOHTTP_AVAILABLE:
         raise RuntimeError("aiohttp is required for the dashboard")
     app = web.Application()
+    # Money-confirming endpoints always require a token. When the operator did not supply one we
+    # generate it and print it at startup, so a public page can never credit anyone by accident.
+    effective_admin_token = admin_token or secrets.token_urlsafe(18)
+    app.admin_token = effective_admin_token  # read by the CLI banner; attribute avoids AppKey churn
+    show_pay_button = bool(admin_token)
+
+    def _admin_ok(request: "web.Request") -> bool:
+        provided = request.headers.get("X-Admin-Token", "") or request.query.get("token", "")
+        return secrets.compare_digest(provided, effective_admin_token)
 
     async def handle_index(request: "web.Request") -> "web.Response":
         invoice_id = request.query.get("invoice", "")
-        body = _page(ledger, probes, static_payload, invoice_id=invoice_id, currency=currency)
+        body = _page(
+            ledger,
+            probes,
+            static_payload,
+            invoice_id=invoice_id,
+            currency=currency,
+            show_pay_button=show_pay_button,
+        )
         return web.Response(text=body, content_type="text/html")
 
     async def handle_status(request: "web.Request") -> "web.Response":
@@ -275,7 +307,7 @@ def create_dashboard_app(
         return web.Response(body=png, content_type="image/png", headers={"Cache-Control": "no-store"})
 
     async def handle_pay(request: "web.Request") -> "web.Response":
-        if admin_token and request.headers.get("X-Admin-Token", "") != admin_token:
+        if not _admin_ok(request):
             return web.json_response({"error": "admin token required"}, status=403)
         invoice_id = request.match_info.get("invoice_id", "")
         credited = ledger.pay_invoice(invoice_id)
@@ -298,13 +330,13 @@ def create_dashboard_app(
         return web.json_response(result)
 
     async def handle_payments(request: "web.Request") -> "web.Response":
-        if admin_token and request.headers.get("X-Admin-Token", "") != admin_token:
+        if not _admin_ok(request):
             return web.json_response({"error": "admin token required"}, status=403)
         rows = ledger.payments(status=request.query.get("status", ""), limit=int(request.query.get("limit", 50)))
         return web.json_response({"payments": rows, "unmatched": len(ledger.payments(status="unmatched", limit=500))})
 
     async def handle_claim(request: "web.Request") -> "web.Response":
-        if admin_token and request.headers.get("X-Admin-Token", "") != admin_token:
+        if not _admin_ok(request):
             return web.json_response({"error": "admin token required"}, status=403)
         try:
             body = await request.json()

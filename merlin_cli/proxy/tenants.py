@@ -98,8 +98,6 @@ CREATE TABLE IF NOT EXISTS invoices (
     expires_at    INTEGER,
     paid_at       INTEGER
 );
-CREATE UNIQUE INDEX IF NOT EXISTS idx_invoice_pending_amount
-    ON invoices (amount_idr) WHERE status = 'pending';
 CREATE TABLE IF NOT EXISTS payments (
     id          TEXT PRIMARY KEY,
     received_at INTEGER NOT NULL,
@@ -107,8 +105,19 @@ CREATE TABLE IF NOT EXISTS payments (
     invoice_id  TEXT,
     status      TEXT NOT NULL DEFAULT 'unmatched',
     provider    TEXT NOT NULL DEFAULT '',
+    fingerprint TEXT NOT NULL DEFAULT '',
     raw         TEXT NOT NULL DEFAULT ''
 );
+
+"""
+
+# Applied AFTER _migrate(): an index over a column an older database lacks would fail before the
+# column is added.
+INDEXES = """
+CREATE UNIQUE INDEX IF NOT EXISTS idx_invoice_pending_amount
+    ON invoices (amount_idr) WHERE status = 'pending';
+CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_fingerprint
+    ON payments (fingerprint) WHERE fingerprint <> '';
 CREATE INDEX IF NOT EXISTS idx_payments_status ON payments (status, received_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_tenant_time ON usage_events (tenant_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_ledger_tenant     ON ledger_entries (tenant_id, id DESC);
@@ -180,6 +189,7 @@ class LedgerStore:
             self._conn.execute("PRAGMA foreign_keys=ON")
             self._conn.executescript(SCHEMA)
             self._migrate()
+            self._conn.executescript(INDEXES)
 
     def _migrate(self) -> None:
         """Add columns that ``CREATE TABLE IF NOT EXISTS`` cannot add to an existing table.
@@ -190,7 +200,7 @@ class LedgerStore:
         """
         wanted = {
             "invoices": {"expires_at": "INTEGER", "paid_at": "INTEGER"},
-            "payments": {"provider": "TEXT NOT NULL DEFAULT ''"},
+            "payments": {"provider": "TEXT NOT NULL DEFAULT ''", "fingerprint": "TEXT NOT NULL DEFAULT ''"},
         }
         for table, columns in wanted.items():
             existing = {row["name"] for row in self._conn.execute(f"PRAGMA table_info({table})").fetchall()}
@@ -365,17 +375,40 @@ class LedgerStore:
         status: str = "unmatched",
         provider: str = "",
         raw: str = "",
+        fingerprint: str = "",
     ) -> dict:
         payment_id = "pay_" + secrets.token_hex(10)
-        with self._tx() as conn:
-            conn.execute(
-                "INSERT INTO payments (id, received_at, amount_idr, invoice_id, status, provider, raw)"
-                " VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (payment_id, int(time.time()), int(amount_idr), invoice_id, status, provider, raw[:4000]),
-            )
+        try:
+            with self._tx() as conn:
+                conn.execute(
+                    "INSERT INTO payments (id, received_at, amount_idr, invoice_id, status, provider, fingerprint, raw)"
+                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        payment_id,
+                        int(time.time()),
+                        int(amount_idr),
+                        invoice_id,
+                        status,
+                        provider,
+                        fingerprint,
+                        raw[:4000],
+                    ),
+                )
+        except sqlite3.IntegrityError:
+            # Same statement row imported twice: return the existing record instead of a new one.
+            existing = self.payment_by_fingerprint(fingerprint)
+            if existing is not None:
+                return existing
+            raise
         payment = self.payment(payment_id)
         assert payment is not None
         return payment
+
+    def payment_by_fingerprint(self, fingerprint: str) -> Optional[dict]:
+        if not fingerprint:
+            return None
+        row = self._conn.execute("SELECT * FROM payments WHERE fingerprint = ?", (fingerprint,)).fetchone()
+        return dict(row) if row else None
 
     def payment(self, payment_id: str) -> Optional[dict]:
         row = self._conn.execute("SELECT * FROM payments WHERE id = ?", (payment_id,)).fetchone()

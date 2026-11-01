@@ -25,7 +25,7 @@ class Harness:
         self.ledger, self.probes, self.client = ledger, probes, client
 
 
-async def _harness(tmp_path, admin_token: str = ""):
+async def _harness(tmp_path, admin_token: str = "test-admin"):
     ledger = LedgerStore(tmp_path / "ledger.db")
     ledger.set_price("deepseek/deepseek-v4-flash", 104_650, 209_300, 20_930)
     probes = ProbeStore(tmp_path / "probes.db")
@@ -143,7 +143,11 @@ async def test_pay_credits_the_ledger_exactly_once(tmp_path) -> None:
         tenant = h.ledger.create_tenant("acme", initial_micros=0)
         invoice = _new_invoice(h.ledger, tenant, 20_000, STATIC)
 
-        response = await h.client.post(f"/api/invoices/{invoice['id']}/pay", allow_redirects=False)
+        response = await h.client.post(
+            f"/api/invoices/{invoice['id']}/pay",
+            headers={"X-Admin-Token": "test-admin"},
+            allow_redirects=False,
+        )
         assert response.status == 303
         assert h.ledger.balance(tenant) == invoice["amount_idr"] * MICROS_PER_UNIT
         entries = h.ledger.entries(tenant)
@@ -152,7 +156,7 @@ async def test_pay_credits_the_ledger_exactly_once(tmp_path) -> None:
         # A second notification must not credit twice.
         again = await h.client.post(
             f"/api/invoices/{invoice['id']}/pay",
-            headers={"Accept": "application/json"},
+            headers={"Accept": "application/json", "X-Admin-Token": "test-admin"},
         )
         assert (await again.json())["credited_micros"] == 0
         assert h.ledger.balance(tenant) == invoice["amount_idr"] * MICROS_PER_UNIT
@@ -177,5 +181,30 @@ async def test_pay_requires_the_admin_token_when_configured(tmp_path) -> None:
             headers={"Accept": "application/json", "X-Admin-Token": "s3cret"},
         )
         assert (await allowed.json())["credited_micros"] == invoice["amount_idr"] * MICROS_PER_UNIT
+    finally:
+        await _close(h)
+
+
+async def test_auto_generated_token_still_guards_payment(tmp_path) -> None:
+    """No configured token must not mean "open": the server generates one and requires it."""
+    h = await _harness(tmp_path, admin_token="")
+    try:
+        tenant = h.ledger.create_tenant("acme")
+        invoice = _new_invoice(h.ledger, tenant, 7_000, STATIC)
+        denied = await h.client.post(
+            f"/api/invoices/{invoice['id']}/pay", headers={"Accept": "application/json"}
+        )
+        assert denied.status == 403
+        assert h.ledger.balance(tenant) == 0
+
+        token = h.client.server.app.admin_token
+        allowed = await h.client.post(
+            f"/api/invoices/{invoice['id']}/pay",
+            headers={"Accept": "application/json", "X-Admin-Token": token},
+        )
+        assert (await allowed.json())["credited_micros"] == invoice["amount_idr"] * MICROS_PER_UNIT
+
+        page = await (await h.client.get(f"/?invoice={invoice['id']}")).text()
+        assert "Tandai sudah dibayar" not in page  # no one-click confirm on a public page
     finally:
         await _close(h)

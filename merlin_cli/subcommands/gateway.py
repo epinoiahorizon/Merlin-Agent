@@ -262,6 +262,13 @@ def build_gateway_parser(
     proxy_payments.add_argument("--claim", default=None, help="Payment id to attach to an invoice")
     proxy_payments.add_argument("--invoice", default=None, help="Invoice id for --claim")
     proxy_payments.add_argument("--limit", type=int, default=50, help="Max rows to list")
+    proxy_payments.add_argument("--ingest", default=None,
+        help="Statement file to import (DANA Bisnis CSV export, or pasted notification text)")
+    proxy_payments.add_argument("--format", default="auto", choices=["auto", "csv", "text"],
+        help="Statement format (default: auto-detect)")
+    proxy_payments.add_argument("--provider", default="dana", help="Provider label recorded on payments")
+    proxy_payments.add_argument("--dry-run", dest="dry_run", action="store_true",
+        help="Show what would match without writing or crediting")
 
     proxy_maint = proxy_subparsers.add_parser(
         "maintenance", help="Cron pass: expire invoices, re-price models, probe upstreams")
