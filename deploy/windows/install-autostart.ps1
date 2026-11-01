@@ -91,7 +91,10 @@ Copy-Item $credsSource.FullName $credsTarget -Force
 $configText = Get-Content $configPath -Raw
 $configText = [regex]::Replace($configText, '(?m)^credentials-file:.*$', ('credentials-file: ' + $credsTarget))
 $targetConfig = Join-Path $systemCf 'config.yml'
-Set-Content -Path $targetConfig -Value $configText -Encoding UTF8
+# Tulis TANPA BOM: Set-Content -Encoding UTF8 di PowerShell 5.1 menyisipkan BOM, dan parser YAML
+# cloudflared menolaknya — service lalu mati segera setelah start ("Stopped" tanpa pesan jelas).
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($targetConfig, $configText, $utf8NoBom)
 Write-Host ("   config service: {0}" -f $targetConfig) -ForegroundColor DarkGray
 # Jangan pakai Restart-Service -Force: ia menunggu tanpa batas ketika service lambat berhenti
 # (gejala nyata: "Waiting for service ... to stop" berulang sampai jendela macet). Tunggu maksimal
@@ -142,10 +145,25 @@ foreach ($check in @(
         @{ Name = 'tunnel'; Url = 'http://127.0.0.1:8645/health' },
         @{ Name = 'dashboard'; Url = 'http://127.0.0.1:8680/api/status' })) {
     try {
-        $r = Invoke-WebRequest -Uri $check.Url -TimeoutSec 10
+        # -UseBasicParsing: tanpa itu Windows PowerShell memunculkan prompt "Script Execution Risk"
+        # dan menunggu jawaban, bukan memeriksa apa pun.
+        $r = Invoke-WebRequest -Uri $check.Url -TimeoutSec 10 -UseBasicParsing
         Write-Host ("   {0}: HTTP {1}" -f $check.Name, $r.StatusCode) -ForegroundColor Green
     } catch {
         Write-Warning ("   {0}: belum merespons — cek {1}\logs" -f $check.Name, $DataDir)
+    }
+}
+
+if ((Get-Service cloudflared -ErrorAction SilentlyContinue).Status -ne 'Running') {
+    $svcLog = Join-Path $env:WINDIR 'System32\config\systemprofile\.cloudflared\cloudflared.log'
+    Write-Host ""
+    Write-Host "Diagnosa service cloudflared:" -ForegroundColor Yellow
+    Write-Host ("  ImagePath: {0}" -f (Get-CimInstance Win32_Service -Filter "Name='cloudflared'").PathName)
+    if (Test-Path $svcLog) {
+        Write-Host "  log terakhir:" -ForegroundColor Yellow
+        Get-Content $svcLog -Tail 8 | ForEach-Object { Write-Host ("    " + $_) }
+    } else {
+        Write-Host ("  log belum ada: {0}" -f $svcLog) -ForegroundColor Yellow
     }
 }
 
