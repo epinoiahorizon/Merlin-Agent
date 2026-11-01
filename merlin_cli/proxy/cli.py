@@ -232,6 +232,51 @@ def cmd_proxy_probe(args: Any) -> int:
         store.close()
 
 
+def cmd_proxy_dashboard(args: Any) -> int:
+    """``merlin proxy dashboard`` — public status page + QRIS top-up."""
+    from merlin_cli.proxy import qris
+    from merlin_cli.proxy.dashboard import AIOHTTP_AVAILABLE, create_dashboard_app
+    from merlin_cli.proxy.probe import ProbeStore
+    from merlin_cli.proxy.tenants import LedgerStore
+
+    if not AIOHTTP_AVAILABLE:
+        _err("dashboard membutuhkan aiohttp. Jalankan `merlin setup` untuk memasangnya.")
+        return 1
+    source = (
+        getattr(args, "qris", None)
+        or os.environ.get("MERLIN_PROXY_QRIS_FILE", "")
+        or os.environ.get("MERLIN_PROXY_QRIS", "")
+    )
+    if not source:
+        _err("QRIS belum diset. Pakai `--qris <file|payload>` atau MERLIN_PROXY_QRIS_FILE.")
+        return 2
+    try:
+        payload = qris.load_static(source)
+    except qris.QrisError as exc:
+        _err(f"QRIS tidak valid: {exc}")
+        return 2
+
+    ledger = LedgerStore(os.environ.get("MERLIN_PROXY_LEDGER") or None)
+    probes = ProbeStore(os.environ.get("MERLIN_PROXY_PROBES") or None)
+    host = getattr(args, "host", None) or "127.0.0.1"
+    port = int(getattr(args, "port", None) or 8680)
+    info = qris.describe(payload)
+    _err(
+        f"Merlin dashboard  -> http://{host}:{port}\n"
+        f"  merchant:   {info['merchant']} ({info['city']})\n"
+        f"  currency:   {info['currency']}   static: {info['static']}\n"
+        f"  billing DB: {ledger.path}\n"
+        f"  probes DB:  {probes.path}"
+    )
+    from aiohttp import web
+
+    app = create_dashboard_app(
+        ledger, probes, payload, admin_token=os.environ.get("MERLIN_PROXY_ADMIN_TOKEN", "")
+    )
+    web.run_app(app, host=host, port=port, print=None)
+    return 0
+
+
 _SUBCOMMANDS = {
     "start": cmd_proxy_start,
     "status": cmd_proxy_status,
@@ -239,6 +284,7 @@ _SUBCOMMANDS = {
     "list": cmd_proxy_list_providers,
     "catalog": cmd_proxy_catalog,
     "probe": cmd_proxy_probe,
+    "dashboard": cmd_proxy_dashboard,
 }
 
 

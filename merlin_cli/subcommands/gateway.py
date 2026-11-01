@@ -246,5 +246,12 @@ def build_gateway_parser(
     probe_status = proxy_probe_sub.add_parser("status", help="Show uptime, p50/p95 and identity verdicts")
     probe_status.add_argument("--hours", type=int, default=24, help="Window in hours (default 24)")
     proxy_probe.set_defaults(probe_command="status")
+
+    proxy_dash = proxy_subparsers.add_parser(
+        "dashboard", help="Serve the public status page and QRIS top-up flow")
+    proxy_dash.add_argument("--host", default=None, help="Bind address (default: 127.0.0.1)")
+    proxy_dash.add_argument("--port", type=int, default=None, help="Bind port (default: 8680)")
+    proxy_dash.add_argument("--qris", default=None,
+        help="Static QRIS: image path (.png/.jpg), text file with the payload, or the raw payload")
     proxy_parser.set_defaults(func=cmd_proxy)
     gateway_parser.set_defaults(func=cmd_gateway)
