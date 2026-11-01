@@ -54,8 +54,9 @@ Pick the row that matches your goal:
 ### With the Merlin Desktop installer on macOS or Windows (recommended)
 To easily install the command-line and desktop applications, [download the Merlin Desktop installer](https://withmerlin.online/) from our website and run it.
 
-### Without Merlin Desktop:
-For a command-line only install without Merlin Desktop, run:
+### Without Merlin Desktop
+
+For a command-line only install without Merlin Desktop, use one of the commands below.
 
 For aarch64 Android devices, use the separate [Termux APT guide](./termux.md).
 

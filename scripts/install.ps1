@@ -907,7 +907,7 @@ function Get-CloneFailureMessage {
     $lines += "  fixes, in order of likelihood:"
     $lines += "    1. A proxy/VPN client on this PC (Clash, v2ray, corporate) is not used by git:"
     $lines += "         git config --global http.proxy http://127.0.0.1:7890    # its actual port"
-    $lines += "         then rerun: irm https://epinoiahorizon.com/install.ps1 | iex"
+    $lines += "         then rerun: irm https://withmerlin.online/install.ps1 | iex"
     $lines += "    2. IPv6 is broken on this network: pin the IPv4 address"
     $lines += "         git config --global http.curloptResolve ${hostName}:443:<ipv4>"
     $lines += "    3. Install from a mirror instead of GitHub:"
