@@ -1792,20 +1792,21 @@ Migrate your OpenClaw setup to Merlin. Reads from `~/.openclaw` (or a custom pat
 | Option | Description |
 |--------|-------------|
 | `--dry-run` | Preview what would be migrated without writing anything. |
-| `--preset <name>` | Migration preset: `full` (all compatible settings) or `user-data` (excludes infrastructure config). Neither preset imports secrets — pass `--migrate-secrets` explicitly. |
-| `--overwrite` | Overwrite existing Merlin files on conflicts (default: refuse to apply when the plan has conflicts). |
-| `--migrate-secrets` | Include API keys in migration. Required even under `--preset full`. |
+| `--preset <name>` | Migration preset: `full` (all compatible settings) or `user-data` (excludes infrastructure config). Neither preset imports secrets — bot tokens and API keys require `--migrate-secrets`. |
+| `--overwrite` | Overwrite existing Merlin files and skill-name conflicts (default: refuse to apply when the plan has conflicts). |
+| `--migrate-secrets` | Include bot tokens (Telegram, Discord, Slack) and provider API keys. Required even under `--preset full`. |
 | `--no-backup` | Skip the pre-migration zip snapshot of `~/.merlin/` (by default a single restore-point archive is written to `~/.merlin/backups/pre-migration-*.zip` before apply; restorable with `merlin import`). |
 | `--source <path>` | Custom OpenClaw directory (default: `~/.openclaw`). |
 | `--workspace-target <path>` | Target directory for workspace instructions (AGENTS.md). |
-| `--skill-conflict <mode>` | Handle skill name collisions: `skip` (default), `overwrite`, or `rename`. |
+| `--skill-conflict <mode>` | Handle skill name collisions: `skip`, `overwrite`, or `rename`. Default: `overwrite` when `--overwrite` is set, otherwise `skip`. |
+| `--include-personal-skills` | Also import cross-project skills from `~/.agents/skills` (skipped by default: that directory is the user's own skill library, not OpenClaw state). |
 | `--yes` | Skip the confirmation prompt. |
 
 ### What gets migrated
 
 The migration covers 30+ categories across persona, memory, skills, model providers, messaging platforms, agent behavior, session policies, MCP servers, TTS, and more. Items are either **directly imported** into Merlin equivalents or **archived** for manual review.
 
-**Directly imported:** SOUL.md, MEMORY.md, USER.md, AGENTS.md, skills (4 source directories), default model, custom providers, MCP servers, messaging platform tokens and allowlists (Telegram, Discord, Slack, WhatsApp, Signal, Matrix, Mattermost), agent defaults (reasoning effort, compression, human delay, timezone, sandbox), approval rules, TTS config, browser settings, tool settings, exec timeout, command allowlist, gateway config, and API keys from 3 sources.
+**Directly imported:** SOUL.md, MEMORY.md, USER.md, AGENTS.md, skills (4 source directories), default model, custom providers, MCP servers, messaging platform allowlists (Telegram, Discord, Slack, WhatsApp, Signal, Matrix, Mattermost), agent defaults (reasoning effort, compression, human delay, timezone, sandbox), approval rules, TTS config, browser settings, tool settings, exec timeout, command allowlist, gateway config, and API keys from 3 sources. **Bot tokens and API keys require `--migrate-secrets`**; a model you already configured is kept.
 
 **Archived for manual review:** Cron jobs, plugins, hooks/webhooks, memory backend (QMD), skills registry config, UI/identity, logging, multi-agent setup, channel bindings, IDENTITY.md, TOOLS.md, HEARTBEAT.md, BOOTSTRAP.md.
 

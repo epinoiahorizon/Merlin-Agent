@@ -408,7 +408,7 @@ def test_source_candidate_finds_files_in_custom_workspace(tmp_path: Path):
 
 
 def test_slack_settings_migrated(tmp_path: Path):
-    """Slack bot/app tokens and allowlist migrate to .env."""
+    """Slack allowlist migrates; bot/app tokens need --migrate-secrets (they are credentials)."""
     mod = load_module()
     source = tmp_path / ".openclaw"
     target = tmp_path / ".merlin"
@@ -435,9 +435,20 @@ def test_slack_settings_migrated(tmp_path: Path):
     )
     report = migrator.migrate()
     env_text = (target / ".env").read_text(encoding="utf-8")
+    assert "SLACK_ALLOWED_USERS=U111,U222" in env_text
+    # Tokens are secrets: withheld here, and the report says how to import them.
+    assert "xoxb-slack-bot" not in env_text
+    assert "xapp-slack-app" not in env_text
+
+    migrator = mod.Migrator(
+        source_root=source, target_root=target, execute=True,
+        workspace_target=None, overwrite=True, migrate_secrets=True, output_dir=None,
+        selected_options={"slack-settings"},
+    )
+    migrator.migrate()
+    env_text = (target / ".env").read_text(encoding="utf-8")
     assert "SLACK_BOT_TOKEN=xoxb-slack-bot" in env_text
     assert "SLACK_APP_TOKEN=xapp-slack-app" in env_text
-    assert "SLACK_ALLOWED_USERS=U111,U222" in env_text
 
 
 
@@ -694,6 +705,196 @@ def test_messaging_settings_handles_invalid_utf8_in_telegram_allowlist(tmp_path:
     assert items and items[0]["status"] == "migrated"
     env_text = (target / ".env").read_text(encoding="utf-8")
     assert "123456789" in env_text
+
+
+# ── channel bot tokens are secrets (Slack / Discord) ─────────────────────────
+
+
+def _migrate_channel(mod, source: Path, target: Path, option: str, *,
+                     migrate_secrets: bool) -> dict:
+    return mod.Migrator(
+        source_root=source, target_root=target, execute=True,
+        workspace_target=None, overwrite=True, migrate_secrets=migrate_secrets,
+        output_dir=None, selected_options={option},
+    ).migrate()
+
+
+def test_slack_tokens_require_migrate_secrets(tmp_path: Path):
+    """Slack bot/app tokens are credentials: withheld unless --migrate-secrets.
+
+    Regression: ``migrate_slack_settings`` wrote both tokens into .env regardless of the flag, so
+    ``--preset user-data`` ("migrate without secrets") still copied real Slack credentials.
+    """
+    mod = load_module()
+    source = tmp_path / ".openclaw"
+    target = tmp_path / ".merlin"
+    source.mkdir()
+    target.mkdir()
+    (source / "openclaw.json").write_text(
+        json.dumps({"channels": {"slack": {
+            "botToken": "xoxb-fake", "appToken": "xapp-fake", "allowFrom": ["U1"],
+        }}}),
+        encoding="utf-8",
+    )
+
+    report = _migrate_channel(mod, source, target, "slack-settings", migrate_secrets=False)
+    env_text = (target / ".env").read_text(encoding="utf-8") if (target / ".env").exists() else ""
+    assert "xoxb-fake" not in env_text
+    assert "xapp-fake" not in env_text
+    assert "SLACK_ALLOWED_USERS=U1" in env_text
+    slack_items = [i for i in report["items"] if i["kind"] == "slack-settings"]
+    assert slack_items and "SLACK_BOT_TOKEN" in json.dumps(slack_items[0])
+
+    _migrate_channel(mod, source, target, "slack-settings", migrate_secrets=True)
+    env_text = (target / ".env").read_text(encoding="utf-8")
+    assert "SLACK_BOT_TOKEN=xoxb-fake" in env_text
+    assert "SLACK_APP_TOKEN=xapp-fake" in env_text
+
+
+def test_discord_token_requires_migrate_secrets(tmp_path: Path):
+    """Discord bot token is a credential: withheld unless --migrate-secrets."""
+    mod = load_module()
+    source = tmp_path / ".openclaw"
+    target = tmp_path / ".merlin"
+    source.mkdir()
+    target.mkdir()
+    (source / "openclaw.json").write_text(
+        json.dumps({"channels": {"discord": {"token": "discord-token-fake", "allowFrom": ["D1"]}}}),
+        encoding="utf-8",
+    )
+
+    _migrate_channel(mod, source, target, "discord-settings", migrate_secrets=False)
+    env_text = (target / ".env").read_text(encoding="utf-8")
+    assert "discord-token-fake" not in env_text
+    assert "DISCORD_ALLOWED_USERS=D1" in env_text
+
+    _migrate_channel(mod, source, target, "discord-settings", migrate_secrets=True)
+    env_text = (target / ".env").read_text(encoding="utf-8")
+    assert "DISCORD_BOT_TOKEN=discord-token-fake" in env_text
+
+
+# ── SOUL.md: a stock template is not a conflict ──────────────────────────────
+
+
+def test_stock_soul_is_replaced_without_overwrite(tmp_path: Path):
+    """An untouched, auto-seeded SOUL.md must not block the migration.
+
+    Regression: every real install has a SOUL.md from first run, so the documented
+    ``merlin claw migrate`` refused to apply ("Plan has 1 conflict(s)") for everyone.
+    """
+    from merlin_cli.default_soul import DEFAULT_SOUL_MD
+
+    mod = load_module()
+    source = tmp_path / ".openclaw"
+    target = tmp_path / ".merlin"
+    (source / "workspace").mkdir(parents=True)
+    target.mkdir()
+    (source / "workspace" / "SOUL.md").write_text(
+        "# SOUL\n\nI am a persona from OpenClaw.\n", encoding="utf-8")
+    (target / "SOUL.md").write_text(DEFAULT_SOUL_MD, encoding="utf-8")
+
+    report = mod.Migrator(
+        source_root=source, target_root=target, execute=True,
+        workspace_target=None, overwrite=False, migrate_secrets=False,
+        output_dir=None, selected_options={"soul"},
+    ).migrate()
+
+    soul_items = [i for i in report["items"] if i["kind"] == "soul"]
+    assert soul_items and soul_items[0]["status"] == "migrated"
+    assert report["summary"]["conflict"] == 0
+    migrated = (target / "SOUL.md").read_text(encoding="utf-8")
+    assert "persona from Merlin" in migrated
+
+
+def test_customized_soul_still_conflicts_without_overwrite(tmp_path: Path):
+    """A SOUL.md the user actually edited is still protected."""
+    mod = load_module()
+    source = tmp_path / ".openclaw"
+    target = tmp_path / ".merlin"
+    (source / "workspace").mkdir(parents=True)
+    target.mkdir()
+    (source / "workspace" / "SOUL.md").write_text("# SOUL\n\nIncoming persona.\n", encoding="utf-8")
+    mine = "# My persona\n\nBe terse and never use em dashes.\n"
+    (target / "SOUL.md").write_text(mine, encoding="utf-8")
+
+    report = mod.Migrator(
+        source_root=source, target_root=target, execute=True,
+        workspace_target=None, overwrite=False, migrate_secrets=False,
+        output_dir=None, selected_options={"soul"},
+    ).migrate()
+
+    soul_items = [i for i in report["items"] if i["kind"] == "soul"]
+    assert soul_items and soul_items[0]["status"] == "conflict"
+    assert (target / "SOUL.md").read_text(encoding="utf-8") == mine
+
+
+# ── ~/.agents/skills is opt-in ───────────────────────────────────────────────
+
+
+def test_agents_skills_not_imported_by_default(tmp_path: Path, monkeypatch):
+    """~/.agents/skills is the user's own library, not OpenClaw state.
+
+    Regression: every migration copied it into skills/openclaw-imports/, pulling unrelated
+    skills into the new profile.
+    """
+    mod = load_module()
+    home = tmp_path / "home"
+    personal = home / ".agents" / "skills" / "unrelated-skill"
+    personal.mkdir(parents=True)
+    (personal / "SKILL.md").write_text(
+        "---\nname: unrelated-skill\ndescription: not from openclaw\n---\n\nbody\n", encoding="utf-8")
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
+
+    source = tmp_path / ".openclaw"
+    target = tmp_path / ".merlin"
+    source.mkdir()
+    target.mkdir()
+
+    mod.Migrator(
+        source_root=source, target_root=target, execute=True,
+        workspace_target=None, overwrite=False, migrate_secrets=False,
+        output_dir=None, selected_options={"shared-skills"},
+    ).migrate()
+    imported = target / "skills" / mod.SKILL_CATEGORY_DIRNAME / "unrelated-skill"
+    assert not imported.exists()
+
+    mod.Migrator(
+        source_root=source, target_root=target, execute=True,
+        workspace_target=None, overwrite=False, migrate_secrets=False,
+        output_dir=None, selected_options={"shared-skills"},
+        include_personal_skills=True,
+    ).migrate()
+    assert (imported / "SKILL.md").exists()
+
+
+# ── an already-configured model must not block the plan ─────────────────────
+
+
+def test_existing_model_is_skipped_not_a_blocking_conflict(tmp_path: Path):
+    """A model the user already chose is kept, and the migration still applies.
+
+    Regression: this was recorded as a conflict, so on the "anytime after install" path — where
+    `merlin setup` has always set a model — `merlin claw migrate` refused to apply at all.
+    """
+    mod = load_module()
+    source = tmp_path / ".openclaw"
+    target = tmp_path / ".merlin"
+    source.mkdir()
+    target.mkdir()
+    (source / "openclaw.json").write_text(
+        json.dumps({"agents": {"defaults": {"model": "anthropic/claude-sonnet-4"}}}), encoding="utf-8")
+    (target / "config.yaml").write_text("model:\n  default: my-chosen-model\n", encoding="utf-8")
+
+    report = mod.Migrator(
+        source_root=source, target_root=target, execute=True,
+        workspace_target=None, overwrite=False, migrate_secrets=False,
+        output_dir=None, selected_options={"model-config"},
+    ).migrate()
+
+    rows = [i for i in report["items"] if i["kind"] == "model-config"]
+    assert rows and rows[0]["status"] == "skipped"
+    assert report["summary"]["conflict"] == 0
+    assert "my-chosen-model" in (target / "config.yaml").read_text(encoding="utf-8")
 
 
 

@@ -471,22 +471,23 @@ class CLITuiMixin:
         c_text  = skin.get_color("banner_text",  "#fdf6e3") if skin else "#fdf6e3"
         c_good  = skin.get_color("ui_ok",        "#859900") if skin else "#859900"
 
-        try:
-            from cli import get_skill_bundles
-            skill_count = f"{len(get_skill_bundles())} active skills"
-        except Exception:
-            skill_count = "ready skills"   # count is cosmetic; never break the TUI over it
-        if skill_count == "0 active skills":
-            # Bundles lazy-load on first use; don't show an empty count at boot.
-            skill_count = "grimoire loaded"
-
         def status_text():
             # Template band: title + key hints on ONE row, then a single inline
             # status line — ᛟ Incantation ᛞ Runes ᚨ Mana ᛝ Response.
-            # Live read on EVERY render: /model and config writes must repaint
-            # the Incantation row without a layout rebuild (a boot-time snapshot
-            # froze the old model until restart).
+            #
+            # Incantation and Runes read LIVE state on every repaint: the layout
+            # is built once at startup, so capturing them in the outer scope
+            # would freeze the panel to startup values across a mid-session
+            # /model switch or skill install.
             model_now = getattr(self, "model", "") or "unconfigured"
+            try:
+                from cli import get_skill_bundles
+                skill_count = f"{len(get_skill_bundles())} active skills"
+            except Exception:
+                skill_count = "ready skills"   # count is cosmetic; never break the TUI over it
+            if skill_count == "0 active skills":
+                # Bundles lazy-load on first use; don't show an empty count at boot.
+                skill_count = "grimoire loaded"
             mana_part = ""
             mstyle = "fg:" + c_dim
             response_state = "warming"

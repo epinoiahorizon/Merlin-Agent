@@ -358,7 +358,7 @@ class LongPreviewAgent:
 
 
 class UrlPreviewAgent:
-    URL = "https://merlin-agent.epinoiahorizon.com/docs/gateway/discord/tool-progress"
+    URL = "https://docs.withmerlin.online/docs/gateway/discord/tool-progress"
 
     def __init__(self, **kwargs):
         self.tool_progress_callback = kwargs.get("tool_progress_callback")

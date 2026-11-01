@@ -74,7 +74,7 @@ def remote_host(git_cmd: Sequence[str], repo_root: Path, remote: str = "origin")
     try:
         result = subprocess.run(
             [*git_cmd, "-C", str(repo_root), "config", "--get", f"remote.{remote}.url"],
-            capture_output=True, text=True, timeout=10, stdin=subprocess.DEVNULL,
+            capture_output=True, text=True, timeout=10, stdin=subprocess.DEVNULL, encoding="utf-8",
         )
     except (OSError, subprocess.SubprocessError):
         return None
@@ -205,7 +205,7 @@ def _applied(git_cmd: Sequence[str], repo_root: Path, settings: Iterable[str]) -
         try:
             result = subprocess.run(
                 [*git_cmd, "-C", str(repo_root), "config", "--local", "--get", key],
-                capture_output=True, text=True, timeout=10, stdin=subprocess.DEVNULL,
+                capture_output=True, text=True, timeout=10, stdin=subprocess.DEVNULL, encoding="utf-8",
             )
         except (OSError, subprocess.SubprocessError):
             result = None
@@ -221,7 +221,7 @@ def _persist(git_cmd: Sequence[str], repo_root: Path, settings: Iterable[str]) -
         try:
             subprocess.run(
                 [*git_cmd, "-C", str(repo_root), "config", "--local", key, value],
-                capture_output=True, text=True, timeout=10, stdin=subprocess.DEVNULL,
+                capture_output=True, text=True, timeout=10, stdin=subprocess.DEVNULL, encoding="utf-8",
             )
         except (OSError, subprocess.SubprocessError):
             continue

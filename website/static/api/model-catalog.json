@@ -3,7 +3,7 @@
   "updated_at": "2026-09-29T19:47:11Z",
   "metadata": {
     "source": "merlin-agent repo",
-    "docs": "https://merlin-agent.epinoiahorizon.com/docs/reference/model-catalog"
+    "docs": "https://docs.withmerlin.online/docs/reference/model-catalog"
   },
   "providers": {
     "openrouter": {
