@@ -1,0 +1,47 @@
+# Merlin Gateway — dua layanan, satu volume.
+#
+#   docker compose -f deploy/docker-compose.gateway.yml up -d --build
+#
+# Port sengaja di-bind ke 127.0.0.1 saja: TLS dan domain ditangani nginx/Caddy di host, bukan
+# container. SQLite (WAL) dipakai bersama oleh gateway dan dashboard — aman di satu host, tapi
+# JANGAN taruh file DB di NFS/volume jaringan.
+services:
+  gateway:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.gateway
+    command: ["serve", "--provider", "generic", "--host", "0.0.0.0", "--port", "8645"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8645:8645"
+    environment:
+      MERLIN_PROXY_METERING: "1"
+      MERLIN_PROXY_LEDGER: /data/ledger.db
+      MERLIN_PROXY_PROBES: /data/ledger.db
+      MERLIN_PROXY_UPSTREAMS: /config/proxy_upstreams.json
+    volumes:
+      - ./data:/data
+      - ./config:/config:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8645/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  dashboard:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.gateway
+    command: ["dashboard", "--host", "0.0.0.0", "--port", "8680", "--qris", "/config/qris.txt"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8680:8680"
+    environment:
+      MERLIN_PROXY_LEDGER: /data/ledger.db
+      MERLIN_PROXY_PROBES: /data/ledger.db
+      MERLIN_PROXY_ADMIN_TOKEN: ${MERLIN_PROXY_ADMIN_TOKEN:?set an admin token in .env}
+      MERLIN_PROXY_WEBHOOK_SECRET: ${MERLIN_PROXY_WEBHOOK_SECRET:-}
+      MERLIN_PROXY_INVOICE_TTL: ${MERLIN_PROXY_INVOICE_TTL:-1800}
+    volumes:
+      - ./data:/data
+      - ./config:/config:ro

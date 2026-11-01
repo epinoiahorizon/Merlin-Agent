@@ -1,0 +1,40 @@
+# Cloudflare Tunnel untuk gateway yang jalan DI MESIN INI (bukan VPS).
+#
+# Tidak perlu port forwarding, tidak perlu IP publik, tidak perlu sertifikat: TLS diterminasi
+# Cloudflare, lalu terowongan keluar dari PC ini ke edge mereka.
+#
+# Ganti __GW_HOST__ (dashboard) dan __API_HOST__ dengan subdomain dari domain yang SUDAH ada di
+# akun Cloudflare Anda — tidak perlu beli domain baru.
+#
+# Pasang (sekali, butuh klik browser untuk login):
+#   cloudflared tunnel login
+#   cloudflared tunnel create merlin-gateway
+#   cloudflared tunnel route dns merlin-gateway __GW_HOST__
+#   cloudflared tunnel route dns merlin-gateway __API_HOST__
+#   cloudflared tunnel --config deploy\windows\cloudflared-config.yml run
+#
+# Sebagai service Windows (tanpa jendela):
+#   cloudflared --config deploy\windows\cloudflared-config.yml service install
+#   net start cloudflared
+
+tunnel: merlin-gateway
+credentials-file: C:\Users\JM Project\.cloudflared\<TUNNEL-ID>.json
+
+ingress:
+  # Dashboard publik: status terukur + top-up QRIS.
+  - hostname: __GW_HOST__
+    service: http://127.0.0.1:8680
+    originRequest:
+      noTLSVerify: true
+
+  # Gateway OpenAI-compatible. Streaming harus lewat tanpa buffering.
+  - hostname: __API_HOST__
+    service: http://127.0.0.1:8645
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+      # Jangan matikan koneksi di tengah jawaban panjang:
+      disableChunkedEncoding: false
+
+  # Wajib ada, dan harus terakhir.
+  - service: http_status:404
