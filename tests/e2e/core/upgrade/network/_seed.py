@@ -200,8 +200,8 @@ def seed_install(root: Path) -> Installed:
     # From here on the checkout talks to the official URL, which only the proxy can serve.
     (sb.home / ".gitconfig").write_text("", encoding="utf-8")
     gitroot = root / "gitroot"
-    (gitroot / "AtlasResearch").mkdir(parents=True, exist_ok=True)
-    (gitroot / "AtlasResearch" / "merlin-agent.git").symlink_to(origin)
+    (gitroot / "epinoiahorizon").mkdir(parents=True, exist_ok=True)
+    (gitroot / "epinoiahorizon" / "Merlin-Agent.git").symlink_to(origin)
     ca = N.TestCA(root / "corporate-ca")
     inst = Installed(root, sb, origin, gitroot, ca, ca.os_trust_store(root / "corporate-ca" / "etc-ssl-certs"))
     assert_isolated(inst)

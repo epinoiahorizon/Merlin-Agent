@@ -29,6 +29,7 @@ MERLIN_OVERLAYS: Dict[str, MerlinOverlay] = {
     "moa": MerlinOverlay(auth_type="virtual", base_url_override="moa://local"),
     "openrouter": MerlinOverlay(is_aggregator=True, base_url_env_var="OPENROUTER_BASE_URL"),
     "atlas": MerlinOverlay(auth_type="oauth_device_code", base_url_override="https://inference-api.epinoiahorizon.com/v1"),
+    "commandcode": MerlinOverlay(extra_env_vars=("COMMANDCODE_API_KEY", "COMMANDCODE_BASE_URL")),
     "openai-codex": MerlinOverlay(transport="codex_responses", auth_type="oauth_external",
                                   base_url_override="https://chatgpt.com/backend-api/codex"),
     "openai-api": MerlinOverlay(transport="codex_responses", base_url_override="https://api.openai.com/v1",

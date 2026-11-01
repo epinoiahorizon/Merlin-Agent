@@ -11,6 +11,49 @@ import psutil
 import pytest
 
 
+def _threads_suspended_by_create(pid):
+    """Kernel-accurate CREATE_SUSPENDED oracle: every thread must carry a suspend count of 1.
+
+    psutil's status()=='stopped' heuristic misreports a suspended child as 'running' on
+    Windows Server 2025 runners (NtQuerySystemInformation thread-state reporting), so probe
+    the real suspend counts instead: SuspendThread returns the PREVIOUS count, and a thread
+    frozen by CREATE_SUSPENDED reads 1. Each probe suspension is immediately undone.
+    """
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+
+    class THREADENTRY32(ctypes.Structure):
+        _fields_ = [("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD),
+                    ("th32ThreadID", wintypes.DWORD), ("th32OwnerProcessID", wintypes.DWORD),
+                    ("tpBasePri", ctypes.c_long), ("tpDeltaPri", ctypes.c_long),
+                    ("dwFlags", wintypes.DWORD)]
+
+    snap = kernel32.CreateToolhelp32Snapshot(0x4, 0)  # TH32CS_SNAPTHREAD
+    if snap == -1:
+        return False
+    counts = []
+    try:
+        te = THREADENTRY32()
+        te.dwSize = ctypes.sizeof(THREADENTRY32)
+        if kernel32.Thread32First(snap, ctypes.byref(te)):
+            while True:
+                if te.th32OwnerProcessID == pid:
+                    h = kernel32.OpenThread(0x2, False, te.th32ThreadID)  # THREAD_SUSPEND_RESUME
+                    if h:
+                        prev = kernel32.SuspendThread(h)  # returns PREVIOUS suspend count
+                        if prev >= 0:
+                            kernel32.ResumeThread(h)      # undo the probe suspension
+                        counts.append(prev)
+                        kernel32.CloseHandle(h)
+                if not kernel32.Thread32Next(snap, ctypes.byref(te)):
+                    break
+    finally:
+        kernel32.CloseHandle(snap)
+    return bool(counts) and all(c == 1 for c in counts)
+
+
 _SCRIPT = r'''
 import json, os, subprocess, sys, time
 from pathlib import Path
@@ -174,7 +217,7 @@ def test_failed_setup_never_runs_child_and_releases_handles(tmp_path, monkeypatc
 
     def assign(job, proc):
         children.append(proc)
-        assert psutil.Process(proc.pid).status() == psutil.STATUS_STOPPED
+        assert _threads_suspended_by_create(proc.pid), "child was not suspended before job assignment"
         assert not marker.exists()
         # Query the actual kernel object, not implementation source/constants.
         limits = processes._ExtendedLimits()

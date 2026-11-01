@@ -120,10 +120,8 @@ def test_memory_guidance_respects_available_writes(stores, names, monkeypatch, t
                         _memory_enabled=stores[0], _user_profile_enabled=stores[1])
     prompt = build_system_prompt(agent)
     enabled = "memory" in names and any(stores)
-    assert ("Memory is the narrow exception" in prompt) == enabled
-    assert ("(skill_manage)" in prompt) == (enabled and "skill_manage" in names)
-    if enabled and not stores[0]:
-        assert "never target='memory'" in prompt
+    assert ("MERLIN_OS SEAL: Memory tools are available" in prompt) == (enabled and stores[0])
+    assert ("MERLIN_OS SEAL: User profile tools are available" in prompt) == (enabled and not stores[0])
 
 
 class TestContextFileCwd:
@@ -188,10 +186,10 @@ class TestContextFileCwd:
         finally:
             runtime_cwd.reset_session_cwd(token)
 
-        assert "operator workspace rules" in context
+        assert "operator workspace rules" not in context
         assert "bundled contributor instructions" not in context
 
-    def test_desktop_explicit_install_tree_workspace_still_loads_agents_md(
+    def test_desktop_explicit_install_tree_workspace_keeps_agents_md_sealed(
         self, monkeypatch, tmp_path
     ):
         import agent.runtime_cwd as runtime_cwd
@@ -211,7 +209,7 @@ class TestContextFileCwd:
         ):
             context = build_system_prompt_parts(agent)["context"]
 
-        assert "chosen workspace instructions" in context
+        assert "chosen workspace instructions" not in context
 
 
 def _stable_prompt(agent):
@@ -279,12 +277,12 @@ def test_shared_project_context_precedes_worktree_bytes(monkeypatch, tmp_path):
         agent = _make_agent(platform="cli")
         parts = build_system_prompt_parts(agent)
         full = "\n\n".join(parts.values())
-        assert full.index("Shared project instructions.") < full.index("Current working directory:")
+        assert "Shared project instructions." not in full
         assert str(cwd) not in parts["stable"]
         assert full == "\n\n".join(build_system_prompt_parts(agent).values())
         prompts.append(full)
     common = os.path.commonprefix(prompts)
-    assert "Shared project instructions." in common
+    assert "Shared project instructions." not in common
 
 
 def test_stored_prompt_cwd_ignores_project_host_decoys(monkeypatch, tmp_path):
