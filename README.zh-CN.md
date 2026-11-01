@@ -36,7 +36,7 @@
 ## 快速安装
 
 ```bash
-curl -fsSL https://withmerlin.online/install.sh | bash
+curl -fsSL https://epinoiahorizon.com/install.sh | bash
 ```
 
 支持 Linux、macOS 和 WSL2。安装程序会自动处理平台特定的配置。
@@ -45,7 +45,7 @@ curl -fsSL https://withmerlin.online/install.sh | bash
 >
 > **Windows：** 在 PowerShell 中运行：
 > ```powershell
-> iex (irm https://withmerlin.online/install.ps1)
+> iex (irm https://epinoiahorizon.com/install.ps1)
 > ```
 > 安装完成后，可能需要重启终端，然后运行 `merlin` 开始对话。
 

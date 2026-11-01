@@ -54,14 +54,14 @@ For a command-line only install without Merlin Desktop, use one of the commands 
 
 #### Linux / macOS / WSL2
 ```bash
-curl -fsSL https://withmerlin.online/install.sh | bash
+curl -fsSL https://epinoiahorizon.com/install.sh | bash
 ```
 
 #### Windows (native)
 
 Run in powershell:
 ```powershell
-iex (irm https://withmerlin.online/install.ps1) 
+iex (irm https://epinoiahorizon.com/install.ps1)
 ```
 
 If you want to install & run Merlin Desktop after a command-line only install, simply run
@@ -203,7 +203,7 @@ configuration, and launcher must belong to that user.
 2. As the service user, run the regular installer:
 
    ```bash
-   curl -fsSL https://withmerlin.online/install.sh | bash
+   curl -fsSL https://epinoiahorizon.com/install.sh | bash
    ```
 
 3. Add the actual launcher directory to the service user's shell environment:
