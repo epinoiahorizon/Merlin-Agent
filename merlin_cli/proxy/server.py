@@ -122,7 +122,13 @@ def _settle_hold(
         logger.warning("proxy: settlement failed for %s: %s", hold.request_id, exc)
 
 
-async def _open_upstream(request: "web.Request", rel_path: str, body: bytes, cred: UpstreamCredential):
+async def _open_upstream(
+    request: "web.Request",
+    rel_path: str,
+    body: bytes,
+    cred: UpstreamCredential,
+    overrides: Optional[dict] = None,
+):
     """Send the request upstream with ``cred``; returns ``(session, response)`` or
     ``(error_response, None)``."""
     upstream_url = f"{cred.base_url.rstrip('/')}{rel_path}"
@@ -130,6 +136,13 @@ async def _open_upstream(request: "web.Request", rel_path: str, body: bytes, cre
         upstream_url = f"{upstream_url}?{request.query_string}"
     fwd_headers = _filter_headers(request.headers)
     fwd_headers["Authorization"] = f"{cred.token_type} {cred.bearer}"
+    # Ask for an uncompressed body. We drop content-encoding on the way back (otherwise the client
+    # receives raw brotli/gzip bytes with no header saying so), and aiohttp cannot decode `br`
+    # without the optional Brotli package — Cloudflare-fronted relays do return it. Removing the
+    # header is not enough: aiohttp then injects its own "gzip, deflate, zstd" default.
+    fwd_headers["Accept-Encoding"] = "identity"
+    if overrides:
+        fwd_headers.update(overrides)
     logger.debug("proxy: forwarding %s %s -> %s (body=%d bytes)", request.method, rel_path, upstream_url, len(body))
     try:
         session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=None, sock_connect=15, sock_read=300))
@@ -210,8 +223,23 @@ async def _stream_back(
         await session.close()
         if meter is not None and hold is not None:
             _settle_hold(meter, hold, upstream_resp.status, scanner, buffered, request_body, generated)
-    await resp.write_eof()
+    await _safe_write_eof(resp)
     return resp
+
+
+async def _safe_write_eof(resp) -> None:
+    """Finish the response, tolerating a client that hung up first.
+
+    Cloudflare (or any impatient client) can reset the connection while we are still writing. The
+    old code let aiohttp raise ``ClientConnectionResetError`` out of the handler, producing a
+    traceback per aborted request instead of a clean finish.
+    """
+    try:
+        await resp.write_eof()
+    except (ConnectionResetError, asyncio.CancelledError, OSError) as exc:
+        logger.debug("proxy: client hung up before EOF: %s", exc)
+    except Exception as exc:  # pragma: no cover - aiohttp internals; never break the loop
+        logger.debug("proxy: write_eof failed: %s", exc)
 
 
 def create_app(adapter: UpstreamAdapter, meter: Optional["Meter"] = None) -> "web.Application":
@@ -261,6 +289,7 @@ def create_app(adapter: UpstreamAdapter, meter: Optional["Meter"] = None) -> "we
         except Exception as exc:
             logger.warning("proxy: credential resolution failed: %s", exc)
             return _json_error(401, str(exc), code="upstream_auth_failed")
+        overrides = adapter.request_overrides(model)
         hold = None
         if active_meter is not None and key is not None:
             if rel_path in _METERED_PATHS:
@@ -273,7 +302,7 @@ def create_app(adapter: UpstreamAdapter, meter: Optional["Meter"] = None) -> "we
                 return _json_error(402, str(exc), code="insufficient_balance")
             if hold is None:
                 return _json_error(402, "insufficient balance for this request", code="insufficient_balance")
-        session, upstream_resp = await _open_upstream(request, rel_path, body, cred)
+        session, upstream_resp = await _open_upstream(request, rel_path, body, cred, overrides)
         if upstream_resp is None:
             if active_meter is not None and hold is not None:
                 await asyncio.to_thread(active_meter.release, hold)
@@ -291,7 +320,7 @@ def create_app(adapter: UpstreamAdapter, meter: Optional["Meter"] = None) -> "we
             if retry_cred is not None:
                 upstream_resp.release()
                 await session.close()
-                session, upstream_resp = await _open_upstream(request, rel_path, body, retry_cred)
+                session, upstream_resp = await _open_upstream(request, rel_path, body, retry_cred, overrides)
                 if upstream_resp is None:
                     if active_meter is not None and hold is not None:
                         await asyncio.to_thread(active_meter.release, hold)

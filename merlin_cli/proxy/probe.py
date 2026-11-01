@@ -134,6 +134,7 @@ def run_probe(
     model: str,
     upstream: str = "",
     timeout_s: float = 20.0,
+    user_agent: str = "",
 ) -> ProbeResult:
     """One cheap completion against ``model``; never raises for upstream-level failures."""
     url = f"{base_url.rstrip('/')}/chat/completions"
@@ -143,7 +144,10 @@ def run_probe(
         "max_tokens": PROBE_MAX_TOKENS,
         "temperature": 0,
     }
-    headers = {"Content-Type": "application/json", "User-Agent": "merlin-proxy-probe/1.0"}
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": user_agent or "merlin-proxy/1.0",
+    }
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
     request = urllib.request.Request(
@@ -337,7 +341,14 @@ def probe_specs(
             models = models[:limit]
         api_key = spec.keys[0] if getattr(spec, "keys", ()) else ""
         for model in models:
-            result = run_probe(spec.base_url, api_key, model, upstream=spec.name, timeout_s=timeout_s)
+            result = run_probe(
+                spec.base_url,
+                api_key,
+                model,
+                upstream=spec.name,
+                timeout_s=timeout_s,
+                user_agent=getattr(spec, "user_agent", "") or "",
+            )
             verdict = store.record(result)
             out.append((result, verdict))
     return out

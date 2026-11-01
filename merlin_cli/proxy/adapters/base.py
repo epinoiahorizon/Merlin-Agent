@@ -56,6 +56,16 @@ class UpstreamAdapter(ABC):
         _ = model
         return self.get_credential()
 
+    def request_overrides(self, model: str = "") -> dict:
+        """Headers to apply on top of the forwarded request (e.g. a WAF-safe ``User-Agent``).
+
+        Relays behind Cloudflare sit in front of a WAF that bans unknown browser fingerprints
+        (error 1010). A gateway that forwards ``curl``/SDK defaults gets blocked before the key is
+        even checked, so the override belongs to the upstream config, not to the client.
+        """
+        _ = model
+        return {}
+
     def get_retry_credential(
         self, *, failed_credential: UpstreamCredential, status_code: int
     ) -> Optional[UpstreamCredential]:

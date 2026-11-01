@@ -31,11 +31,15 @@ class MockUpstream:
     def __init__(self, mode: str = "stream", status: int = 200) -> None:
         self.mode, self.status = mode, status
         self.bodies: list[bytes] = []
+        self.user_agents: list[str] = []
+        self.accept_encodings: list[str] = []
         self.app = web.Application()
         self.app.router.add_route("*", "/{tail:.*}", self.handle)
 
     async def handle(self, request: web.Request) -> web.StreamResponse:
         self.bodies.append(await request.read())
+        self.user_agents.append(request.headers.get("User-Agent", ""))
+        self.accept_encodings.append(request.headers.get("Accept-Encoding", ""))
         if self.status >= 400:
             return web.json_response({"error": {"message": "upstream exploded"}}, status=self.status)
         if self.mode == "json_no_usage":
@@ -272,6 +276,59 @@ async def test_unmetered_proxy_keeps_previous_behaviour(tmp_path) -> None:
     finally:
         await client.close()
         await up_server.close()
+
+
+async def test_upstream_user_agent_override_reaches_the_upstream(tmp_path) -> None:
+    """A WAF-fronted relay bans unknown fingerprints; the adapter's UA must replace the client's."""
+    browser_ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/141.0.0.0 Safari/537.36"
+
+    class UaAdapter(StubAdapter):
+        def request_overrides(self, model: str = "") -> dict:
+            return {"User-Agent": browser_ua}
+
+    upstream = MockUpstream(mode="json")
+    up_server = TestServer(upstream.app)
+    await up_server.start_server()
+    store = LedgerStore(tmp_path / "ledger.db")
+    store.set_price(MODEL, PRICE_IN, PRICE_OUT)
+    tenant = store.create_tenant("acme", initial_micros=10_000)
+    token = store.issue_key(tenant)
+    client = TestClient(TestServer(create_app(UaAdapter(str(up_server.make_url("/v1"))), meter=Meter(store))))
+    await client.start_server()
+    try:
+        response = await client.post(
+            "/v1/chat/completions",
+            json=_payload(stream=False),
+            headers={"Authorization": f"Bearer {token}", "User-Agent": "curl/8.5.0"},
+        )
+        assert response.status == 200
+        await response.read()
+        assert upstream.user_agents == [browser_ua]
+    finally:
+        await client.close()
+        await up_server.close()
+        store.close()
+
+
+async def test_upstream_is_never_asked_for_a_compressed_body(tmp_path) -> None:
+    """We drop content-encoding on the way back, so we must not request br/gzip upstream.
+
+    A Cloudflare-fronted relay happily answers `Accept-Encoding: br`; aiohttp without the Brotli
+    package then fails with "Can not decode content-encoding: brotli", surfacing as a 502 to the
+    client. Requesting identity removes the whole class of failure.
+    """
+    h = await _harness(tmp_path, mode="json")
+    try:
+        response = await h.client.post(
+            "/v1/chat/completions",
+            json=_payload(stream=False),
+            headers={"Authorization": f"Bearer {h.key}", "Accept-Encoding": "gzip, br"},
+        )
+        assert response.status == 200
+        await response.read()
+        assert h.upstream.accept_encodings == ["identity"]
+    finally:
+        await _close(h)
 
 
 async def test_upstream_without_usage_is_billed_as_estimated(tmp_path) -> None:

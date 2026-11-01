@@ -105,8 +105,10 @@ def test_retail_preserves_absent_cache_price() -> None:
 class _ModelsHandler(BaseHTTPRequestHandler):
     payload = {"data": [{"id": "beta"}, {"id": "alpha"}, {"id": "alpha"}]}
     status = 200
+    last_user_agent = ""
 
     def do_GET(self) -> None:  # noqa: N802 - stdlib naming
+        _ModelsHandler.last_user_agent = self.headers.get("User-Agent", "")
         body = json.dumps(self.payload).encode()
         self.send_response(self.status)
         self.send_header("Content-Type", "application/json")
@@ -134,6 +136,13 @@ def test_fetch_models_sorts_and_dedupes(models_server) -> None:
     assert cat.fetch_models(models_server, "k") == ["alpha", "beta"]
 
 
+def test_fetch_models_sends_the_configured_user_agent(models_server) -> None:
+    """Relay hosts behind Cloudflare ban unknown fingerprints (error 1010) before auth is checked."""
+    browser_ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/141.0.0.0 Safari/537.36"
+    cat.fetch_models(models_server, "k", user_agent=browser_ua)
+    assert _ModelsHandler.last_user_agent == browser_ua
+
+
 def test_fetch_models_reports_http_error(models_server) -> None:
     _ModelsHandler.status = 401
     try:
@@ -156,7 +165,7 @@ def _spec(name: str = "mock") -> UpstreamSpec:
 
 
 def test_sync_prices_writes_retail_prices_with_source(store, monkeypatch) -> None:
-    monkeypatch.setattr(cat, "fetch_models", lambda base, key, timeout_s=20.0: ["deepseek-v4-flash", "mystery-model"])
+    monkeypatch.setattr(cat, "fetch_models", lambda base, key, timeout_s=20.0, user_agent="": ["deepseek-v4-flash", "mystery-model"])
     book = cat.parse_reference(OPENROUTER_SHAPED)
 
     report = cat.sync_prices(store, [_spec()], book, markup_bps=1500)
@@ -170,7 +179,7 @@ def test_sync_prices_writes_retail_prices_with_source(store, monkeypatch) -> Non
 
 
 def test_second_sync_is_a_no_op_for_history(store, monkeypatch) -> None:
-    monkeypatch.setattr(cat, "fetch_models", lambda base, key, timeout_s=20.0: ["deepseek-v4-flash"])
+    monkeypatch.setattr(cat, "fetch_models", lambda base, key, timeout_s=20.0, user_agent="": ["deepseek-v4-flash"])
     book = cat.parse_reference(OPENROUTER_SHAPED)
 
     cat.sync_prices(store, [_spec()], book)
@@ -182,7 +191,7 @@ def test_second_sync_is_a_no_op_for_history(store, monkeypatch) -> None:
 
 
 def test_reprice_records_a_change(store, monkeypatch) -> None:
-    monkeypatch.setattr(cat, "fetch_models", lambda base, key, timeout_s=20.0: ["deepseek-v4-flash"])
+    monkeypatch.setattr(cat, "fetch_models", lambda base, key, timeout_s=20.0, user_agent="": ["deepseek-v4-flash"])
     book = cat.parse_reference(OPENROUTER_SHAPED)
     cat.sync_prices(store, [_spec()], book, markup_bps=1500)
     report = cat.sync_prices(store, [_spec()], book, markup_bps=3000)  # wholesale doubled upstream
@@ -194,7 +203,7 @@ def test_reprice_records_a_change(store, monkeypatch) -> None:
 
 
 def test_dry_run_writes_nothing(store, monkeypatch) -> None:
-    monkeypatch.setattr(cat, "fetch_models", lambda base, key, timeout_s=20.0: ["deepseek-v4-flash"])
+    monkeypatch.setattr(cat, "fetch_models", lambda base, key, timeout_s=20.0, user_agent="": ["deepseek-v4-flash"])
     book = cat.parse_reference(OPENROUTER_SHAPED)
 
     report = cat.sync_prices(store, [_spec()], book, dry_run=True)
@@ -205,7 +214,7 @@ def test_dry_run_writes_nothing(store, monkeypatch) -> None:
 
 
 def test_discovery_failure_is_reported_not_raised(store, monkeypatch) -> None:
-    def boom(base, key, timeout_s=20.0):
+    def boom(base, key, timeout_s=20.0, user_agent=""):
         raise RuntimeError("HTTP 500")
 
     monkeypatch.setattr(cat, "fetch_models", boom)
