@@ -266,6 +266,36 @@ def create_app(adapter: UpstreamAdapter, meter: Optional["Meter"] = None) -> "we
         authenticated = await asyncio.to_thread(adapter.is_authenticated)
         return web.json_response({"status": "ok", "upstream": adapter.display_name, "authenticated": authenticated})
 
+    async def handle_models(request: "web.Request") -> "web.Response":
+        """Serve the catalog we actually sell.
+
+        GET /v1/models carries no body, so the metering path priced it as model 'unknown' and
+        answered 402 "model 'unknown' has no price configured" — verified against production. A
+        model listing is free and must never be forwarded/priced; SDKs call it before their first
+        completion. Prices are the gateway's own rate card, which is exactly what a caller needs.
+        """
+        active_meter = app.get(meter_key)
+        if not isinstance(active_meter, Meter):
+            return _json_error(404, "model listing is only available on a metered gateway", code="not_supported")
+        key = await asyncio.to_thread(active_meter.authenticate, _bearer_token(request))
+        if key is None:
+            return _json_error(401, "invalid or revoked Merlin API key", code="invalid_api_key")
+        rows = await asyncio.to_thread(active_meter.store.models)
+        data = [
+            {
+                "id": row["model"],
+                "object": "model",
+                "owned_by": "merlin-gateway",
+                "pricing": {
+                    "input_micros_per_million": row["in_micros_per_m"],
+                    "output_micros_per_million": row["out_micros_per_m"],
+                    "cache_read_micros_per_million": row["cache_read_micros_per_m"],
+                },
+            }
+            for row in rows
+        ]
+        return web.json_response({"object": "list", "data": data})
+
     async def handle_proxy(request: "web.Request") -> "web.StreamResponse":
         rel_path = "/" + request.match_info.get("tail", "").lstrip("/")
         if rel_path not in adapter.allowed_paths:
@@ -336,6 +366,9 @@ def create_app(adapter: UpstreamAdapter, meter: Optional["Meter"] = None) -> "we
         )
 
     app.router.add_get("/health", handle_health)  # never goes upstream
+    # Registered before the catch-all so a body-less GET is answered from our rate card instead of
+    # being forwarded and priced as model 'unknown'.
+    app.router.add_get("/v1/models", handle_models)
     app.router.add_route("*", "/v1/{tail:.*}", handle_proxy)  # forwards if the path is allowed
     return app
 

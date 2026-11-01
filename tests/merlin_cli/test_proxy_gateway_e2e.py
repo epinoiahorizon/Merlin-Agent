@@ -349,3 +349,38 @@ async def test_upstream_without_usage_is_billed_as_estimated(tmp_path) -> None:
         assert h.store.available(h.tenant_id) < 10_000
     finally:
         await _close(h)
+
+
+# -- model listing -------------------------------------------------------------------------
+async def test_model_listing_is_free_and_never_forwarded(tmp_path) -> None:
+    """GET /v1/models must answer from our rate card.
+
+    Regression: it used to fall through to the metered forwarder, which has no body to read a model
+    from, priced the request as model 'unknown' and returned 402 — verified against the live
+    gateway. SDKs call this endpoint before their first completion.
+    """
+    h = await _harness(tmp_path)
+    try:
+        resp = await h.client.get("/v1/models", headers={"Authorization": f"Bearer {h.key}"})
+        assert resp.status == 200
+        payload = await resp.json()
+        assert payload["object"] == "list"
+        ids = [entry["id"] for entry in payload["data"]]
+        assert MODEL in ids
+        entry = next(e for e in payload["data"] if e["id"] == MODEL)
+        assert entry["pricing"]["input_micros_per_million"] == PRICE_IN
+        assert entry["pricing"]["output_micros_per_million"] == PRICE_OUT
+        assert h.upstream.bodies == []  # listing is served locally, never forwarded
+        # Listing must not move money either.
+        assert h.store.balance(h.tenant_id) == 10_000
+    finally:
+        await _close(h)
+
+
+async def test_model_listing_requires_a_valid_key(tmp_path) -> None:
+    h = await _harness(tmp_path)
+    try:
+        assert (await h.client.get("/v1/models")).status == 401
+        assert (await h.client.get("/v1/models", headers={"Authorization": "Bearer mk_nope"})).status == 401
+    finally:
+        await _close(h)
