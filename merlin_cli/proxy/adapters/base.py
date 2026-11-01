@@ -46,6 +46,16 @@ class UpstreamAdapter(ABC):
         """Fresh credential (refreshing/rotating + persisting as needed). Raises RuntimeError when
         unauthenticated or refresh fails; the proxy then returns 401 to the client."""
 
+    def get_credential_for(self, model: str = "") -> UpstreamCredential:
+        """Credential for the *requested model*, for adapters that route across several upstreams.
+
+        The proxy reads the model from the request body before resolving credentials, so a
+        multi-upstream adapter can pick the right host per call. Single-upstream adapters keep the
+        default (ignore the hint).
+        """
+        _ = model
+        return self.get_credential()
+
     def get_retry_credential(
         self, *, failed_credential: UpstreamCredential, status_code: int
     ) -> Optional[UpstreamCredential]:

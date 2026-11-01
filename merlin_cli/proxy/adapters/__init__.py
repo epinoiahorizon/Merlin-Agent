@@ -4,10 +4,15 @@ from typing import Dict, Type
 
 from merlin_cli.proxy.adapters.base import UpstreamAdapter
 from merlin_cli.proxy.adapters.atlas_portal import AtlasPortalAdapter
+from merlin_cli.proxy.adapters.generic import GenericUpstreamAdapter
 from merlin_cli.proxy.adapters.xai import XAIGrokAdapter
 
 # Keyed by the ``merlin proxy start --provider <name>`` value.
-ADAPTERS: Dict[str, Type[UpstreamAdapter]] = {"atlas": AtlasPortalAdapter, "xai": XAIGrokAdapter}
+ADAPTERS: Dict[str, Type[UpstreamAdapter]] = {
+    "atlas": AtlasPortalAdapter,
+    "xai": XAIGrokAdapter,
+    "generic": GenericUpstreamAdapter,
+}
 
 
 def get_adapter(name: str) -> UpstreamAdapter:

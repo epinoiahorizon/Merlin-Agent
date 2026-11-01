@@ -32,8 +32,16 @@ def cmd_proxy_start(args: Any) -> int:
         _err(f"Error: {exc}")
         return 2
     if not adapter.is_authenticated():
-        auth_hint = getattr(adapter, "auth_hint", f"merlin auth add {adapter.name}")
-        _err(f"Not logged into {adapter.display_name}. Run `{auth_hint}` first.")
+        config_error = getattr(adapter, "config_error", lambda: "")()
+        if config_error:
+            _err(f"{adapter.display_name} is not usable.\n\n{config_error}")
+        else:
+            setup = getattr(adapter, "setup_instructions", "")
+            if setup:
+                _err(f"{adapter.display_name} is not configured.\n\n{setup}")
+            else:
+                auth_hint = getattr(adapter, "auth_hint", f"merlin auth add {adapter.name}")
+                _err(f"Not logged into {adapter.display_name}. Run `{auth_hint}` first.")
         return 2
     host = getattr(args, "host", None) or DEFAULT_HOST
     port = getattr(args, "port", None) or DEFAULT_PORT
