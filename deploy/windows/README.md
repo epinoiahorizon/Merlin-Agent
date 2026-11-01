@@ -88,3 +88,16 @@ di Cloudflare sedang menahan (matikan "Rocket Loader"/buffering di zone itu).
   aset orang lain).
 - **Jangan** buka port 8645/8680 di firewall rumah. Tunnel tidak membutuhkannya.
 - Token admin ada di file — jangan commit, jangan kirim ke chat.
+
+## Catatan operasional (hasil uji nyata)
+
+- Tunnel dijalankan oleh Scheduled Task `MerlinGateway` bersama gateway + dashboard, **bukan**
+  Windows service. `cloudflared 2025.8.1` memasang service tanpa `--config` dan sebagai LocalSystem
+  membaca config dari profil SYSTEM; hasilnya service "Running" sementara Cloudflare menjawab 530.
+- Konsekuensi: layanan hidup **saat logon**, bukan saat boot. Sebelum user login, `api.withmerlin.online`
+  menjawab 530/502.
+- Argumen proses terbaca oleh proses lain di mesin; token admin karena itu ada di `gateway.env`
+  (dibaca lewat `--env-file`), tidak pernah di command line.
+- Cloudflare di zona ini menolak User-Agent `Python-urllib/*` dengan **403**. `python-requests`,
+  SDK OpenAI (`OpenAI/Python x.y`), curl, dan browser lolos. Klien yang memakai urllib mentah harus
+  mengirim UA sendiri.
