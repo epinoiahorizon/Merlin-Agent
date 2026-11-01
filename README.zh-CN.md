@@ -150,8 +150,9 @@ Merlin 有两种入口：用 `merlin` 启动终端 UI，或运行网关从 Teleg
 ```bash
 merlin claw migrate              # 交互式迁移（完整预设）
 merlin claw migrate --dry-run    # 预览将要迁移的内容
+merlin claw migrate --overwrite  # 用新内容替换已有文件和技能，而不是拒绝执行
+merlin claw migrate --migrate-secrets   # 同时导入机器人令牌与 API 密钥
 merlin claw migrate --preset user-data   # 仅迁移用户数据，不含密钥
-merlin claw migrate --overwrite  # 覆盖已有冲突
 ```
 
 导入内容：

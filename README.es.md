@@ -164,8 +164,9 @@ Si vienes de OpenClaw, Merlin puede importar automáticamente tu configuración,
 ```bash
 merlin claw migrate              # Migración interactiva (preset completo)
 merlin claw migrate --dry-run    # Vista previa de qué se migraría
-merlin claw migrate --preset user-data   # Migrar sin secretos
-merlin claw migrate --overwrite  # Sobreescribir conflictos existentes
+merlin claw migrate --overwrite  # Reemplazar archivos y skills existentes en vez de rechazar
+merlin claw migrate --migrate-secrets   # Importar también tokens de bots y claves de API
+merlin claw migrate --preset user-data   # Solo datos de usuario (nunca secretos)
 ```
 
 Qué se importa:
