@@ -471,19 +471,23 @@ class CLITuiMixin:
         c_text  = skin.get_color("banner_text",  "#fdf6e3") if skin else "#fdf6e3"
         c_good  = skin.get_color("ui_ok",        "#859900") if skin else "#859900"
 
-        model = getattr(self, "model", "") or "unconfigured"
-        try:
-            from cli import get_skill_bundles
-            skill_count = f"{len(get_skill_bundles())} active skills"
-        except Exception:
-            skill_count = "ready skills"   # count is cosmetic; never break the TUI over it
-        if skill_count == "0 active skills":
-            # Bundles lazy-load on first use; don't show an empty count at boot.
-            skill_count = "grimoire loaded"
-
         def status_text():
             # Template band: title + key hints on ONE row, then a single inline
             # status line — ᛟ Incantation ᛞ Runes ᚨ Mana ᛝ Response.
+            #
+            # Incantation and Runes read LIVE state on every repaint: the layout
+            # is built once at startup, so capturing them in the outer scope
+            # would freeze the panel to startup values across a mid-session
+            # /model switch or skill install.
+            model_now = getattr(self, "model", "") or "unconfigured"
+            try:
+                from cli import get_skill_bundles
+                skill_count = f"{len(get_skill_bundles())} active skills"
+            except Exception:
+                skill_count = "ready skills"   # count is cosmetic; never break the TUI over it
+            if skill_count == "0 active skills":
+                # Bundles lazy-load on first use; don't show an empty count at boot.
+                skill_count = "grimoire loaded"
             mana_part = ""
             mstyle = "fg:" + c_dim
             response_state = "warming"
@@ -542,7 +546,7 @@ class CLITuiMixin:
                 ("fg:" + c_dim, "| [ESC] banish ── [/] runes ── [CTRL+C] terminate"),
                 ("fg:" + c_dim, "\n"),
                 ("fg:" + c_title, "ᛟ Incantation: "),
-                ("fg:" + c_text, str(model)),
+                ("fg:" + c_text, str(model_now)),
                 ("fg:" + c_dim, "  ᛞ Runes: "),
                 ("fg:" + c_text, skill_count),
                 (label_style, f"  {mana_label} Mana: "),

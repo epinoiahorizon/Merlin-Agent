@@ -3,8 +3,8 @@ import { useMemo } from 'react'
 
 import { PageLoader } from '@/components/page-loader'
 import { Button } from '@/components/ui/button'
-import { getSkillContent, type ProfileScope, profileScopeKey } from '@/merlin'
 import { useI18n } from '@/i18n'
+import { getSkillContent, type ProfileScope, profileScopeKey } from '@/merlin'
 import type { SkillInfo } from '@/types/merlin'
 
 import { parseFrontmatter } from './frontmatter'

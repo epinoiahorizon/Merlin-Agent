@@ -46,11 +46,31 @@ export function SanctumBootSplash({
         <svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 1000 700">
           <g className="sbs__starField">
             <path className="sbs__twinkle" d="M120 90l4 14 14 4-14 4-4 14-4-14-14-4 14-4z" />
-            <path className="sbs__twinkle" d="M860 110l5 18 18 5-18 5-5 18-5-18-18-5 18-5z" style={{ animationDelay: '.6s' }} />
-            <path className="sbs__twinkle" d="M210 260l3 10 10 3-10 3-3 10-3-10-10-3 10-3z" style={{ animationDelay: '1.2s' }} />
-            <path className="sbs__twinkle" d="M780 280l4 14 14 4-14 4-4 14-4-14-14-4 14-4z" style={{ animationDelay: '.3s' }} />
-            <path className="sbs__twinkle" d="M150 510l4 14 14 4-14 4-4 14-4-14-14-4 14-4z" style={{ animationDelay: '1.7s' }} />
-            <path className="sbs__twinkle" d="M840 490l5 16 16 5-16 5-5 16-5-16-16-5 16-5z" style={{ animationDelay: '.9s' }} />
+            <path
+              className="sbs__twinkle"
+              d="M860 110l5 18 18 5-18 5-5 18-5-18-18-5 18-5z"
+              style={{ animationDelay: '.6s' }}
+            />
+            <path
+              className="sbs__twinkle"
+              d="M210 260l3 10 10 3-10 3-3 10-3-10-10-3 10-3z"
+              style={{ animationDelay: '1.2s' }}
+            />
+            <path
+              className="sbs__twinkle"
+              d="M780 280l4 14 14 4-14 4-4 14-4-14-14-4 14-4z"
+              style={{ animationDelay: '.3s' }}
+            />
+            <path
+              className="sbs__twinkle"
+              d="M150 510l4 14 14 4-14 4-4 14-4-14-14-4 14-4z"
+              style={{ animationDelay: '1.7s' }}
+            />
+            <path
+              className="sbs__twinkle"
+              d="M840 490l5 16 16 5-16 5-5 16-5-16-16-5 16-5z"
+              style={{ animationDelay: '.9s' }}
+            />
             <circle cx="280" cy="190" opacity=".85" r="2.5" />
             <circle cx="720" cy="210" opacity=".9" r="3" />
             <circle cx="190" cy="390" opacity=".7" r="2" />

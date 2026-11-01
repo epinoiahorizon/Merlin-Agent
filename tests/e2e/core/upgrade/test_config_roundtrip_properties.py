@@ -437,7 +437,7 @@ def test_p1_noop_save_is_byte_identical(seed, home, monkeypatch):
     _noop_save_roundtrip(gen_case(seed, null_leaves=False), monkeypatch)
 
 
-@pytest.mark.parametrize("seed", [101, 102])
+@pytest.mark.parametrize("seed", [101, 103])
 def test_p1_explicit_null_leaves_survive_a_noop_save(seed, home, monkeypatch):
     case = gen_case(seed)
     assert any(v is None for v in _leaves(case.tree).values()), f"seed {seed} generated no null leaf"
@@ -933,8 +933,9 @@ def test_p3_a_transient_error_on_any_single_read_never_clobbers(op_name, web_app
 
 
 def _truncate_mid_scalar(text: str) -> str:
-    idx = text.index('"', text.index("\n", 10))  # first double-quoted scalar after the header
-    return text[: idx + 5]
+    start = text.index('"', text.index("\n", 10))   # first double-quoted scalar after the header
+    end = text.index('"', start + 1)
+    return text[: (start + end) // 2]                 # mid-scalar cut → always unterminated → YAMLError
 
 
 _PERSISTENT_FAULTS = {

@@ -12,9 +12,9 @@
  * Plugin dialog, which still requires the user's explicit confirmation.
  */
 
-export const CATALOG_ORIGIN = 'https://merlin-agent.epinoiahorizon.com'
+export const CATALOG_ORIGIN = 'https://withmerlin.online'
 export const CATALOG_PICKER_URL = `${CATALOG_ORIGIN}/docs/plugins?embed=picker`
-export const PLUGIN_CATALOG_URL = `${CATALOG_ORIGIN}/docs/api/plugins.json`
+export const PLUGIN_CATALOG_URL = 'https://withmerlin.online/plugins.json'
 
 /** Catalog names are directory names under `plugin-catalog/`; anything else is not a lookup key. */
 export const PLUGIN_CATALOG_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/

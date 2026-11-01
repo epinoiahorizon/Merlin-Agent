@@ -1,12 +1,11 @@
 import type { Dispatch, SetStateAction } from 'react'
 
-import type { MerlinGateway } from '@/merlin'
 import type { IconComponent } from '@/lib/icons'
+import type { MerlinGateway } from '@/merlin'
 import type { EnvVarInfo } from '@/types/merlin'
 
 export type SettingsView =
   | 'about'
-  | 'billing'
   | 'connections'
   | 'gateway'
   | 'keybinds'

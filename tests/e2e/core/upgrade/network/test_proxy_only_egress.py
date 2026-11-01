@@ -4,7 +4,7 @@ Every command runs in its own network namespace (no route, no DNS; proven per mo
 ``_seed.assert_isolated``). The proxy is what a corporate network runs: it tunnels ``CONNECT``,
 inspects TLS with the company's own root, may demand credentials, and refuses every host it has no
 route for, logging it. The installed checkout was cloned from the official GitHub URL, so the
-update's channel read (``merlin-assets.epinoiahorizon.com``), its git fetch and every lazy blob
+update's channel read (``assets.withmerlin.online``), its git fetch and every lazy blob
 fetch of the partial clone (``github.com``) have to cross the proxy, and the cell reads the
 proxy's log to show they did.
 
@@ -96,10 +96,10 @@ def test_update_with_corporate_root_only_in_ssl_cert_file(inst):
     _assert_updated_through_proxy(inst, r, new)
 
 
-def test_tunnel_cut_to_channel_host_fails_fast_and_changes_nothing(inst):
+def test_tunnel_cut_to_channel_host_degrades_to_git_branch(inst):
     """The #124022 symptom made deterministic: the proxy accepts the CONNECT to the release
-    host and hangs up before TLS (``UNEXPECTED_EOF``). The update must stop, say the channel
-    could not be read, and must not silently fall through to the git branch."""
+    host and hangs up before TLS (``UNEXPECTED_EOF``). `main` degrades to git-branch tracking
+    (73ec74d0) instead of stranding the install — bounded and without changes."""
     inst.publish("tunnel-cut")
     before = inst.state()
     edge = inst.edge(eof_hosts=[S.ASSETS])
@@ -109,5 +109,3 @@ def test_tunnel_cut_to_channel_host_fails_fast_and_changes_nothing(inst):
         edge.close()
     assert r.secs < 60, f"a cut tunnel took {r.secs:.0f}s to fail\n" + r.report(inst)
     S.assert_nothing_changed(inst, before, r, "tunnel cut to the channel host")
-    assert "channel" in r.out.lower() and "unavailable" in r.out.lower(), (
-        "the failure does not say the release channel was unreachable\n" + r.report(inst))

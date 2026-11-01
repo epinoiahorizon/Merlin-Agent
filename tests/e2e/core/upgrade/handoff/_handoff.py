@@ -190,6 +190,12 @@ def stage_n1(root: Path) -> Install:
     (local_bin / "merlin").symlink_to(checkout / "venv" / "bin" / "merlin")
     _user_uv(env, merlin_home)
     env["PATH"] = os.pathsep.join([str(local_bin), env["PATH"]])
+    # The N-1 installer provisioned the pinned tools a real N-1 user has; stage_n1
+    # bypasses it, and the first `merlin dashboard` builds the web UI with node/npm
+    # (lazy installs are disabled in the hermetic sandbox env).
+    cp = subprocess.run([str(local_bin / "merlin"), "pm", "install", "node", "npm"],
+                        env=env, capture_output=True, text=True, timeout=1800)
+    assert cp.returncode == 0, f"N-1 tool provisioning (node, npm) failed:\n{cp.stderr[-4000:]}"
     return Install("n1", root, origin, env)
 
 

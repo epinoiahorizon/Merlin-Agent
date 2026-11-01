@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 
-import { type ProfileScope, saveMerlinConfigRecord } from '@/merlin'
 import { useI18n } from '@/i18n'
+import { type ProfileScope, saveMerlinConfigRecord } from '@/merlin'
 import { notify, notifyError } from '@/store/notifications'
 
 import { merlinConfigCacheWriter, useMerlinConfigRecord } from '../hooks/use-config-record'

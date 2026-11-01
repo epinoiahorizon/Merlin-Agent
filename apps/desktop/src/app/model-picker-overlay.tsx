@@ -5,9 +5,9 @@ import { useCallback } from 'react'
 import { useModelControls } from '@/app/session/hooks/use-model-controls'
 import type { ModelSelection } from '@/app/shell/model-menu-panel'
 import { ModelPickerDialog } from '@/components/model-picker'
-import type { MerlinGateway } from '@/merlin'
 import { resolveModelPickerOwner } from '@/lib/model-picker-owner'
 import { useStoreSelector } from '@/lib/use-session-slice'
+import type { MerlinGateway } from '@/merlin'
 import { completeFlow } from '@/store/desktop-metrics'
 import {
   $activeSessionId,

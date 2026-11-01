@@ -314,7 +314,7 @@ def _ssl_interop_hint(exc: BaseException) -> str:
         " the larger TLS 1.3 ClientHello that OpenSSL 3.5+ sends by default (post-quantum hybrid"
         " groups). Workaround: point OPENSSL_CONF at a config restricting Groups to classic curves"
         " (x25519:secp256r1:secp384r1:x448), or test with TLS 1.2 — see the Codex note in"
-        " https://merlin-agent.epinoiahorizon.com/docs/integrations/providers"
+        " https://docs.withmerlin.online/docs/integrations/providers"
     )
 
 
@@ -1028,13 +1028,31 @@ def _codex_request_device_code(issuer: str, client_id: str) -> Dict[str, Any]:
     return device_data
 
 
+_POLL_PENDING_HINT_AFTER_S = 120  # after this long with no approval, say what usually blocks it
+_POLL_PENDING_HINT = (
+    "Still waiting for approval. If the code was rejected, or the ChatGPT account has"
+    " \"device code sign-in\" disabled (ChatGPT Settings -> Security), this flow cannot finish."
+    " Press Ctrl+C and retry with: merlin auth add openai-codex --browser")
+_POLL_TIMEOUT_MESSAGE = (
+    "Login timed out after 15 minutes. The device code was never approved — if the account has"
+    " \"device code sign-in\" disabled (ChatGPT Settings -> Security) this flow cannot complete."
+    " Retry with `merlin auth add openai-codex --browser` (browser PKCE does not need that"
+    " setting), or enable device code sign-in in ChatGPT Settings -> Security.")
+
+
 def _codex_poll_authorization_code(
-    issuer: str, *, device_auth_id: str, user_code: str, poll_interval: int) -> Dict[str, Any]:
-    """Step 3 of the Codex device flow: poll until sign-in completes (403/404 = still pending)."""
+        issuer: str, *, device_auth_id: str, user_code: str, poll_interval: int) -> Dict[str, Any]:
+    """Step 3 of the Codex device flow: poll until sign-in completes (403/404 = still pending).
+
+    A pending-for-minutes stall is almost always the account's device-code grant being
+    disabled upstream, so the loop prints an actionable retry hint once and the timeout
+    error names the ``--browser`` alternative instead of reporting a bare timeout.
+    """
     max_wait = 15 * 60  # 15 minutes
     max_consecutive_blips = 6  # survives transient drops, still fails fast on a dead network
     start = time.monotonic()
     code_resp = None
+    pending_hint_shown = False
     try:
         with _codex_http_client(timeout=httpx.Timeout(15.0)) as client:
             consecutive_blips = 0
@@ -1066,11 +1084,15 @@ def _codex_poll_authorization_code(
                     raise _codex_err(
                         f"Device auth polling returned status {poll_resp.status_code}.",
                         "device_code_poll_error")
+                if (not pending_hint_shown
+                        and time.monotonic() - start >= _POLL_PENDING_HINT_AFTER_S):
+                    pending_hint_shown = True
+                    print(_POLL_PENDING_HINT)
     except KeyboardInterrupt:
         print("\nLogin cancelled.")
         raise SystemExit(130)
     if code_resp is None:
-        raise _codex_err("Login timed out after 15 minutes.", "device_code_timeout")
+        raise _codex_err(_POLL_TIMEOUT_MESSAGE, "device_code_timeout")
     return code_resp
 
 
