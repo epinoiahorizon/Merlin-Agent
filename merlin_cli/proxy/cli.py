@@ -11,6 +11,7 @@ from merlin_cli.proxy.adapters import ADAPTERS, get_adapter
 from merlin_cli.proxy.server import (
     AIOHTTP_AVAILABLE, DEFAULT_HOST, DEFAULT_PORT, run_server
 )
+from merlin_cli.proxy.tenants import meter_from_env
 
 logger = logging.getLogger(__name__)
 
@@ -36,16 +37,28 @@ def cmd_proxy_start(args: Any) -> int:
         return 2
     host = getattr(args, "host", None) or DEFAULT_HOST
     port = getattr(args, "port", None) or DEFAULT_PORT
-    _err(
-        f"Starting Merlin proxy for {adapter.display_name}\n"
-        f"  Listening on:  http://{host}:{port}/v1\n"
-        f"  Forwarding to: (resolved per-request from your subscription)\n"
-        f"  Use any bearer token in the client — the proxy attaches your real credential.\n"
-        f"\n"
-        f"Press Ctrl+C to stop."
-    )
+    meter = meter_from_env()
+    if meter is not None:
+        _err(
+            f"Starting Merlin proxy for {adapter.display_name}  [METERED]\n"
+            f"  Listening on:  http://{host}:{port}/v1\n"
+            f"  Billing DB:    {meter.store.path}\n"
+            f"  Clients must send: Authorization: Bearer mk_… (tenant key)\n"
+            f"  Send X-Merlin-Request-Id on retries to avoid double billing.\n"
+            f"\n"
+            f"Press Ctrl+C to stop."
+        )
+    else:
+        _err(
+            f"Starting Merlin proxy for {adapter.display_name}\n"
+            f"  Listening on:  http://{host}:{port}/v1\n"
+            f"  Forwarding to: (resolved per-request from your subscription)\n"
+            f"  Use any bearer token in the client — the proxy attaches your real credential.\n"
+            f"\n"
+            f"Press Ctrl+C to stop."
+        )
     try:
-        asyncio.run(run_server(adapter, host=host, port=port))
+        asyncio.run(run_server(adapter, host=host, port=port, meter=meter))
     except KeyboardInterrupt:
         _err("\nproxy: stopped")
     except OSError as exc:
