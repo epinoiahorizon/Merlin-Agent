@@ -493,11 +493,11 @@ def girl_mark(art: IconArt, kind: str, size: int) -> Image.Image:
 
 
 def build_logo_image(art: IconArt, dark: bool = False) -> Image.Image:
-    """1772x1799 wordmark: the girl alone on transparency (no frame), centered.
-    Light = black girl, dark = white girl — the consuming surface's background
+    """1772x1799 wordmark: the wizard-hat mark alone on transparency (no frame), centered.
+    Light = navy hat, dark = gold hat — the consuming surface's background
     (navbar light/dark) shows through."""
     W, H = 1772, 1799
-    svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}">\n  {girl_layer(art, "white" if dark else "black", (0, 0, W, H))}\n</svg>\n'
+    svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}">\n  {mark_layer(art, "white" if dark else "black", (0, 0, W, H))}\n</svg>\n'
     return render_svg(svg, (W, H))
 
 
