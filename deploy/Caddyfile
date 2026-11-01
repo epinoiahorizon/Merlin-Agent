@@ -1,0 +1,33 @@
+// Alternatif dari nginx: Caddy sebagai reverse proxy di port 8443.
+//
+// Kenapa 8443 dan bukan 443: nginx di host ini sudah memegang :80/:443 untuk domain lain. Cloudflare
+// (proxied) menerima origin HTTPS di 8443, jadi Caddy tidak perlu ACME sama sekali — pakai Origin CA
+// certificate dari dashboard Cloudflare (SSL/TLS → Origin Server → Create Certificate), lalu simpan
+// sebagai /etc/caddy/origin.pem + origin.key.
+//
+// Jalankan:  caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+// Ganti __GW_DOMAIN__ (dashboard) dan __API_DOMAIN__ (gateway OpenAI-compatible).
+
+(gateway_tls) {
+	tls /etc/caddy/origin.pem /etc/caddy/origin.key
+}
+
+__GW_DOMAIN__:8443 {
+	import gateway_tls
+	encode zstd gzip
+	# Dashboard publik: status + top-up. Aman diekspos; endpoint yang mengubah uang dijaga token.
+	reverse_proxy 127.0.0.1:8680
+}
+
+__API_DOMAIN__:8443 {
+	import gateway_tls
+
+	# Streaming (SSE) tidak boleh di-buffer.
+	reverse_proxy 127.0.0.1:8645 {
+		flush_interval -1
+		transport http {
+			read_timeout 600s
+			write_timeout 600s
+		}
+	}
+}
