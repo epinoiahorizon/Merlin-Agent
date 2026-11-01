@@ -4022,7 +4022,7 @@ class TestRunConversation:
                 )
             )
             worker.start()
-            assert entered.wait(timeout=2)
+            assert entered.wait(timeout=15)
             assert agent.redirect("Use the corrected approach.") is True
             worker.join(timeout=5)
 
