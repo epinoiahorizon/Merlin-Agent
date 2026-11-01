@@ -63,7 +63,7 @@ Not changed: the agent loop, tool implementations, skills engine, gateway, sched
 ### Linux, macOS, WSL2
 
 ```bash
-curl -fsSL https://withmerlin.online/install.sh | bash
+curl -fsSL https://epinoiahorizon.com/install.sh | bash
 ```
 
 ### Windows (native, PowerShell)
@@ -73,7 +73,7 @@ curl -fsSL https://withmerlin.online/install.sh | bash
 Run this in PowerShell:
 
 ```powershell
-iex (irm https://withmerlin.online/install.ps1)
+iex (irm https://epinoiahorizon.com/install.ps1)
 ```
 
 The source installer delegates Python 3.14, Node.js, npm, ripgrep, FFmpeg,

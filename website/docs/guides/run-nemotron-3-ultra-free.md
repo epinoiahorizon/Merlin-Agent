@@ -49,16 +49,16 @@ Prefer the terminal?
 On macOS/Linux/WSL2/Android, run
 
 ```bash
-curl -fsSL https://withmerlin.online/install.sh | bash
+curl -fsSL https://epinoiahorizon.com/install.sh | bash
 ```
 
 On Windows, run
 
 ```powershell
-iex (irm https://withmerlin.online/install.ps1)
+iex (irm https://epinoiahorizon.com/install.ps1)
 ```
 
-Prefer to review first? Download [`install.sh`](https://withmerlin.online/install.sh), inspect it, then run it.
+Prefer to review first? Download [`install.sh`](https://epinoiahorizon.com/install.sh), inspect it, then run it.
 
 After it finishes, reload your shell:
 
