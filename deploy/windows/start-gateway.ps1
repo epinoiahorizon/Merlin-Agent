@@ -112,14 +112,40 @@ $dashboard = Start-LocalService -Name 'dashboard' -Log (Join-Path $logDir 'dashb
     '--env-file', (Q $envFile)
 )
 
+# Tunnel dijalankan sebagai proses biasa, bukan Windows service. cloudflared 2025.8.1 memasang
+# service tanpa --config (ImagePath hanya cloudflared.exe) dan service LocalSystem membaca config
+# dari profil SYSTEM, yang membuatnya "Running" tapi tidak tersambung (530). Satu mekanisme untuk
+# ketiga proses jauh lebih mudah diprediksi.
+$tunnelConfig = Join-Path $DataDir 'cloudflared-config.yml'
+$cloudflared = 'C:\Program Files (x86)\cloudflared\cloudflared.exe'
+if ((Test-Path $tunnelConfig) -and (Test-Path $cloudflared)) {
+    $tunnel = Start-Process -FilePath $cloudflared `
+        -ArgumentList @('--config', (Q $tunnelConfig), 'tunnel', 'run') -PassThru -WindowStyle Hidden `
+        -RedirectStandardOutput (Join-Path $logDir 'tunnel.log') `
+        -RedirectStandardError (Join-Path $logDir 'tunnel.log.err')
+    Write-Host ("tunnel: pid {0}  log {1}" -f $tunnel.Id, (Join-Path $logDir 'tunnel.log'))
+} else {
+    Write-Warning "cloudflared atau config tunnel tidak ditemukan — hanya lokal yang jalan."
+}
+
 Start-Sleep -Seconds 4
 foreach ($pair in @(@{ Name = 'gateway'; Port = $GatewayPort; Path = '/health' },
                     @{ Name = 'dashboard'; Port = $DashboardPort; Path = '/api/status' })) {
-    try {
-        $r = Invoke-WebRequest -Uri ("http://127.0.0.1:{0}{1}" -f $pair.Port, $pair.Path) -TimeoutSec 8
-        Write-Host ("{0}: OK HTTP {1}" -f $pair.Name, $r.StatusCode)
-    } catch {
-        Write-Warning ("{0}: belum merespons — cek {1}" -f $pair.Name, (Join-Path $logDir ($pair.Name + '.log.err')))
+    for ($attempt = 1; $attempt -le 5; $attempt++) {
+        try {
+            # -UseBasicParsing wajib: tanpa itu Windows PowerShell memunculkan prompt interaktif
+            # "Script Execution Risk" dan menunggu jawaban, bukan memeriksa status.
+            $r = Invoke-WebRequest -Uri ("http://127.0.0.1:{0}{1}" -f $pair.Port, $pair.Path) `
+                -TimeoutSec 8 -UseBasicParsing
+            Write-Host ("{0}: OK HTTP {1}" -f $pair.Name, $r.StatusCode)
+            break
+        } catch {
+            if ($attempt -eq 5) {
+                Write-Warning ("{0}: belum merespons — cek {1}" -f $pair.Name, (Join-Path $logDir ($pair.Name + '.log.err')))
+            } else {
+                Start-Sleep -Seconds 3
+            }
+        }
     }
 }
 
@@ -128,4 +154,4 @@ Write-Host "Gateway  : http://127.0.0.1:$GatewayPort/v1"
 Write-Host "Dashboard: http://127.0.0.1:$DashboardPort"
 Write-Host "Token    : $tokenPath"
 Write-Host ""
-Write-Host "Berikutnya: cloudflared tunnel --config deploy\windows\cloudflared-config.yml run"
+Write-Host "Tunnel   : dijalankan skrip ini ($cloudflared) — cek $(Join-Path $logDir 'tunnel.log.err')"
