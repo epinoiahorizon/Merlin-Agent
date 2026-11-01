@@ -8,7 +8,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$RepoRoot = (Resolve-Path "$PSScriptRoot\..\..").Path,
+    [string]$RepoRoot = "",
     [string]$Python = "$env:LOCALAPPDATA\merlin\merlin-agent\.venv\Scripts\python.exe",
     [string]$DataDir = "$env:LOCALAPPDATA\merlin\gateway",
     [int]$GatewayPort = 8645,
@@ -16,6 +16,17 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+# $PSScriptRoot tidak selalu terisi saat skrip dipanggil dengan -File (gejala nyata: RepoRoot jadi
+# "C:\..\.." dan Python mati di import). Turunkan dari lokasi skrip yang sebenarnya, lalu validasi.
+if (-not $RepoRoot) {
+    $scriptPath = $MyInvocation.MyCommand.Path
+    if (-not $scriptPath) { throw "Tidak bisa menentukan lokasi skrip (MyCommand.Path kosong)." }
+    $RepoRoot = (Resolve-Path (Join-Path (Split-Path -Parent $scriptPath) '..\..')).Path
+}
+if (-not (Test-Path (Join-Path $RepoRoot 'merlin_cli\proxy\entry.py'))) {
+    throw "RepoRoot salah: '$RepoRoot' tidak berisi merlin_cli\proxy\entry.py"
+}
 
 if (-not (Test-Path $Python)) {
     throw "Python Merlin tidak ditemukan di $Python. Jalankan dari venv Merlin yang benar."
@@ -49,19 +60,29 @@ $env:MERLIN_PROXY_QRIS_FILE = $qrisPath
 $env:MERLIN_PROXY_ADMIN_TOKEN = (Get-Content $tokenPath -Raw).Trim()
 $env:PYTHONUNBUFFERED = '1'
 
-# Rahasia upstream (API key relay) hidup di gateway.env, bukan di proxy_upstreams.json — file itu
-# boleh dibaca siapa pun yang menginspeksi konfigurasi, yang ini tidak.
+# Rahasia upstream (API key relay) hidup di gateway.env, bukan di proxy_upstreams.json.
 $envFile = Join-Path $DataDir 'gateway.env'
-if (Test-Path $envFile) {
-    Get-Content $envFile | ForEach-Object {
-        if ($_ -match '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$') {
-            Set-Item -Path ("Env:" + $Matches[1]) -Value $Matches[2].Trim()
-        }
-    }
-    Write-Host "gateway.env dimuat: $envFile"
-} else {
-    Write-Warning "gateway.env tidak ada — upstream dengan api_key_env akan gagal (401)."
+if (-not (Test-Path $envFile)) {
+    Set-Content -Path $envFile -Value "# THIRTYSTORE_API_KEY=..." -Encoding ascii
+    Write-Warning "gateway.env belum berisi kunci upstream — upstream dengan api_key_env akan gagal (401)."
 }
+
+# Peluncuran TIDAK boleh bergantung pada environment warisan: Task Scheduler tidak meneruskan
+# PYTHONPATH, dan proses anak mati dengan "No module named merlin_cli.proxy.entry". Wrapper ini
+# menyisipkan RepoRoot ke sys.path sendiri, lalu semua path diteruskan sebagai argumen.
+$launcher = Join-Path $DataDir 'launch_proxy.py'
+$launcherBody = @(
+    'import sys',
+    ('sys.path.insert(0, r"' + $RepoRoot + '")'),
+    'from merlin_cli.proxy.entry import main',
+    'raise SystemExit(main(sys.argv[1:]))'
+) -join "`r`n"
+Set-Content -Path $launcher -Value $launcherBody -Encoding UTF8
+
+# Start-Process tidak mengutip argumen; setiap path yang mengandung spasi harus dibungkus sendiri.
+function Q([string]$value) { return '"' + $value + '"' }
+
+$ledgerPath = Join-Path $DataDir 'ledger.db'
 
 $logDir = Join-Path $DataDir 'logs'
 if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
@@ -75,16 +96,14 @@ function Start-LocalService {
 }
 
 $gateway = Start-LocalService -Name 'gateway' -Log (Join-Path $logDir 'gateway.log') -Arguments @(
-    '-m', 'merlin_cli.proxy.entry', 'serve',
-    '--provider', 'generic', '--host', '127.0.0.1', '--port', "$GatewayPort"
+    (Q $launcher), 'serve', '--provider', 'generic', '--host', '127.0.0.1', '--port', "$GatewayPort",
+    '--upstreams', (Q $configPath), '--ledger', (Q $ledgerPath), '--env-file', (Q $envFile)
 )
 $dashboard = Start-LocalService -Name 'dashboard' -Log (Join-Path $logDir 'dashboard.log') -Arguments @(
-    '-m', 'merlin_cli.proxy.entry', 'dashboard',
-    '--host', '127.0.0.1', '--port', "$DashboardPort"
+    (Q $launcher), 'dashboard', '--host', '127.0.0.1', '--port', "$DashboardPort",
+    '--qris', (Q $qrisPath), '--ledger', (Q $ledgerPath), '--probes', (Q $ledgerPath),
+    '--admin-token', $env:MERLIN_PROXY_ADMIN_TOKEN, '--env-file', (Q $envFile)
 )
-# Catatan: jalur QRIS TIDAK dikirim lewat argumen. Start-Process tidak mengutip path yang mengandung
-# spasi (mis. "C:\Users\JM Project\..."), sehingga argumen pecah dan dashboard gagal start. Nilainya
-# sudah ada di MERLIN_PROXY_QRIS_FILE di atas.
 
 Start-Sleep -Seconds 4
 foreach ($pair in @(@{ Name = 'gateway'; Port = $GatewayPort; Path = '/health' },

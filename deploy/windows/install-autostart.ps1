@@ -49,13 +49,69 @@ Write-Host "1/3 Memasang cloudflared sebagai service..." -ForegroundColor Cyan
 Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 2
 
-& $cloudflared --config $configPath service uninstall 2>$null | Out-Null
-& $cloudflared --config $configPath service install
-if ($LASTEXITCODE -ne 0) { throw "cloudflared service install gagal (exit $LASTEXITCODE)." }
+# cloudflared menulis log ke stderr. Dengan $ErrorActionPreference='Stop', Windows PowerShell 5.1
+# memperlakukan stderr program native sebagai error fatal dan skrip berhenti di langkah pertama
+# (kejadian nyata: uninstall sukses tapi skrip abort, tunnel tertinggal mati). Panggilan native
+# karena itu dijalankan dengan preferensi 'Continue' dan diperiksa lewat $LASTEXITCODE.
+function Invoke-Cloudflared {
+    param([string[]]$Arguments)
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        $output = & $cloudflared @Arguments 2>&1
+        $code = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $previous
+    }
+    return @{ Output = $output; Code = $code }
+}
+
+$uninstall = Invoke-Cloudflared -Arguments @('--config', $configPath, 'service', 'uninstall')
+Write-Host ("   uninstall: exit {0}" -f $uninstall.Code) -ForegroundColor DarkGray
+
+$install = Invoke-Cloudflared -Arguments @('--config', $configPath, 'service', 'install')
+if ($install.Code -ne 0) {
+    $install.Output | Select-Object -Last 6 | ForEach-Object { Write-Host "   $_" -ForegroundColor Red }
+    throw "cloudflared service install gagal (exit $($install.Code))."
+}
 Set-Service -Name cloudflared -StartupType Automatic
-Restart-Service -Name cloudflared -Force
-Start-Sleep -Seconds 3
+
+# cloudflared 2025.8.1 memasang service TANPA --config: ImagePath-nya hanya cloudflared.exe, dan
+# service (LocalSystem) membaca config dari profil SYSTEM. Akibatnya service tampak "Running" tapi
+# tidak tersambung ke Cloudflare (client melihat 530). Solusinya: sediakan config.yml + kredensial
+# di lokasi yang dibaca service.
+$systemCf = Join-Path $env:WINDIR 'System32\config\systemprofile\.cloudflared'
+New-Item -ItemType Directory -Force -Path $systemCf | Out-Null
+$credsSource = Get-ChildItem -Path (Join-Path $env:USERPROFILE '.cloudflared') -Filter '*.json' -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -match '^[0-9a-f-]{36}\.json$' } | Select-Object -First 1
+if (-not $credsSource) { throw "Kredensial tunnel tidak ditemukan di $env:USERPROFILE\.cloudflared\*.json" }
+$credsTarget = Join-Path $systemCf 'creds.json'
+Copy-Item $credsSource.FullName $credsTarget -Force
+
+$configText = Get-Content $configPath -Raw
+$configText = [regex]::Replace($configText, '(?m)^credentials-file:.*$', ('credentials-file: ' + $credsTarget))
+$targetConfig = Join-Path $systemCf 'config.yml'
+Set-Content -Path $targetConfig -Value $configText -Encoding UTF8
+Write-Host ("   config service: {0}" -f $targetConfig) -ForegroundColor DarkGray
+# Jangan pakai Restart-Service -Force: ia menunggu tanpa batas ketika service lambat berhenti
+# (gejala nyata: "Waiting for service ... to stop" berulang sampai jendela macet). Tunggu maksimal
+# 15 detik, lalu matikan prosesnya.
+sc.exe stop cloudflared | Out-Null
+for ($i = 0; $i -lt 15; $i++) {
+    if ((Get-Service cloudflared -ErrorAction SilentlyContinue).Status -eq 'Stopped') { break }
+    Start-Sleep -Seconds 1
+}
+if ((Get-Service cloudflared -ErrorAction SilentlyContinue).Status -ne 'Stopped') {
+    Write-Host "   service tidak mau stop — memaksa berhenti" -ForegroundColor DarkYellow
+    Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 3
+}
+sc.exe start cloudflared | Out-Null
+Start-Sleep -Seconds 4
 $svc = Get-Service cloudflared
+if ($svc.Status -ne 'Running') {
+    Write-Host "   cloudflared tidak running — cek Windows Event Viewer (Application log)" -ForegroundColor Red
+}
 Write-Host ("   cloudflared: {0} / {1}" -f $svc.Status, $svc.StartType) -ForegroundColor Green
 
 Write-Host "2/3 Memasang Scheduled Task untuk gateway + dashboard (saat logon)..." -ForegroundColor Cyan
