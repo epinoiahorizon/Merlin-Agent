@@ -46,7 +46,11 @@ if (-not (Test-Path $qrisPath)) {
 
 $tokenPath = Join-Path $DataDir 'admin_token.txt'
 if (-not (Test-Path $tokenPath)) {
-    $token = -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 32 | ForEach-Object { [char]$_ })
+    $bytes = New-Object byte[] 32
+    $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    $rng.GetBytes($bytes)
+    $rng.Dispose()
+    $token = [Convert]::ToHexString($bytes).ToLowerInvariant()
     Set-Content -Path $tokenPath -Value $token -NoNewline -Encoding ascii
     Write-Host "Token admin dibuat: $tokenPath"
 }
