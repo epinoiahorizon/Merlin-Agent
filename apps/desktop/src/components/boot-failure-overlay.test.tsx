@@ -249,6 +249,7 @@ describe('BootFailureOverlay', () => {
     const gatewayUrl = 'https://agent-1.agents.epinoiahorizon.com'
     const logout = vi.fn().mockResolvedValue({ ok: true, connected: false })
     const nativeLogin = vi.fn().mockResolvedValue({ ok: true, connected: false })
+
     const cloudStatus = vi
       .fn()
       .mockResolvedValue({ portalBaseUrl: 'https://portal.epinoiahorizon.com', signedIn: false })
@@ -363,7 +364,7 @@ describe('BootFailureOverlay', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /reinstall the app/i }))
       await waitFor(() =>
-        expect(openExternal).toHaveBeenCalledWith('https://merlin-agent.epinoiahorizon.com/docs/user-guide/desktop')
+        expect(openExternal).toHaveBeenCalledWith('https://docs.withmerlin.online/docs/user-guide/desktop')
       )
     } finally {
       restore()

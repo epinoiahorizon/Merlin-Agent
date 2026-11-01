@@ -321,6 +321,24 @@ def normalize_text(text: str) -> str:
     return re.sub(r"\s+", " ", text.strip())
 
 
+def existing_soul_is_stock(path: Path) -> bool:
+    """True if ``path`` holds an untouched, auto-seeded SOUL.md (no user intent).
+
+    Used by the OpenClaw migration: a target SOUL.md that is still the stock template carries no
+    user intent, so importing a persona over it is not a destructive overwrite and must not be
+    reported as a conflict. Any customization — or a missing ``merlin_cli`` install — returns False,
+    which keeps the conservative conflict behaviour.
+    """
+    try:
+        from merlin_cli.default_soul import is_stock_soul
+    except Exception:  # standalone skill install (no merlin_cli package on sys.path)
+        return False
+    try:
+        return bool(is_stock_soul(read_text(path)))
+    except OSError:
+        return False
+
+
 def ensure_parent(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -843,6 +861,8 @@ class Migrator:
         selected_options: Optional[set[str]] = None,
         preset_name: str = "",
         skill_conflict_mode: str = "skip",
+        include_personal_skills: bool = False,
+        replace_stock_soul: bool = True,
     ):
         self.source_root = source_root
         self.target_root = target_root
@@ -853,6 +873,10 @@ class Migrator:
         self.selected_options = set(selected_options or MIGRATION_OPTION_METADATA.keys())
         self.preset_name = preset_name.strip().lower()
         self.skill_conflict_mode = skill_conflict_mode.strip().lower() or "skip"
+        # ~/.agents/skills is the user's cross-project library, not OpenClaw state — opt-in only.
+        self.include_personal_skills = include_personal_skills
+        # Replacing an unmodified auto-seeded SOUL.md is an upgrade, not a destructive overwrite.
+        self.replace_stock_soul = replace_stock_soul
         self.timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         self.output_dir = output_dir or (
             target_root / "migration" / "openclaw" / self.timestamp if execute else None
@@ -1251,17 +1275,23 @@ class Migrator:
         return path
 
     def copy_file(self, source: Path, destination: Path, kind: str,
-                  transform: Optional[Any] = None) -> None:
+                  transform: Optional[Any] = None, replace_if_stock: bool = False) -> None:
         if not source or not source.exists():
             return
 
+        replaced_default = False
         if destination.exists():
             if not transform and sha256_file(source) == sha256_file(destination):
                 self.record(kind, source, destination, "skipped", "Target already matches source")
                 return
             if not self.overwrite:
-                self.record(kind, source, destination, "conflict", "Target exists and overwrite is disabled")
-                return
+                # A target that is still the auto-seeded template holds no user intent, so
+                # replacing it is an upgrade — not the destructive overwrite --overwrite guards.
+                if replace_if_stock and self.replace_stock_soul and existing_soul_is_stock(destination):
+                    replaced_default = True
+                else:
+                    self.record(kind, source, destination, "conflict", "Target exists and overwrite is disabled")
+                    return
 
         if self.execute:
             backup_path = self.maybe_backup(destination)
@@ -1273,16 +1303,23 @@ class Migrator:
                 shutil.copystat(source, destination)
             else:
                 shutil.copy2(source, destination)
-            self.record(kind, source, destination, "migrated", backup=str(backup_path) if backup_path else None)
+            details: Dict[str, Any] = {"backup": str(backup_path) if backup_path else ""}
+            if replaced_default:
+                details["replaced_default_template"] = True
+            self.record(kind, source, destination, "migrated", **details)
         else:
-            self.record(kind, source, destination, "migrated", "Would copy")
+            dry_details: Dict[str, Any] = {}
+            if replaced_default:
+                dry_details["replaced_default_template"] = True
+            self.record(kind, source, destination, "migrated", "Would copy", **dry_details)
 
     def migrate_soul(self) -> None:
         source = self.source_candidate("workspace/SOUL.md", "workspace.default/SOUL.md")
         if not source:
             self.record("soul", None, self.target_root / "SOUL.md", "skipped", "No OpenClaw SOUL.md found")
             return
-        self.copy_file(source, self.target_root / "SOUL.md", kind="soul", transform=rebrand_text)
+        self.copy_file(source, self.target_root / "SOUL.md", kind="soul", transform=rebrand_text,
+                       replace_if_stock=True)
 
     def migrate_workspace_agents(self) -> None:
         source = self.source_candidate(
@@ -1422,11 +1459,13 @@ class Migrator:
         """Load the OpenClaw .env file for secrets that live there instead of config."""
         return parse_env_file(self.source_root / ".env")
 
-    def merge_env_values(self, additions: Dict[str, str], kind: str, source: Path) -> None:
+    def merge_env_values(self, additions: Dict[str, str], kind: str, source: Path,
+                         note: str = "") -> None:
         destination = self.target_root / ".env"
         env_data = parse_env_file(destination)
         added: Dict[str, str] = {}
         conflicts: List[str] = []
+        extra: Dict[str, Any] = {"note": note} if note else {}
 
         for key, value in additions.items():
             current = env_data.get(key)
@@ -1456,6 +1495,7 @@ class Migrator:
                 backup=str(backup_path) if backup_path else "",
                 added_keys=sorted(added.keys()),
                 conflicting_keys=conflicts,
+                **extra,
             )
         else:
             self.record(
@@ -1466,6 +1506,7 @@ class Migrator:
                 "Would merge env values",
                 added_keys=sorted(added.keys()),
                 conflicting_keys=conflicts,
+                **extra,
             )
 
     def migrate_messaging_settings(self, config: Optional[Dict[str, Any]] = None) -> None:
@@ -1577,38 +1618,56 @@ class Migrator:
         config = config or self.load_openclaw_config()
         additions: Dict[str, str] = {}
         discord = config.get("channels", {}).get("discord", {})
+        withheld: List[str] = []
         if isinstance(discord, dict):
             token = self._get_channel_field(discord, "token")
             if isinstance(token, str) and token.strip():
-                additions["DISCORD_BOT_TOKEN"] = token.strip()
+                # Bot token is a credential: gated behind --migrate-secrets like every other secret.
+                if self.migrate_secrets:
+                    additions["DISCORD_BOT_TOKEN"] = token.strip()
+                else:
+                    withheld.append("DISCORD_BOT_TOKEN")
             allow_from = self._get_channel_field(discord, "allowFrom") or []
             if isinstance(allow_from, list):
                 users = [str(u).strip() for u in allow_from if str(u).strip()]
                 if users:
                     additions["DISCORD_ALLOWED_USERS"] = ",".join(users)
+        note = (f"{', '.join(withheld)} withheld — re-run with --migrate-secrets to import it."
+                if withheld else "")
         if additions:
-            self.merge_env_values(additions, "discord-settings", self.source_root / "openclaw.json")
+            self.merge_env_values(additions, "discord-settings", self.source_root / "openclaw.json", note=note)
+        elif withheld:
+            self.record("discord-settings", self.source_root / "openclaw.json", self.target_root / ".env",
+                        "skipped", note)
         else:
             self.record("discord-settings", self.source_root / "openclaw.json", self.target_root / ".env", "skipped", "No Discord settings found")
 
     def migrate_slack_settings(self, config: Optional[Dict[str, Any]] = None) -> None:
         config = config or self.load_openclaw_config()
         additions: Dict[str, str] = {}
+        withheld: List[str] = []
         slack = config.get("channels", {}).get("slack", {})
         if isinstance(slack, dict):
-            bot_token = self._get_channel_field(slack, "botToken")
-            if isinstance(bot_token, str) and bot_token.strip():
-                additions["SLACK_BOT_TOKEN"] = bot_token.strip()
-            app_token = self._get_channel_field(slack, "appToken")
-            if isinstance(app_token, str) and app_token.strip():
-                additions["SLACK_APP_TOKEN"] = app_token.strip()
+            # Bot/app tokens are credentials: gated behind --migrate-secrets like every other secret.
+            for field_name, env_key in (("botToken", "SLACK_BOT_TOKEN"), ("appToken", "SLACK_APP_TOKEN")):
+                token = self._get_channel_field(slack, field_name)
+                if isinstance(token, str) and token.strip():
+                    if self.migrate_secrets:
+                        additions[env_key] = token.strip()
+                    else:
+                        withheld.append(env_key)
             allow_from = self._get_channel_field(slack, "allowFrom") or []
             if isinstance(allow_from, list):
                 users = [str(u).strip() for u in allow_from if str(u).strip()]
                 if users:
                     additions["SLACK_ALLOWED_USERS"] = ",".join(users)
+        note = (f"{', '.join(withheld)} withheld — re-run with --migrate-secrets to import them."
+                if withheld else "")
         if additions:
-            self.merge_env_values(additions, "slack-settings", self.source_root / "openclaw.json")
+            self.merge_env_values(additions, "slack-settings", self.source_root / "openclaw.json", note=note)
+        elif withheld:
+            self.record("slack-settings", self.source_root / "openclaw.json", self.target_root / ".env",
+                        "skipped", note)
         else:
             self.record("slack-settings", self.source_root / "openclaw.json", self.target_root / ".env", "skipped", "No Slack settings found")
 
@@ -1856,7 +1915,14 @@ class Migrator:
             self.record("model-config", source_path, destination, "skipped", "Model already set to the same value")
             return
         if current_model and not self.overwrite:
-            self.record("model-config", source_path, destination, "conflict", "Model already set and overwrite is disabled", current=current_model, incoming=model_str)
+            # The user (or `merlin setup`) already picked a model. Keeping it is the
+            # non-destructive outcome, so this must not block the whole migration: a configured
+            # model is the normal state on the "anytime after install" path, and refusing there
+            # made the documented command unusable. --overwrite still forces OpenClaw's choice.
+            self.record("model-config", source_path, destination, "skipped",
+                        "Model already set; keeping the current one "
+                        "(re-run with --overwrite to take OpenClaw's)",
+                        current=current_model, incoming=model_str)
             return
 
         if self.execute:
@@ -1975,10 +2041,21 @@ class Migrator:
         # Check all OpenClaw skill sources: managed, personal, project-level
         skill_sources = [
             (self.source_root / "skills", "shared-skills", "managed skills"),
-            (Path.home() / ".agents" / "skills", "personal-skills", "personal cross-project skills"),
             (self.source_root / "workspace" / ".agents" / "skills", "project-skills", "project-level shared skills"),
             (self.source_root / "workspace.default" / ".agents" / "skills", "project-skills", "project-level shared skills"),
         ]
+        # ~/.agents/skills is the user's cross-project skill library (agentskills.io layout), not
+        # OpenClaw state. Importing it by default copied unrelated skills into every migrating
+        # profile, so it is opt-in via --include-personal-skills.
+        personal_skills = Path.home() / ".agents" / "skills"
+        if self.include_personal_skills:
+            skill_sources.insert(1, (personal_skills, "personal-skills", "personal cross-project skills"))
+        elif personal_skills.is_dir():
+            self.record(
+                "personal-skills", personal_skills,
+                self.target_root / "skills" / SKILL_CATEGORY_DIRNAME, "skipped",
+                "Cross-project skills in ~/.agents/skills are not imported by default — "
+                "pass --include-personal-skills to include them.")
         found_any = False
         for source_root, kind_label, desc in skill_sources:
             if source_root.exists():
@@ -3115,6 +3192,12 @@ def parse_args() -> argparse.Namespace:
         help="Comma-separated migration option ids to skip. "
              f"Valid ids: {', '.join(sorted(MIGRATION_OPTION_METADATA))}",
     )
+    parser.add_argument(
+        "--include-personal-skills",
+        action="store_true",
+        help="Also import cross-project skills from ~/.agents/skills (skipped by default: that "
+             "directory is the user's own skill library, not OpenClaw state)",
+    )
     parser.add_argument("--output-dir", help="Where to write report, backups, and archived docs")
     parser.add_argument(
         "--json",
@@ -3144,6 +3227,7 @@ def main() -> int:
         selected_options=selected_options,
         preset_name=args.preset or "",
         skill_conflict_mode=args.skill_conflict,
+        include_personal_skills=bool(getattr(args, "include_personal_skills", False)),
     )
     report = migrator.migrate()
 

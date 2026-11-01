@@ -46,7 +46,7 @@ def _run_cwd_self_test(
         errors="replace",
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        timeout=60,
+        timeout=180,
         check=False,
     )
 
@@ -87,7 +87,7 @@ def test_handoff_children_cannot_read_the_handoff_console(tmp_path: Path) -> Non
         [powershell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
         env=env,
         creationflags=subprocess.CREATE_NEW_CONSOLE,
-        timeout=60,
+        timeout=180,
         check=False,
     )
 

@@ -38,13 +38,14 @@ Reads from `~/.openclaw/` by default. Legacy `~/.clawdbot/` or `~/.moltbot/` dir
 | Option | Description |
 |--------|-------------|
 | `--dry-run` | Preview only — stop after showing what would be migrated. |
-| `--preset <name>` | `full` (all compatible settings) or `user-data` (excludes infrastructure config). Neither preset imports secrets by default — pass `--migrate-secrets` explicitly. |
-| `--overwrite` | Overwrite existing Merlin files on conflicts (default: refuse to apply when the plan has conflicts). |
-| `--migrate-secrets` | Include API keys. Required even under `--preset full` — no preset imports secrets silently. |
+| `--preset <name>` | `full` (all compatible settings) or `user-data` (excludes infrastructure config). Neither preset imports secrets — bot tokens and API keys require `--migrate-secrets`. |
+| `--overwrite` | Overwrite existing Merlin files and skill-name conflicts (default: refuse to apply when the plan has conflicts). |
+| `--migrate-secrets` | Include bot tokens (Telegram, Discord, Slack) and provider API keys. Required even under `--preset full` — no preset imports secrets silently. |
 | `--no-backup` | Skip the pre-migration zip snapshot of `~/.merlin/` (by default a single restore-point archive is written before apply, under `~/.merlin/backups/pre-migration-*.zip`; restorable with `merlin import`). |
 | `--source <path>` | Custom OpenClaw directory. |
 | `--workspace-target <path>` | Where to place `AGENTS.md`. |
-| `--skill-conflict <mode>` | `skip` (default), `overwrite`, or `rename`. |
+| `--skill-conflict <mode>` | `skip`, `overwrite`, or `rename`. Default: `overwrite` when `--overwrite` is set, otherwise `skip`. |
+| `--include-personal-skills` | Also import cross-project skills from `~/.agents/skills` (skipped by default — that directory is your own skill library, not OpenClaw state). |
 | `--yes` | Skip the confirmation prompt after preview. |
 
 ## What gets migrated
@@ -67,7 +68,7 @@ Workspace files are also checked at `workspace.default/` and `workspace-main/` a
 |--------|------------------|-------------------|
 | Workspace skills | `workspace/skills/` | `~/.merlin/skills/openclaw-imports/` |
 | Managed/shared skills | `~/.openclaw/skills/` | `~/.merlin/skills/openclaw-imports/` |
-| Personal cross-project | `~/.agents/skills/` | `~/.merlin/skills/openclaw-imports/` |
+| Personal cross-project | `~/.agents/skills/` | `~/.merlin/skills/openclaw-imports/` (only with `--include-personal-skills`) |
 | Project-level shared | `workspace/.agents/skills/` | `~/.merlin/skills/openclaw-imports/` |
 
 Skill conflicts are handled by `--skill-conflict`: `skip` leaves the existing Merlin skill, `overwrite` replaces it, `rename` creates a `-imported` copy.

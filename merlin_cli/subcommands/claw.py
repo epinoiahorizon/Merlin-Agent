@@ -25,14 +25,15 @@ def build_claw_parser(subparsers, *, cmd_claw: Callable) -> None:
         help="Preview only — stop after showing what would be migrated")
     claw_migrate.add_argument(
         "--preset", choices=["user-data", "full"], default="full",
-        help="Migration preset (default: full). Neither preset imports secrets — "
-        "pass --migrate-secrets to include API keys.")
+        help="Migration preset (default: full). Neither preset imports secrets — bot tokens and "
+        "API keys require --migrate-secrets.")
     claw_migrate.add_argument(
         "--overwrite", action="store_true",
-        help="Overwrite existing files (default: refuse to apply when the plan has conflicts)")
+        help="Overwrite existing files, including skill-name conflicts (default: refuse to apply "
+        "when the plan has conflicts)")
     claw_migrate.add_argument(
         "--migrate-secrets", action="store_true",
-        help="Include allowlisted secrets (TELEGRAM_BOT_TOKEN, API keys, etc.). "
+        help="Include allowlisted secrets (Telegram/Discord/Slack bot tokens, provider API keys). "
         "Required even under --preset full.")
     claw_migrate.add_argument(
         "--no-backup", action="store_true",
@@ -42,8 +43,13 @@ def build_claw_parser(subparsers, *, cmd_claw: Callable) -> None:
     claw_migrate.add_argument(
         "--workspace-target", help="Absolute path to copy workspace instructions into")
     claw_migrate.add_argument(
-        "--skill-conflict", choices=["skip", "overwrite", "rename"], default="skip",
-        help="How to handle skill name conflicts (default: skip)")
+        "--skill-conflict", choices=["skip", "overwrite", "rename"], default=None,
+        help="How to handle skill name conflicts (default: overwrite when --overwrite is set, "
+             "otherwise skip)")
+    claw_migrate.add_argument(
+        "--include-personal-skills", action="store_true",
+        help="Also import cross-project skills from ~/.agents/skills (skipped by default: that "
+        "directory is the user's own skill library, not OpenClaw state)")
     add_yes_flag(claw_migrate, "Skip confirmation prompts")
 
     # claw cleanup

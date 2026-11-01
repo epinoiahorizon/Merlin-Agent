@@ -412,6 +412,7 @@ async function _downloadOrBranch(installRef, cached, emit, fallbackBranch, downl
  */
 const TRANSIENT_DOWNLOAD =
   /ECONNRESET|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|EPIPE|socket hang up|HTTP (?:5\d\d|429)/i
+
 const DOWNLOAD_RETRY_DELAYS_MS = [750, 2500]
 
 async function _downloadWithRetry(download, ref, destPath, emit) {

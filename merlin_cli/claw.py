@@ -34,8 +34,8 @@ _OPENCLAW_NODE_CMDLINE_RE = r"^(\S*/)?node(js)?\s.*(openclaw|clawd)"
 # is required even under --preset full (OpenClaw's two-phase posture); no silent API-key import.
 _MIGRATE_ARG_DEFAULTS = (
     ("source", None), ("dry_run", False), ("preset", "full"), ("overwrite", False),
-    ("migrate_secrets", False), ("workspace_target", None), ("skill_conflict", "skip"),
-    ("no_backup", False), ("yes", False))
+    ("migrate_secrets", False), ("workspace_target", None), ("skill_conflict", None),
+    ("include_personal_skills", False), ("no_backup", False), ("yes", False))
 
 # (status, heading, color, default reason) — printed in this order after migrated items.
 _REPORT_REASON_GROUPS = (
@@ -268,6 +268,10 @@ def claw_command(args):
 def _cmd_migrate(args):
     """Run the OpenClaw → Merlin migration: preflight, preview, confirm, back up, apply."""
     opts = SimpleNamespace(**{k: getattr(args, k, d) for k, d in _MIGRATE_ARG_DEFAULTS})
+    # --overwrite already means "replace what's there"; making it leave skill conflicts unresolved
+    # contradicted the README and forced a second flag the docs never mentioned.
+    if not opts.skill_conflict:
+        opts.skill_conflict = "overwrite" if opts.overwrite else "skip"
     # Explicit --source, else first existing of current + legacy names; default to ~/.openclaw.
     opts.source_dir = (Path(opts.source) if opts.source
                        else next(iter(_find_openclaw_dirs()), Path.home() / ".openclaw"))
@@ -291,6 +295,7 @@ def _cmd_migrate(args):
           f"Overwrite:   {'yes' if opts.overwrite else 'no (skip conflicts)'}",
           f"Secrets:     {'yes (allowlisted only)' if opts.migrate_secrets else 'no'}",
           *([f"Skill conflicts: {opts.skill_conflict}"] if opts.skill_conflict != "skip" else []),
+          *(["Personal skills: include ~/.agents/skills"] if opts.include_personal_skills else []),
           *([f"Workspace:   {opts.workspace_target}"] if opts.workspace_target else []))
     print()
     # Migrating tokens while OpenClaw or the gateway is active causes conflicts (e.g. Telegram 409).
@@ -325,7 +330,8 @@ def _load_migrator(script_path: Path, opts: SimpleNamespace) -> Optional[Callabl
         source_root=opts.source_dir.resolve(), target_root=opts.merlin_home.resolve(),
         execute=execute, workspace_target=ws_target, overwrite=opts.overwrite,
         migrate_secrets=opts.migrate_secrets, output_dir=None, selected_options=selected,
-        preset_name=opts.preset, skill_conflict_mode=opts.skill_conflict).migrate()
+        preset_name=opts.preset, skill_conflict_mode=opts.skill_conflict,
+        include_personal_skills=opts.include_personal_skills).migrate()
 
 
 def _preview_migration(run_migrator: Callable[[bool], dict], opts: SimpleNamespace) -> bool:

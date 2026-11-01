@@ -210,9 +210,28 @@ def _provider_supports_explicit_api_mode(provider: Optional[str], configured_pro
 
 
 def _configured_api_mode(provider: str, model_cfg: Dict[str, Any]) -> Optional[str]:
-    """Persisted ``model.api_mode`` when valid and recorded for this provider, else None."""
+    """Persisted ``model.api_mode`` when valid and recorded for this provider, else None.
+
+    ``api_mode`` is wire state of an ENDPOINT, not of the model. ``route_identity`` drops it
+    together with ``base_url`` whenever ``model:`` is re-pointed at another provider ("with no
+    base_url the api_mode alone is wire state of the old route"), so a block that still carries
+    ``codex_responses`` without a ``base_url`` is residue of a removed route. Honouring that
+    residue applied one relay's Responses wire to EVERY provider picked afterwards: z.ai and
+    DeepSeek serve only ``/chat/completions``, so their turns were posted to ``/v4/responses``
+    and 404'd on all retries while the route's own derivation said ``chat_completions``. Keep
+    persisted modes that say where the wire belongs; an unattributable Responses mode is never
+    authoritative — the route derives it again for genuinely Responses-native endpoints.
+    """
     configured_mode = _parse_api_mode(model_cfg.get("api_mode"))
-    return configured_mode if configured_mode and _provider_supports_explicit_api_mode(provider, _cfg_provider(model_cfg)) else None
+    if not configured_mode:
+        return None
+    if configured_mode == "codex_responses" and not str(model_cfg.get("base_url") or "").strip():
+        logger.info(
+            "Ignoring persisted model.api_mode=codex_responses with no model.base_url "
+            "(unattributable route residue) for provider=%s", provider or "(unknown)",
+        )
+        return None
+    return configured_mode if _provider_supports_explicit_api_mode(provider, _cfg_provider(model_cfg)) else None
 
 
 def _effective_model(model_cfg: Dict[str, Any], target_model: Optional[str]) -> str:

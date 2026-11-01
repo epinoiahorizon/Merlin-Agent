@@ -1,6 +1,6 @@
 # Contributor Quick Reference
 
-For occasional contributors and PR authors. Full developer docs: https://merlin-agent.epinoiahorizon.com/docs/developer-guide/
+For occasional contributors and PR authors. Full developer docs: https://docs.withmerlin.online/docs/developer-guide/
 
 ### Project Layout
 

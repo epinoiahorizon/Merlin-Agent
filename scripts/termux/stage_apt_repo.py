@@ -515,7 +515,7 @@ def main(argv: list | None = None) -> int:
     ap.add_argument("--pool", required=True, type=Path)
     ap.add_argument("--out", required=True, type=Path)
     # merlin-nightly is the suite actually published today
-    # (https://merlin-assets.epinoiahorizon.com/releases/termux/nightly/,
+    # (https://assets.withmerlin.online/releases/termux/nightly/,
     # verified 2026-09-06); merlin-stable/merlin-canary are what CI stages
     # for the stable/canary channels.
     ap.add_argument(
