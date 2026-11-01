@@ -95,10 +95,21 @@ CREATE TABLE IF NOT EXISTS invoices (
     payload       TEXT NOT NULL DEFAULT '',
     status        TEXT NOT NULL DEFAULT 'pending',
     created_at    INTEGER NOT NULL,
+    expires_at    INTEGER,
     paid_at       INTEGER
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_invoice_pending_amount
     ON invoices (amount_idr) WHERE status = 'pending';
+CREATE TABLE IF NOT EXISTS payments (
+    id          TEXT PRIMARY KEY,
+    received_at INTEGER NOT NULL,
+    amount_idr  INTEGER NOT NULL,
+    invoice_id  TEXT,
+    status      TEXT NOT NULL DEFAULT 'unmatched',
+    provider    TEXT NOT NULL DEFAULT '',
+    raw         TEXT NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS idx_payments_status ON payments (status, received_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_tenant_time ON usage_events (tenant_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_ledger_tenant     ON ledger_entries (tenant_id, id DESC);
 """
@@ -168,6 +179,26 @@ class LedgerStore:
             self._conn.execute("PRAGMA journal_mode=WAL")
             self._conn.execute("PRAGMA foreign_keys=ON")
             self._conn.executescript(SCHEMA)
+            self._migrate()
+
+    def _migrate(self) -> None:
+        """Add columns that ``CREATE TABLE IF NOT EXISTS`` cannot add to an existing table.
+
+        A deployed ledger predates later schema changes (``expires_at`` arrived with invoice TTLs);
+        without this, an upgraded binary crashes on the first statement that touches the new column
+        while a fresh install works — the classic "only fails in production" bug.
+        """
+        wanted = {
+            "invoices": {"expires_at": "INTEGER", "paid_at": "INTEGER"},
+            "payments": {"provider": "TEXT NOT NULL DEFAULT ''"},
+        }
+        for table, columns in wanted.items():
+            existing = {row["name"] for row in self._conn.execute(f"PRAGMA table_info({table})").fetchall()}
+            if not existing:
+                continue
+            for name, declaration in columns.items():
+                if name not in existing:
+                    self._conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {declaration}")
 
     # -- lifecycle ---------------------------------------------------------------------------
     def close(self) -> None:
@@ -227,24 +258,29 @@ class LedgerStore:
         return str(row["id"]) if row else None
 
     # -- invoices (top-ups) -------------------------------------------------------------------
-    def create_invoice(self, tenant_id: str, amount_idr: int, payload: str = "") -> dict:
+    def create_invoice(
+        self, tenant_id: str, amount_idr: int, payload: str = "", ttl_s: int = 1800
+    ) -> dict:
         """Pending invoice for an exact rupiah amount; raises when that amount is already pending.
 
         The pending-amount unique index is what makes unique-amount matching safe: two customers can
         never be told to pay the same nominal, so a bank/QRIS notification maps to exactly one
         invoice without needing a reference code inside the transfer.
+
+        ``ttl_s`` bounds how long the nominal stays reserved; expired invoices release it.
         """
         amount_idr = int(amount_idr)
         if amount_idr <= 0:
             raise ValueError("invoice amount must be positive")
         invoice_id = "inv_" + secrets.token_hex(10)
         now = int(time.time())
+        expires_at = now + int(ttl_s) if ttl_s and ttl_s > 0 else None
         try:
             with self._tx() as conn:
                 conn.execute(
-                    "INSERT INTO invoices (id, tenant_id, amount_idr, amount_micros, payload, status, created_at)"
-                    " VALUES (?, ?, ?, ?, ?, 'pending', ?)",
-                    (invoice_id, tenant_id, amount_idr, amount_idr * MICROS_PER_UNIT, payload, now),
+                    "INSERT INTO invoices (id, tenant_id, amount_idr, amount_micros, payload, status,"
+                    " created_at, expires_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)",
+                    (invoice_id, tenant_id, amount_idr, amount_idr * MICROS_PER_UNIT, payload, now, expires_at),
                 )
         except sqlite3.IntegrityError as exc:
             raise DuplicateInvoiceAmount(f"amount {amount_idr} already has a pending invoice") from exc
@@ -296,6 +332,78 @@ class LedgerStore:
                 (row["tenant_id"], invoice_id, row["amount_micros"], f"topup:{invoice_id}", now),
             )
             credited = int(row["amount_micros"])
+        return credited
+
+    def expire_invoices(self, now: Optional[int] = None) -> int:
+        """Mark pending invoices past ``expires_at`` as expired, freeing their unique nominal."""
+        moment = int(now if now is not None else time.time())
+        expired = 0
+        with self._tx() as conn:
+            rows = conn.execute(
+                "SELECT id FROM invoices WHERE status = 'pending' AND expires_at IS NOT NULL AND expires_at <= ?",
+                (moment,),
+            ).fetchall()
+            for row in rows:
+                conn.execute(
+                    "UPDATE invoices SET status = 'expired' WHERE id = ? AND status = 'pending'", (row["id"],)
+                )
+                expired += 1
+        return expired
+
+    def find_pending_by_amount(self, amount_idr: int) -> Optional[dict]:
+        row = self._conn.execute(
+            "SELECT * FROM invoices WHERE status = 'pending' AND amount_idr = ?", (int(amount_idr),)
+        ).fetchone()
+        return dict(row) if row else None
+
+    # -- inbound payments (webhooks / manual reconciliation) -----------------------------------
+    def record_payment(
+        self,
+        amount_idr: int,
+        *,
+        invoice_id: Optional[str] = None,
+        status: str = "unmatched",
+        provider: str = "",
+        raw: str = "",
+    ) -> dict:
+        payment_id = "pay_" + secrets.token_hex(10)
+        with self._tx() as conn:
+            conn.execute(
+                "INSERT INTO payments (id, received_at, amount_idr, invoice_id, status, provider, raw)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (payment_id, int(time.time()), int(amount_idr), invoice_id, status, provider, raw[:4000]),
+            )
+        payment = self.payment(payment_id)
+        assert payment is not None
+        return payment
+
+    def payment(self, payment_id: str) -> Optional[dict]:
+        row = self._conn.execute("SELECT * FROM payments WHERE id = ?", (payment_id,)).fetchone()
+        return dict(row) if row else None
+
+    def payments(self, status: str = "", limit: int = 50) -> list[dict]:
+        if status:
+            rows = self._conn.execute(
+                "SELECT * FROM payments WHERE status = ? ORDER BY received_at DESC LIMIT ?", (status, limit)
+            ).fetchall()
+        else:
+            rows = self._conn.execute(
+                "SELECT * FROM payments ORDER BY received_at DESC LIMIT ?", (limit,)
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def claim_payment(self, payment_id: str, invoice_id: str) -> int:
+        """Attach an unmatched payment to an invoice and credit it (manual reconciliation)."""
+        payment = self.payment(payment_id)
+        if payment is None or payment["status"] == "matched":
+            return 0
+        credited = self.pay_invoice(invoice_id)
+        if not credited:
+            return 0
+        with self._tx() as conn:
+            conn.execute(
+                "UPDATE payments SET status = 'matched', invoice_id = ? WHERE id = ?", (invoice_id, payment_id)
+            )
         return credited
 
     def issue_key(self, tenant_id: str, label: str = "") -> str:

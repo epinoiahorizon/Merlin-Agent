@@ -138,3 +138,28 @@ def test_meter_uses_default_price_for_unlisted_model(store: LedgerStore) -> None
     assert hold is not None
     assert hold.micros == 50  # 100 tokens @ $0.50/M
     assert meter.settle(hold, Usage(prompt_tokens=100, completion_tokens=0)).cost_micros == 50
+
+
+def test_upgraded_binary_migrates_an_old_database(tmp_path) -> None:
+    """A ledger created before invoice TTLs must gain ``expires_at`` on open, not crash."""
+    import sqlite3
+
+    path = tmp_path / "old.db"
+    legacy = sqlite3.connect(path)
+    legacy.executescript(
+        "CREATE TABLE invoices (id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, amount_idr INTEGER NOT NULL,"
+        " amount_micros INTEGER NOT NULL, payload TEXT NOT NULL DEFAULT '',"
+        " status TEXT NOT NULL DEFAULT 'pending', created_at INTEGER NOT NULL);"
+    )
+    legacy.execute(
+        "INSERT INTO invoices VALUES ('inv_old', 'tn_x', 1000, 1000000000, '', 'pending', 1)"
+    )
+    legacy.commit()
+    legacy.close()
+
+    with LedgerStore(path) as store:
+        columns = {row["name"] for row in store.conn.execute("PRAGMA table_info(invoices)")}
+        assert "expires_at" in columns and "paid_at" in columns
+        # Old rows survive and are now visible to the expiry sweep without exploding.
+        assert store.expire_invoices(now=10) == 0  # NULL expires_at is never expired
+        assert store.invoice("inv_old")["amount_idr"] == 1000
