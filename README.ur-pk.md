@@ -19,9 +19,9 @@
 >
 > اس ریپوزٹری کی git ہسٹری 2026-09-30 کو فورک امپورٹ سے شروع ہوتی ہے؛ اپ اسٹریم کی ہسٹری یہاں شامل نہیں۔
 
-**Merlin Agent اس اوپن سورس ایجنٹ کی ڈیسک ٹاپ پیکج شدہ تقسیم ہے، جسے [Epinoia Horizon](https://epinoiahorizon.com) بناتا اور سپورٹ کرتا ہے۔** تجربے سے مہارتیں بنانا، استعمال میں بہتر کرنا اور پرانی گفتگو تلاش کرنا — یہ سب اپ اسٹریم کور ہے، جس کا ذکر اوپر ہے۔ Merlin اس کے گرد تقسیم ہے: بغیر ٹرمینل کے انسٹالر اور ایپ ونڈو، پانچ API کیز جمع نہ کرنے والوں کے لیے [Atlas Portal](https://portal.epinoiahorizon.com)، ہماری Windows سپورٹ، اور ہماری اپنی اصلاحات۔
+**Merlin Agent اس اوپن سورس ایجنٹ کی ڈیسک ٹاپ پیکج شدہ تقسیم ہے، جسے [Epinoia Horizon](https://epinoiahorizon.com) بناتا اور سپورٹ کرتا ہے۔** تجربے سے مہارتیں بنانا، استعمال میں بہتر کرنا اور پرانی گفتگو تلاش کرنا — یہ سب اپ اسٹریم کور ہے، جس کا ذکر اوپر ہے۔ Merlin اس کے گرد تقسیم ہے: بغیر ٹرمینل کے انسٹالر اور ایپ ونڈو، ہماری Windows سپورٹ، اور ہماری اپنی اصلاحات۔
 
-آپ اپنی مرضی کا کوئی بھی ماڈل استعمال کر سکتے ہیں — [Atlas Portal](https://portal.epinoiahorizon.com)، [OpenRouter](https://openrouter.ai) (200 سے زائد ماڈلز)، [NovitaAI](https://novita.ai) (ماڈل API، ایجنٹ سینڈ باکس، اور GPU کلاؤڈ کے لیے اے آئی مقامی کلاؤڈ)، [NVIDIA NIM](https://build.nvidia.com) (Nemotron)، [Xiaomi MiMo](https://platform.xiaomimimo.com)، [z.ai/GLM](https://z.ai)، [Kimi/Moonshot](https://platform.moonshot.ai)، [MiniMax](https://www.minimax.io)، [Hugging Face](https://huggingface.co)، OpenAI، یا اپنا حسب ضرورت اینڈ پوائنٹ (endpoint) استعمال کریں۔ ماڈل تبدیل کرنے کے لیے صرف `merlin model` استعمال کریں — کسی کوڈ کو تبدیل کرنے کی ضرورت نہیں، کوئی پابندی نہیں۔
+آپ اپنی مرضی کا کوئی بھی ماڈل استعمال کر سکتے ہیں — [OpenRouter](https://openrouter.ai) (200 سے زائد ماڈلز)، [NovitaAI](https://novita.ai) (ماڈل API، ایجنٹ سینڈ باکس، اور GPU کلاؤڈ کے لیے اے آئی مقامی کلاؤڈ)، [NVIDIA NIM](https://build.nvidia.com) (Nemotron)، [Xiaomi MiMo](https://platform.xiaomimimo.com)، [z.ai/GLM](https://z.ai)، [Kimi/Moonshot](https://platform.moonshot.ai)، [MiniMax](https://www.minimax.io)، [Hugging Face](https://huggingface.co)، OpenAI، یا اپنا حسب ضرورت اینڈ پوائنٹ (endpoint) استعمال کریں۔ ماڈل تبدیل کرنے کے لیے صرف `merlin model` استعمال کریں — کسی کوڈ کو تبدیل کرنے کی ضرورت نہیں، کوئی پابندی نہیں۔
 
 <table>
 <tr><td><b>حقیقی ٹرمینل انٹرفیس</b></td><td>مکمل TUI جس میں ملٹی لائن ایڈیٹنگ، سلیش-کمانڈ آٹو کمپلیٹ، بات چیت کی ہسٹری، انٹرپٹ اور ری ڈائریکٹ، اور سٹریمنگ ٹول آؤٹ پٹ شامل ہے۔</td></tr>
@@ -102,29 +102,6 @@ merlin doctor       # کسی بھی مسئلے کی تشخیص کریں
 </div>
 
 📖 **[مکمل دستاویزات →](https://merlin-agent.epinoiahorizon.com/docs/)**
-
----
-
-## API-کیز اکٹھی کرنے سے بچیں — Atlas Portal
-
-ہرمیس آپ کے پسندیدہ پرووائیڈر کے ساتھ کام کرتا ہے — یہ چیز تبدیل نہیں ہو رہی۔ لیکن اگر آپ ماڈل، ویب سرچ، امیج جنریشن، TTS، اور کلاؤڈ براؤزر کے لیے پانچ الگ الگ API کیز جمع نہیں کرنا چاہتے، تو **[Atlas Portal](https://portal.epinoiahorizon.com)** ان سب کو ایک ہی سبسکرپشن کے تحت کور کرتا ہے:
-
-- **300+ ماڈلز** — ان میں سے کوئی بھی ماڈل `/model <name>` کے ذریعے منتخب کریں
-- **ٹول گیٹ وے (Tool Gateway)** — ویب سرچ، امیج جنریشن (FAL)، ٹیکسٹ ٹو سپیچ (OpenAI)، کلاؤڈ براؤزر (Browser Use)، یہ سب آپ کی سبسکرپشن کے ذریعے چلتے ہیں۔ کسی اضافی اکاؤنٹ کی ضرورت نہیں۔
-
-نئی انسٹالیشن کے بعد بس ایک کمانڈ کی ضرورت ہے:
-
-<div dir="ltr">
-
-```bash
-merlin setup --portal
-```
-
-</div>
-
-یہ آپ کو OAuth کے ذریعے لاگ ان کرواتا ہے، Atlas کو آپ کا پرووائیڈر مقرر کرتا ہے، اور ٹول گیٹ وے کو آن کر دیتا ہے۔ `merlin portal info` کمانڈ استعمال کر کے آپ کسی بھی وقت چیک کر سکتے ہیں کہ کون کون سی سروسز منسلک ہیں۔ مکمل تفصیلات [Tool Gateway دستاویزات کے صفحے](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/tool-gateway) پر موجود ہیں۔
-
-آپ اب بھی کسی بھی ٹول کے لیے اپنی مرضی کی API کیز استعمال کر سکتے ہیں — گیٹ وے ہر سروس کے لیے الگ الگ کام کرتا ہے، ایسا نہیں کہ یا تو سب کچھ استعمال کریں یا کچھ بھی نہیں۔
 
 ---
 
