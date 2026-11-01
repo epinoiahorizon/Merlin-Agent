@@ -80,7 +80,7 @@ Merlin still prints the full data-policy warning and the acknowledgement key on 
 
 ## Setting auxiliary models
 
-Click **Show auxiliary** to reveal the 11 task slots:
+Click **Configure** on the **Auxiliary tasks** card to reveal the 11 task slots:
 
 ![Auxiliary panel expanded](/img/docs/dashboard-models/auxiliary-expanded.png)
 
@@ -94,7 +94,7 @@ Every auxiliary task defaults to `auto` — meaning Merlin tries your main model
 | **Vision** | When your main model lacks vision support. Point it at `google/gemini-2.5-flash` or `gpt-4o-mini`. |
 | **Compression** | When you're burning reasoning tokens on Opus/M2.7 just to summarize context. A fast chat model does the job at 1/50th the cost. |
 | **Approval** | For `approval_mode: smart` — a fast/cheap model (haiku, flash, gpt-5-mini) decides whether to auto-approve low-risk commands. Expensive models here are waste. |
-| **Web Extract** | When you use `web_extract` heavily. Same logic as compression — summarization doesn't need reasoning. |
+| **Review** | Routes the `/review` subagent (`merlin review`) — a code-review pass that can be long, so a cheaper aux model is often worthwhile. |
 | **Skills Hub** | `merlin skills search` uses this. Usually fine at `auto`. |
 | **MCP** | MCP tool routing. Usually fine at `auto`. |
 | **Triage Specifier** | Routes the Kanban triage specifier (`merlin kanban specify`) that expands a rough one-liner into a concrete spec. A cheap, capable model works well. |
