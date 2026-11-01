@@ -73,6 +73,14 @@ if (-not (Test-Path $envFile)) {
     Write-Warning "gateway.env belum berisi kunci upstream — upstream dengan api_key_env akan gagal (401)."
 }
 
+# Token admin TIDAK dikirim sebagai argumen: argumen proses terbaca oleh proses lain di mesin ini.
+# Ia disimpan di gateway.env (dibaca lewat --env-file) dan tetap sama di setiap start, sehingga
+# endpoint pembayaran tidak berganti token diam-diam setelah restart.
+$tokenValue = (Get-Content $tokenPath -Raw).Trim()
+$envLines = @(Get-Content $envFile | Where-Object { $_ -notmatch '^\s*MERLIN_PROXY_ADMIN_TOKEN\s*=' })
+$envLines += "MERLIN_PROXY_ADMIN_TOKEN=$tokenValue"
+[System.IO.File]::WriteAllLines($envFile, [string[]]$envLines, (New-Object System.Text.UTF8Encoding($false)))
+
 # Peluncuran TIDAK boleh bergantung pada environment warisan: Task Scheduler tidak meneruskan
 # PYTHONPATH, dan proses anak mati dengan "No module named merlin_cli.proxy.entry". Wrapper ini
 # menyisipkan RepoRoot ke sys.path sendiri, lalu semua path diteruskan sebagai argumen.
