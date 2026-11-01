@@ -213,5 +213,21 @@ def build_gateway_parser(
 
     proxy_subparsers.add_parser("status", help="Show which proxy upstreams are ready")
     proxy_subparsers.add_parser("providers", help="List available proxy upstream providers")
+
+    proxy_catalog = proxy_subparsers.add_parser(
+        "catalog", help="Price book: sync from a reference feed, list current prices")
+    proxy_catalog_sub = proxy_catalog.add_subparsers(dest="catalog_command")
+    proxy_catalog_sync = proxy_catalog_sub.add_parser(
+        "sync", help="Discover each upstream's models and price them from the reference feed")
+    proxy_catalog_sync.add_argument("--config", default=None,
+        help="Path to proxy_upstreams.json (default: MERLIN_PROXY_UPSTREAMS or the Merlin home)")
+    proxy_catalog_sync.add_argument("--reference", default=None,
+        help="Price reference: URL or local JSON (default: OpenRouter /api/v1/models)")
+    proxy_catalog_sync.add_argument("--markup-bps", dest="markup_bps", type=int, default=None,
+        help="Markup over the reference in basis points (default 1500 = 15%%)")
+    proxy_catalog_sync.add_argument("--dry-run", dest="dry_run", action="store_true",
+        help="Report what would change without writing to the ledger")
+    proxy_catalog_sub.add_parser("list", help="Show the current price book and last changes")
+    proxy_catalog.set_defaults(catalog_command="list")
     proxy_parser.set_defaults(func=cmd_proxy)
     gateway_parser.set_defaults(func=cmd_gateway)
