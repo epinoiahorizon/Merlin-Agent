@@ -42,7 +42,7 @@ Logo ASCII kanonik (tampil di banner CLI/TUI/desktop):
 - [ ] Nama aplikasi Desktop (window title, about page)
 - [ ] Nama bot Telegram di BotFather (ganti dari "Hermes")
 - [ ] README GitHub + badges + OG image
-- [ ] Docs header (merlin-agent.epinoiahorizon.com/docs)
+- [ ] Docs header (docs.withmerlin.online/docs)
 - [ ] llms.txt — sudah live, pastikan identity block ada
 - [ ] Persona gateway (semua platform)
 
