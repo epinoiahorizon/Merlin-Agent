@@ -222,20 +222,28 @@ If you're coming from OpenClaw, Merlin can automatically import your settings, m
 **Anytime after install:**
 
 ```bash
-merlin claw migrate              # Interactive migration (full preset)
-merlin claw migrate --dry-run    # Preview what would be migrated
-merlin claw migrate --preset user-data   # Migrate without secrets
-merlin claw migrate --overwrite  # Overwrite existing conflicts
+merlin claw migrate                        # Interactive migration (full preset)
+merlin claw migrate --dry-run              # Preview what would be migrated
+merlin claw migrate --overwrite            # Replace existing files and skills instead of refusing
+merlin claw migrate --migrate-secrets      # Also import bot tokens and provider API keys
+merlin claw migrate --preset user-data     # Import user data only (never secrets)
 ```
+
+Behavior worth knowing before you run it:
+
+- **Secrets are always opt-in.** No preset imports `TELEGRAM_BOT_TOKEN`, `DISCORD_BOT_TOKEN`, `SLACK_BOT_TOKEN`/`SLACK_APP_TOKEN`, or provider API keys — pass `--migrate-secrets` to include them. Withheld tokens are reported, never silently dropped.
+- **A stock `SOUL.md` is replaced silently** (an auto-seeded template carries no user intent). A persona you edited yourself is a conflict, so add `--overwrite` for that case.
+- **`--overwrite` also settles skill-name conflicts.** Use `--skill-conflict rename` instead to keep both copies side by side.
+- **`~/.agents/skills` is not imported by default.** That directory is your own cross-project skill library, not OpenClaw state; add `--include-personal-skills` if you want it copied into `~/.merlin/skills/openclaw-imports/`.
 
 What gets imported:
 
 - **SOUL.md** — persona file
-- **Memories** — MEMORY.md and USER.md entries
+- **Memories** — MEMORY.md and USER.md entries, merged into what you already have
 - **Skills** — user-created skills → `~/.merlin/skills/openclaw-imports/`
 - **Command allowlist** — approval patterns
 - **Messaging settings** — platform configs, allowed users, working directory
-- **API keys** — allowlisted secrets (Telegram, OpenRouter, OpenAI, Anthropic, ElevenLabs)
+- **API keys** — allowlisted secrets (Telegram, Discord, Slack, OpenRouter, OpenAI, Anthropic, ElevenLabs), only with `--migrate-secrets`
 - **TTS assets** — workspace audio files
 - **Workspace instructions** — AGENTS.md (with `--workspace-target`)
 

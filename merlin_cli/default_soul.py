@@ -70,3 +70,15 @@ def is_legacy_template_soul(text: str) -> bool:
     """
     normalized = _normalize_soul(text)
     return any(normalized == _normalize_soul(t) for t in _LEGACY_TEMPLATE_SOULS)
+
+
+def is_stock_soul(text: str) -> bool:
+    """True if ``text`` is an untouched, auto-seeded SOUL.md — the current template or a legacy one.
+
+    Broader than ``is_legacy_template_soul`` (which deliberately excludes ``DEFAULT_SOUL_MD`` so the
+    upgrade path never treats the current text as legacy): here the current template also carries
+    zero user intent, so a caller replacing it is not destroying anything the user wrote.
+    """
+    if _normalize_soul(text) == _normalize_soul(DEFAULT_SOUL_MD):
+        return True
+    return is_legacy_template_soul(text)
