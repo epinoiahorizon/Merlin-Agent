@@ -193,8 +193,9 @@ merlin setup --portal
 ```bash
 merlin claw migrate              # انٹرایکٹو مائیگریشن (مکمل پری سیٹ)
 merlin claw migrate --dry-run    # جائزہ لیں کہ کیا کیا مائیگریٹ ہوگا
-merlin claw migrate --preset user-data   # حساس معلومات (secrets) کے بغیر مائیگریٹ کریں
-merlin claw migrate --overwrite  # موجودہ متصادم فائلوں کو اوور رائٹ کریں
+merlin claw migrate --overwrite  # موجودہ فائلوں اور اسکلز کو انکار کے بجائے تبدیل کریں
+merlin claw migrate --migrate-secrets   # بوٹ ٹوکنز اور API کیز بھی درآمد کریں
+merlin claw migrate --preset user-data   # صرف صارف کا ڈیٹا (کبھی بھی حساس معلومات نہیں)
 ```
 
 </div>
