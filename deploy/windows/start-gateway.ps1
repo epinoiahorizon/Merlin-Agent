@@ -50,7 +50,9 @@ if (-not (Test-Path $tokenPath)) {
     $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
     $rng.GetBytes($bytes)
     $rng.Dispose()
-    $token = [Convert]::ToHexString($bytes).ToLowerInvariant()
+    # [Convert]::ToHexString hanya ada di .NET 5+ / PowerShell 7; di Windows PowerShell 5.1 metode itu
+    # tidak ada dan pembuatan token akan gagal. Format per-byte menjaga RNG kriptografis yang sama.
+    $token = -join ($bytes | ForEach-Object { $_.ToString('x2') })
     Set-Content -Path $tokenPath -Value $token -NoNewline -Encoding ascii
     Write-Host "Token admin dibuat: $tokenPath"
 }
