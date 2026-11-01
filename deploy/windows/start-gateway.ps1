@@ -109,7 +109,7 @@ $gateway = Start-LocalService -Name 'gateway' -Log (Join-Path $logDir 'gateway.l
 $dashboard = Start-LocalService -Name 'dashboard' -Log (Join-Path $logDir 'dashboard.log') -Arguments @(
     (Q $launcher), 'dashboard', '--host', '127.0.0.1', '--port', "$DashboardPort",
     '--qris', (Q $qrisPath), '--ledger', (Q $ledgerPath), '--probes', (Q $ledgerPath),
-    '--admin-token', $env:MERLIN_PROXY_ADMIN_TOKEN, '--env-file', (Q $envFile)
+    '--env-file', (Q $envFile)
 )
 
 Start-Sleep -Seconds 4
