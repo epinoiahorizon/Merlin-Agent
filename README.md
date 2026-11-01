@@ -4,10 +4,10 @@
 
 # Merlin Agent ☤
 <p align="center">
-  <a href="https://merlin-agent.epinoiahorizon.com/">Merlin Agent</a> | <a href="https://merlin-agent.epinoiahorizon.com/">Merlin Desktop</a>
+  <a href="https://withmerlin.online/">Merlin Agent</a> | <a href="https://withmerlin.online/">Merlin Desktop</a>
 </p>
 <p align="center">
-  <a href="https://merlin-agent.epinoiahorizon.com/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentation"></a>
+  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
   <a href="https://epinoiahorizon.com"><img src="https://img.shields.io/badge/Built%20by-Epinoia%20Horizon-blueviolet?style=for-the-badge" alt="Built by Epinoia Horizon"></a>
@@ -22,7 +22,7 @@
 
 **Merlin Agent is the self-improving AI agent made and supported by [Epinoia Horizon](https://epinoiahorizon.com)** — a packaged distribution built on the open-source Hermes Agent core (MIT, © 2025 Nous Research, credited above). It creates skills from experience, improves them during use, searches its own past conversations and keeps a deepening model of who you are across sessions. Merlin is the distribution around that core: an installer and an app window that need no terminal, a Windows-focused support path that ends at us, and our own fixes on top.
 
-Use any model you want — OpenRouter, OpenAI, your own endpoint, and [many others](https://merlin-agent.epinoiahorizon.com/docs/integrations/providers). Switch with `merlin model` — no code changes, no lock-in.
+Use any model you want — OpenRouter, OpenAI, your own endpoint, and [many others](https://docs.withmerlin.online/docs/integrations/providers). Switch with `merlin model` — no code changes, no lock-in.
 
 <table>
 <tr><td><b>A real terminal interface</b></td><td>Full TUI with multiline editing, slash-command autocomplete, conversation history, interrupt-and-redirect, and streaming tool output.</td></tr>
@@ -63,7 +63,7 @@ Not changed: the agent loop, tool implementations, skills engine, gateway, sched
 ### Linux, macOS, WSL2
 
 ```bash
-curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
+curl -fsSL https://withmerlin.online/install.sh | bash
 ```
 
 ### Windows (native, PowerShell)
@@ -73,16 +73,16 @@ curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | bash
 Run this in PowerShell:
 
 ```powershell
-iex (irm https://merlin-agent.epinoiahorizon.com/install.ps1)
+iex (irm https://withmerlin.online/install.ps1)
 ```
 
 The source installer delegates Python 3.14, Node.js, npm, ripgrep, FFmpeg,
 and Python dependencies to PM. If Git is absent, it stages the verified Git
 for Windows archive in Merlin' tool store. It does not replace your system Git.
-See [installation methods](https://merlin-agent.epinoiahorizon.com/docs/getting-started/installation)
+See [installation methods](https://docs.withmerlin.online/docs/getting-started/installation)
 for the separate MSIX/App Installer package and its update ownership.
 
-> **Android / Termux:** A signed APT repository is available for aarch64 devices, with a `stable` channel (tagged releases) and a prerelease `canary` channel. The package includes Python, Node.js, and the TUI. Use the [Termux guide](https://merlin-agent.epinoiahorizon.com/docs/getting-started/termux), not the desktop/server installer script.
+> **Android / Termux:** A signed APT repository is available for aarch64 devices, with a `stable` channel (tagged releases) and a prerelease `canary` channel. The package includes Python, Node.js, and the TUI. Use the [Termux guide](https://docs.withmerlin.online/docs/getting-started/termux), not the desktop/server installer script.
 >
 > **Windows:** Native Windows is fully supported — the PowerShell one-liner above installs everything. If you'd rather use WSL2, the Linux command works there too. Native Windows install lives under `%LOCALAPPDATA%\merlin`; WSL2 installs under `~/.merlin` as on Linux.
 
@@ -145,7 +145,7 @@ merlin update       # Update to the latest version
 merlin doctor       # Diagnose any issues
 ```
 
-📖 **[Full documentation →](https://merlin-agent.epinoiahorizon.com/docs/)**
+📖 **[Full documentation →](https://docs.withmerlin.online/docs/)**
 
 ---
 
@@ -165,31 +165,31 @@ Merlin has two entry points: start the terminal UI with `merlin`, or run the gat
 | Interrupt current work         | `Ctrl+C` or send a new message                | `/stop` or send a new message                                                    |
 | Platform-specific status       | `/platforms`                                  | `/status`, `/sethome`                                                            |
 
-For the full command lists, see the [CLI guide](https://merlin-agent.epinoiahorizon.com/docs/user-guide/cli) and the [Messaging Gateway guide](https://merlin-agent.epinoiahorizon.com/docs/user-guide/messaging).
+For the full command lists, see the [CLI guide](https://docs.withmerlin.online/docs/user-guide/cli) and the [Messaging Gateway guide](https://docs.withmerlin.online/docs/user-guide/messaging).
 
 ---
 
 ## Documentation
 
-All documentation lives at **[merlin-agent.epinoiahorizon.com/docs](https://merlin-agent.epinoiahorizon.com/docs/)**:
+All documentation lives at **[docs.withmerlin.online/docs](https://docs.withmerlin.online/docs/)**:
 
 | Section                                                                                             | What's Covered                                             |
 | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| [Quickstart](https://merlin-agent.epinoiahorizon.com/docs/getting-started/quickstart)                 | Install → setup → first conversation in 2 minutes          |
-| [CLI Usage](https://merlin-agent.epinoiahorizon.com/docs/user-guide/cli)                              | Commands, keybindings, personalities, sessions             |
-| [Configuration](https://merlin-agent.epinoiahorizon.com/docs/user-guide/configuration)                | Config file, providers, models, all options                |
-| [Messaging Gateway](https://merlin-agent.epinoiahorizon.com/docs/user-guide/messaging)                | Telegram, Discord, Slack, WhatsApp, Signal, Home Assistant |
-| [Security](https://merlin-agent.epinoiahorizon.com/docs/user-guide/security)                          | Command approval, DM pairing, container isolation          |
-| [Tools & Toolsets](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/tools)            | 40+ tools, toolset system, terminal backends               |
-| [Skills System](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/skills)              | Procedural memory, Skills Hub, creating skills             |
-| [Memory](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/memory)                     | Persistent memory, user profiles, best practices           |
-| [MCP Integration](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/mcp)               | Connect any MCP server for extended capabilities           |
-| [Cron Scheduling](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/cron)              | Scheduled tasks with platform delivery                     |
-| [Context Files](https://merlin-agent.epinoiahorizon.com/docs/user-guide/features/context-files)       | Project context that shapes every conversation             |
-| [Architecture](https://merlin-agent.epinoiahorizon.com/docs/developer-guide/architecture)             | Project structure, agent loop, key classes                 |
-| [Contributing](https://merlin-agent.epinoiahorizon.com/docs/developer-guide/contributing)             | Development setup, PR process, code style                  |
-| [CLI Reference](https://merlin-agent.epinoiahorizon.com/docs/reference/cli-commands)                  | All commands and flags                                     |
-| [Environment Variables](https://merlin-agent.epinoiahorizon.com/docs/reference/environment-variables) | Complete env var reference                                 |
+| [Quickstart](https://docs.withmerlin.online/docs/getting-started/quickstart)                 | Install → setup → first conversation in 2 minutes          |
+| [CLI Usage](https://docs.withmerlin.online/docs/user-guide/cli)                              | Commands, keybindings, personalities, sessions             |
+| [Configuration](https://docs.withmerlin.online/docs/user-guide/configuration)                | Config file, providers, models, all options                |
+| [Messaging Gateway](https://docs.withmerlin.online/docs/user-guide/messaging)                | Telegram, Discord, Slack, WhatsApp, Signal, Home Assistant |
+| [Security](https://docs.withmerlin.online/docs/user-guide/security)                          | Command approval, DM pairing, container isolation          |
+| [Tools & Toolsets](https://docs.withmerlin.online/docs/user-guide/features/tools)            | 40+ tools, toolset system, terminal backends               |
+| [Skills System](https://docs.withmerlin.online/docs/user-guide/features/skills)              | Procedural memory, Skills Hub, creating skills             |
+| [Memory](https://docs.withmerlin.online/docs/user-guide/features/memory)                     | Persistent memory, user profiles, best practices           |
+| [MCP Integration](https://docs.withmerlin.online/docs/user-guide/features/mcp)               | Connect any MCP server for extended capabilities           |
+| [Cron Scheduling](https://docs.withmerlin.online/docs/user-guide/features/cron)              | Scheduled tasks with platform delivery                     |
+| [Context Files](https://docs.withmerlin.online/docs/user-guide/features/context-files)       | Project context that shapes every conversation             |
+| [Architecture](https://docs.withmerlin.online/docs/developer-guide/architecture)             | Project structure, agent loop, key classes                 |
+| [Contributing](https://docs.withmerlin.online/docs/developer-guide/contributing)             | Development setup, PR process, code style                  |
+| [CLI Reference](https://docs.withmerlin.online/docs/reference/cli-commands)                  | All commands and flags                                     |
+| [Environment Variables](https://docs.withmerlin.online/docs/reference/environment-variables) | Complete env var reference                                 |
 
 ---
 
@@ -202,20 +202,28 @@ If you're coming from OpenClaw, Merlin can automatically import your settings, m
 **Anytime after install:**
 
 ```bash
-merlin claw migrate              # Interactive migration (full preset)
-merlin claw migrate --dry-run    # Preview what would be migrated
-merlin claw migrate --preset user-data   # Migrate without secrets
-merlin claw migrate --overwrite  # Overwrite existing conflicts
+merlin claw migrate                        # Interactive migration (full preset)
+merlin claw migrate --dry-run              # Preview what would be migrated
+merlin claw migrate --overwrite            # Replace existing files and skills instead of refusing
+merlin claw migrate --migrate-secrets      # Also import bot tokens and provider API keys
+merlin claw migrate --preset user-data     # Import user data only (never secrets)
 ```
+
+Behavior worth knowing before you run it:
+
+- **Secrets are always opt-in.** No preset imports `TELEGRAM_BOT_TOKEN`, `DISCORD_BOT_TOKEN`, `SLACK_BOT_TOKEN`/`SLACK_APP_TOKEN`, or provider API keys — pass `--migrate-secrets` to include them. Withheld tokens are reported, never silently dropped.
+- **A stock `SOUL.md` is replaced silently** (an auto-seeded template carries no user intent). A persona you edited yourself is a conflict, so add `--overwrite` for that case.
+- **`--overwrite` also settles skill-name conflicts.** Use `--skill-conflict rename` instead to keep both copies side by side.
+- **`~/.agents/skills` is not imported by default.** That directory is your own cross-project skill library, not OpenClaw state; add `--include-personal-skills` if you want it copied into `~/.merlin/skills/openclaw-imports/`.
 
 What gets imported:
 
 - **SOUL.md** — persona file
-- **Memories** — MEMORY.md and USER.md entries
+- **Memories** — MEMORY.md and USER.md entries, merged into what you already have
 - **Skills** — user-created skills → `~/.merlin/skills/openclaw-imports/`
 - **Command allowlist** — approval patterns
 - **Messaging settings** — platform configs, allowed users, working directory
-- **API keys** — allowlisted secrets (Telegram, OpenRouter, OpenAI, Anthropic, ElevenLabs)
+- **API keys** — allowlisted secrets (Telegram, Discord, Slack, OpenRouter, OpenAI, Anthropic, ElevenLabs), only with `--migrate-secrets`
 - **TTS assets** — workspace audio files
 - **Workspace instructions** — AGENTS.md (with `--workspace-target`)
 
@@ -225,7 +233,7 @@ See `merlin claw migrate --help` for all options, or use the `openclaw-migration
 
 ## Contributing
 
-We welcome contributions! See the [Contributing Guide](https://merlin-agent.epinoiahorizon.com/docs/developer-guide/contributing) for development setup, code style, and PR process.
+We welcome contributions! See the [Contributing Guide](https://docs.withmerlin.online/docs/developer-guide/contributing) for development setup, code style, and PR process.
 
 Start with the [PM developer workflow](website/docs/reference/package-management.md#developer-workflow)
 for activation, daily use, dependency changes, and leaving the environment.

@@ -101,6 +101,8 @@ def test_icon_portrait_overlays_border_inside_outer_silhouette(monkeypatch, plat
     art = SimpleNamespace(
         backgrounds=source / "assets/backgrounds", colors=colors, commit="0123456",
         bboxes={girl: (0, 0, 100, 90)}, paths={girl: '<path d="M 0 0 L 100 0 L 100 90 L 0 90 z"/>'},
+        mark_paths={girl: '<path d="M 0 0 L 100 0 L 100 90 L 0 90 z"/>'},
+        mark_bboxes={girl: (0, 0, 100, 90)},
     )
     name = f"squircle-{platform}{appearance}.svg"
     ns = {"svg": "http://www.w3.org/2000/svg"}
@@ -111,20 +113,22 @@ def test_icon_portrait_overlays_border_inside_outer_silhouette(monkeypatch, plat
     x, y, width, height, radius = (float(original.attrib[key]) for key in ("x", "y", "width", "height", "rx"))
     thickness = width * module.BORDER_FRACTION
     assert float(tile.attrib["stroke-width"]) == pytest.approx(thickness)
-    assert tile.get("stroke") == ("#000000" if appearance == "light" else "#ffffff")
+    assert tile.get("stroke") == (module.NAVY_HEX if appearance == "light" else module.GOLD_HEX)
     assert float(tile.attrib["x"]) - thickness / 2 == pytest.approx(x)
     assert float(tile.attrib["y"]) - thickness / 2 == pytest.approx(y)
     assert float(tile.attrib["width"]) + thickness == pytest.approx(width)
     assert float(tile.attrib["height"]) + thickness == pytest.approx(height)
     assert float(tile.attrib["rx"]) + thickness / 2 == pytest.approx(radius)
-    expected_fill = (colors or ("#ffffff", module.DARK_HEX))[appearance == "dark"]
+    expected_fill = (colors or (module.GOLD_HEX, module.DARK_HEX))[appearance == "dark"]
     assert tile.get("fill") == expected_fill
     clip = result.find("svg:defs/svg:clipPath/svg:rect", ns)
     assert clip is not None
     assert tuple(float(clip.attrib[key]) for key in ("x", "y", "width", "height", "rx")) == (
         x, y, width, height, radius,
     )
-    group = result[-1]
+    # The badge paints last (readable SHA on top), so locate the clipped portrait
+    # group by attribute rather than by position.
+    group = next(g for g in result if g.get("clip-path") is not None)
     portrait = group[-1]
     assert len(group) == 1, "extend the existing contour, not a duplicate strip"
     assert portrait is not None and group is not None

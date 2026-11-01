@@ -11,9 +11,9 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { saveMerlinConfigRecord } from '@/merlin'
 import { useI18n } from '@/i18n'
 import { Check, Globe } from '@/lib/icons'
+import { saveMerlinConfigRecord } from '@/merlin'
 import { notify, notifyError } from '@/store/notifications'
 import {
   $realProfilePromptClaim,

@@ -14,11 +14,11 @@
  * the other just learned.
  */
 
-import { getMerlinConfigRecord, type McpTestResult, setMcpServerEnabled, testMcpServer } from '@/merlin'
 import { translateNow } from '@/i18n'
 import { classifyProbe, freshProbe, probeCache, probeKey } from '@/lib/mcp-probe-cache'
 import { getServers, serverEnabled } from '@/lib/mcp-servers'
 import { persistString, storedString } from '@/lib/storage'
+import { getMerlinConfigRecord, type McpTestResult, setMcpServerEnabled, testMcpServer } from '@/merlin'
 import { notify, notifyError } from '@/store/notifications'
 import { $activeGatewayProfile, normalizeProfileKey } from '@/store/profile'
 import { $gatewayState } from '@/store/session'

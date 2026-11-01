@@ -22,10 +22,19 @@ For a quick, non-interactive migration, use the built-in CLI command:
 ```bash
 merlin claw migrate              # Full interactive migration
 merlin claw migrate --dry-run    # Preview what would be migrated
-merlin claw migrate --preset user-data   # Migrate without secrets
-merlin claw migrate --overwrite  # Overwrite existing conflicts
+merlin claw migrate --overwrite  # Replace existing files and skills instead of refusing
+merlin claw migrate --migrate-secrets      # Also import bot tokens and provider API keys
+merlin claw migrate --preset user-data     # Import user data only (never secrets)
 merlin claw migrate --source /custom/path/.openclaw  # Custom source
 ```
+
+Behavior the agent must state before running it:
+
+- **Secrets are opt-in.** No preset imports `TELEGRAM_BOT_TOKEN`, `DISCORD_BOT_TOKEN`, `SLACK_BOT_TOKEN`/`SLACK_APP_TOKEN`, or provider API keys; `--migrate-secrets` is required.
+- **A stock `SOUL.md` is replaced silently** (auto-seeded template = no user intent); a persona the user edited is a conflict, so add `--overwrite`.
+- **`--overwrite` also settles skill-name conflicts**; `--skill-conflict rename` keeps both copies instead.
+- **`~/.agents/skills` is not imported by default** (it is the user's own cross-project library, not OpenClaw state); `--include-personal-skills` opts in.
+- **An already-configured model is kept** (reported as skipped, not a conflict); `--overwrite` takes OpenClaw's model instead.
 
 The CLI command runs the same migration script described below. Use this skill (via the agent) when you want an interactive, guided migration with dry-run previews and per-item conflict resolution.
 

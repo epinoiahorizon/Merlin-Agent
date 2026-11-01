@@ -338,7 +338,7 @@ def _pending_deferred_desktop_app(desktop_dir: Path) -> Optional[Path]:
     """The parked staged pack named by the marker, if it is still on disk."""
     marker = desktop_dir / _DESKTOP_DEFERRED_MARKER
     try:
-        parked = json.loads(marker.read_text(encoding="utf-8")).get("staged")
+        parked = json.loads(marker.read_text(encoding="utf-8-sig")).get("staged")
     except (OSError, ValueError):
         return None
     if not parked:
@@ -1892,7 +1892,7 @@ def cmd_gui(args: argparse.Namespace):
             print(
                 "  This Merlin came from Homebrew, which does not ship the desktop app's\n"
                 "  source tree, so it cannot be built from this install.\n"
-                "  Install the desktop app from https://merlin-agent.epinoiahorizon.com,\n"
+                "  Install the desktop app from https://withmerlin.online,\n"
                 "  or run `merlin desktop` from a source checkout."
             )
         sys.exit(1)

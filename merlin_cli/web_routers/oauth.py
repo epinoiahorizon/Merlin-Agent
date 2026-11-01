@@ -47,7 +47,6 @@ _CODEX_EXPIRES_IN = 15 * 60  # OpenAI's effective limit
 _CANCELLED: Any = object()
 _OAUTH_SESSION_TTL_SECONDS = 15 * 60
 
-
 def _http_response_error_detail(resp: Any) -> str:
     """Best-effort extraction of a short provider error detail."""
     try:
@@ -644,13 +643,15 @@ def _oauth_provider_disconnect_hint(provider: Dict[str, Any], status: Dict[str, 
 def _build_oauth_catalog() -> list[Dict[str, Any]]:
     """Accounts-tab provider list: ``_OAUTH_PROVIDER_CATALOG`` cards first (curated
     order, win on metadata), then every other accounts-tab ``provider_catalog()`` entry
-    in ``merlin model`` order, so plugin-added OAuth/external providers appear automatically."""
+    in ``merlin model`` order, so plugin-added OAuth/external providers appear automatically.
+    """
     rows: list[Dict[str, Any]] = []
     seen: set[str] = set()
     for entry in _OAUTH_PROVIDER_CATALOG:
-        if entry["id"] not in seen:
-            seen.add(entry["id"])
-            rows.append(dict(entry))
+        if entry["id"] in seen:
+            continue
+        seen.add(entry["id"])
+        rows.append(dict(entry))
     try:
         from merlin_cli.provider_catalog import provider_catalog
         for d in provider_catalog():

@@ -22,7 +22,7 @@ Pick whichever fits the moment. They share state, so you can start a session in 
 
 ## Install
 
-Download the app from the [Merlin Desktop product page](https://merlin-agent.epinoiahorizon.com/desktop), or follow the [installation instructions for Merlin Desktop](../getting-started/installation.md).
+Download the app from the [Merlin Desktop product page](https://withmerlin.online/desktop), or follow the [installation instructions for Merlin Desktop](../getting-started/installation.md).
 
 If you already have Merlin installed, simply run
 
@@ -286,8 +286,8 @@ the public website consume the same generated CDN snapshots:
 
 | Catalog | Public docs alias | Desktop fetch URL |
 |---|---|---|
-| Skills | [`/docs/api/skills.json`](https://merlin-agent.epinoiahorizon.com/docs/api/skills.json) | `https://epinoiahorizon.github.io/merlin-agent/docs/api/skills.json` |
-| Plugins | [`/docs/api/plugins.json`](https://merlin-agent.epinoiahorizon.com/docs/api/plugins.json) | `https://epinoiahorizon.github.io/merlin-agent/docs/api/plugins.json` |
+| Skills | [`/docs/api/skills.json`](https://withmerlin.online/skills.json) | `https://epinoiahorizon.github.io/merlin-agent/docs/api/skills.json` |
+| Plugins | [`/docs/api/plugins.json`](https://withmerlin.online/plugins.json) | `https://epinoiahorizon.github.io/merlin-agent/docs/api/plugins.json` |
 
 The skills snapshot combines `skills/`, `optional-skills/`, and the centralized
 skills index. The plugin snapshot comes from `plugin-catalog/*.yaml` and cached star
@@ -397,7 +397,7 @@ The desktop app and the Merlin backend it talks to update on separate clocks —
 
 After any backend update, the app also re-checks its own version and warns with a one-click **Update desktop app** action if the GUI is still behind — so updating a remote backend can never silently leave you on a stale desktop build.
 
-The [manual update process](https://merlin-agent.epinoiahorizon.com/docs/getting-started/updating) also works with the GUI.
+The [manual update process](https://docs.withmerlin.online/docs/getting-started/updating) also works with the GUI.
 
 ## Uninstalling
 

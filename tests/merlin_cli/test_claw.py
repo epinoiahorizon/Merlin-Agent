@@ -224,6 +224,46 @@ class TestCmdMigrate:
         call_kwargs = fake_mod.Migrator.call_args[1]
         assert call_kwargs["migrate_secrets"] is True
 
+    def test_overwrite_also_settles_skill_conflicts(self, tmp_path, capsys):
+        """--overwrite implies skill-conflict=overwrite unless --skill-conflict says otherwise.
+
+        The README promises "--overwrite  Overwrite existing conflicts"; leaving skill-name
+        conflicts unresolved forced a second flag the docs never mentioned.
+        """
+        openclaw_dir = tmp_path / ".openclaw"
+        openclaw_dir.mkdir()
+
+        fake_mod = ModuleType("openclaw_to_merlin")
+        fake_mod.resolve_selected_options = MagicMock(return_value=set())
+        fake_migrator = MagicMock()
+        fake_migrator.migrate.return_value = {
+            "summary": {"migrated": 0, "skipped": 0, "conflict": 0, "error": 0},
+            "items": [],
+        }
+        fake_mod.Migrator = MagicMock(return_value=fake_migrator)
+
+        def run(overwrite: bool, skill_conflict=None):
+            args = Namespace(
+                source=str(openclaw_dir), dry_run=True, preset="full", overwrite=overwrite,
+                migrate_secrets=False, workspace_target=None,
+                skill_conflict=skill_conflict, yes=False, no_backup=False,
+            )
+            with (
+                patch.object(claw_mod, "_find_migration_script", return_value=tmp_path / "s.py"),
+                patch.object(claw_mod, "_load_migration_module", return_value=fake_mod),
+                patch.object(claw_mod, "get_config_path", return_value=tmp_path / "config.yaml"),
+                patch.object(claw_mod, "save_config"),
+                patch.object(claw_mod, "load_config", return_value={}),
+            ):
+                claw_mod._cmd_migrate(args)
+            return fake_mod.Migrator.call_args[1]["skill_conflict_mode"]
+
+        assert run(overwrite=True) == "overwrite"
+        assert run(overwrite=False) == "skip"
+        # An explicit flag always wins over the --overwrite default.
+        assert run(overwrite=True, skill_conflict="rename") == "rename"
+        assert run(overwrite=False, skill_conflict="overwrite") == "overwrite"
+
 
 # ---------------------------------------------------------------------------
 # _cmd_cleanup

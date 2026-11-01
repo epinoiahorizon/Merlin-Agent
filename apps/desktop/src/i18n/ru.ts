@@ -1451,7 +1451,7 @@ export const ru = defineLocale({
       sshErrHostKey:
         'Ключ хоста ИЗМЕНИЛСЯ с последнего подключения. Убедитесь, что это ожидаемо, затем выполните ssh-keygen -R <host> и переподключитесь.',
       sshErrNotInstalled:
-        'Merlin не установлен на удалённой машине. Установите его там (curl -fsSL https://merlin-agent.epinoiahorizon.com/install.sh | sh) или задайте путь к Merlin.',
+        'Merlin не установлен на удалённой машине. Установите его там (curl -fsSL https://withmerlin.online/install.sh | sh) или задайте путь к Merlin.',
       sshErrPlatform:
         'Неподдерживаемая удалённая платформа. SSH-режим Merlin Desktop поддерживает удалённые хосты Linux, macOS и Windows.',
       sshErrTimeout: 'SSH-соединение истекло. Хост может быть недоступен или «спит».',
@@ -1663,7 +1663,8 @@ export const ru = defineLocale({
       useBackend: 'Использовать этот бэкенд',
       atlasIncluded: 'Входит в подписку Atlas — войдите в Atlas Portal, чтобы активировать.',
       atlasAuthNeededTitle: 'Войдите в Atlas Portal',
-      atlasAuthNeededMessage: provider => `${provider} сохранён, но не активируется, пока вы не войдёте в Atlas Portal.`,
+      atlasAuthNeededMessage: provider =>
+        `${provider} сохранён, но не активируется, пока вы не войдёте в Atlas Portal.`,
       atlasAuthSignIn: 'Войти',
       atlasAuthDoneTitle: 'Atlas Portal подключён',
       atlasAuthDoneMessage: 'Ваши бэкенды по подписке теперь активны.',

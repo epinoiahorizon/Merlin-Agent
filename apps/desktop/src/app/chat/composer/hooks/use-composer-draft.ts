@@ -14,7 +14,6 @@ import { isElementInHiddenPane } from '@/components/pane-shell/pane-visibility'
 import { sanitizeComposerInput } from '@/lib/composer-input-sanitize'
 import { useStoreSelector } from '@/lib/use-session-slice'
 import {
-  registerComposerDraftSink,
   adoptGoneSessionDraft,
   adoptNewSessionDraft,
   type ComposerAttachment,
@@ -22,6 +21,7 @@ import {
   freshDraftScope,
   isFreshDraftScope,
   onComposerDraftSyncRequest,
+  registerComposerDraftSink,
   reloadPersistedDrafts,
   stashSessionDraft,
   takeSessionDraft

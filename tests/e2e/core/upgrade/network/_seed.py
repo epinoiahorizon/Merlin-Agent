@@ -35,7 +35,7 @@ from tests.e2e.core.upgrade import _helpers as H
 from tests.e2e.core.upgrade import _install_helpers as I
 from tests.e2e.core.upgrade.network import _netedge as N
 
-ASSETS = "merlin-assets.epinoiahorizon.com"
+ASSETS = "assets.withmerlin.online"
 REPOSITORY = "epinoiahorizon/Merlin-Agent"
 # Hosts a correctly isolated update must never reach directly; with the proxy they appear in
 # the proxy log as "refused" (the proxy has no route for them).
@@ -200,8 +200,8 @@ def seed_install(root: Path) -> Installed:
     # From here on the checkout talks to the official URL, which only the proxy can serve.
     (sb.home / ".gitconfig").write_text("", encoding="utf-8")
     gitroot = root / "gitroot"
-    (gitroot / "AtlasResearch").mkdir(parents=True, exist_ok=True)
-    (gitroot / "AtlasResearch" / "merlin-agent.git").symlink_to(origin)
+    (gitroot / "epinoiahorizon").mkdir(parents=True, exist_ok=True)
+    (gitroot / "epinoiahorizon" / "Merlin-Agent.git").symlink_to(origin)
     ca = N.TestCA(root / "corporate-ca")
     inst = Installed(root, sb, origin, gitroot, ca, ca.os_trust_store(root / "corporate-ca" / "etc-ssl-certs"))
     assert_isolated(inst)
@@ -213,7 +213,7 @@ def assert_isolated(inst: Installed) -> None:
     probe = (
         "import socket,sys\n"
         "bad=[]\n"
-        "for host in ('github.com','pypi.org','merlin-assets.epinoiahorizon.com'):\n"
+        "for host in ('github.com','pypi.org','assets.withmerlin.online'):\n"
         "    try: socket.getaddrinfo(host,443); bad.append('dns:'+host)\n"
         "    except OSError: pass\n"
         "for ip in ('140.82.112.3','1.1.1.1'):\n"
@@ -231,7 +231,7 @@ def assert_isolated(inst: Installed) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Release-channel records (the R2 objects under https://merlin-assets.epinoiahorizon.com/).
+# Release-channel records (the R2 objects under https://assets.withmerlin.online/).
 # ---------------------------------------------------------------------------
 
 def canonical(value: object) -> bytes:

@@ -2,7 +2,7 @@ import { atom } from 'nanostores'
 
 import { cancelOAuthSession, listOAuthProviders, pollOAuthSession, startOAuthLogin } from '@/merlin'
 
-import { type FreeTierRequester, ATLAS_PROVIDER_ID, refreshFreeTierStatus } from './free-tier'
+import { ATLAS_PROVIDER_ID, type FreeTierRequester, refreshFreeTierStatus } from './free-tier'
 
 const POLL_MS = 2000
 const COPY_FLASH_MS = 1500
