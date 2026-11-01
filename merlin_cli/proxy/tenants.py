@@ -87,6 +87,18 @@ CREATE TABLE IF NOT EXISTS ledger_entries (
     reason       TEXT NOT NULL,
     created_at   INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS invoices (
+    id            TEXT PRIMARY KEY,
+    tenant_id     TEXT NOT NULL,
+    amount_idr    INTEGER NOT NULL,
+    amount_micros INTEGER NOT NULL,
+    payload       TEXT NOT NULL DEFAULT '',
+    status        TEXT NOT NULL DEFAULT 'pending',
+    created_at    INTEGER NOT NULL,
+    paid_at       INTEGER
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_invoice_pending_amount
+    ON invoices (amount_idr) WHERE status = 'pending';
 CREATE INDEX IF NOT EXISTS idx_usage_tenant_time ON usage_events (tenant_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_ledger_tenant     ON ledger_entries (tenant_id, id DESC);
 """
@@ -132,6 +144,15 @@ class Settlement:
 
 class InsufficientBalance(RuntimeError):
     """Raised when a request cannot be authorised against the tenant's available balance."""
+
+
+class DuplicateInvoiceAmount(RuntimeError):
+    """Raised when a pending invoice already uses that exact nominal."""
+
+
+# Ledger amounts are integer micros of whatever currency the deployment bills in. If that currency
+# is rupiah, 1 IDR = 1 000 000 micros (see the dashboard's top-up flow).
+MICROS_PER_UNIT = 1_000_000
 
 
 class LedgerStore:
@@ -198,6 +219,84 @@ class LedgerStore:
                 (tenant_id, int(micros), reason, now),
             )
         return self.balance(tenant_id)
+
+    def find_tenant_by_name(self, name: str) -> Optional[str]:
+        row = self._conn.execute(
+            "SELECT id FROM tenants WHERE name = ? ORDER BY created_at LIMIT 1", (name,)
+        ).fetchone()
+        return str(row["id"]) if row else None
+
+    # -- invoices (top-ups) -------------------------------------------------------------------
+    def create_invoice(self, tenant_id: str, amount_idr: int, payload: str = "") -> dict:
+        """Pending invoice for an exact rupiah amount; raises when that amount is already pending.
+
+        The pending-amount unique index is what makes unique-amount matching safe: two customers can
+        never be told to pay the same nominal, so a bank/QRIS notification maps to exactly one
+        invoice without needing a reference code inside the transfer.
+        """
+        amount_idr = int(amount_idr)
+        if amount_idr <= 0:
+            raise ValueError("invoice amount must be positive")
+        invoice_id = "inv_" + secrets.token_hex(10)
+        now = int(time.time())
+        try:
+            with self._tx() as conn:
+                conn.execute(
+                    "INSERT INTO invoices (id, tenant_id, amount_idr, amount_micros, payload, status, created_at)"
+                    " VALUES (?, ?, ?, ?, ?, 'pending', ?)",
+                    (invoice_id, tenant_id, amount_idr, amount_idr * MICROS_PER_UNIT, payload, now),
+                )
+        except sqlite3.IntegrityError as exc:
+            raise DuplicateInvoiceAmount(f"amount {amount_idr} already has a pending invoice") from exc
+        invoice = self.invoice(invoice_id)
+        assert invoice is not None
+        return invoice
+
+    def set_invoice_payload(self, invoice_id: str, payload: str) -> None:
+        with self._tx() as conn:
+            conn.execute("UPDATE invoices SET payload = ? WHERE id = ?", (payload, invoice_id))
+
+    def invoice(self, invoice_id: str) -> Optional[dict]:
+        row = self._conn.execute("SELECT * FROM invoices WHERE id = ?", (invoice_id,)).fetchone()
+        return dict(row) if row else None
+
+    def pending_invoices(self, tenant_id: Optional[str] = None) -> list[dict]:
+        if tenant_id:
+            rows = self._conn.execute(
+                "SELECT * FROM invoices WHERE status = 'pending' AND tenant_id = ? ORDER BY created_at DESC",
+                (tenant_id,),
+            ).fetchall()
+        else:
+            rows = self._conn.execute(
+                "SELECT * FROM invoices WHERE status = 'pending' ORDER BY created_at DESC"
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def pay_invoice(self, invoice_id: str) -> int:
+        """Mark an invoice paid and credit its tenant. Idempotent: a second call credits nothing."""
+        now = int(time.time())
+        credited = 0
+        with self._tx() as conn:
+            row = conn.execute(
+                "SELECT tenant_id, amount_micros, status FROM invoices WHERE id = ?", (invoice_id,)
+            ).fetchone()
+            if row is None or row["status"] != "pending":
+                return 0
+            conn.execute(
+                "UPDATE invoices SET status = 'paid', paid_at = ? WHERE id = ? AND status = 'pending'",
+                (now, invoice_id),
+            )
+            conn.execute(
+                "UPDATE tenants SET balance_micros = balance_micros + ? WHERE id = ?",
+                (row["amount_micros"], row["tenant_id"]),
+            )
+            conn.execute(
+                "INSERT INTO ledger_entries (tenant_id, request_id, delta_micros, reason, created_at)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (row["tenant_id"], invoice_id, row["amount_micros"], f"topup:{invoice_id}", now),
+            )
+            credited = int(row["amount_micros"])
+        return credited
 
     def issue_key(self, tenant_id: str, label: str = "") -> str:
         token = "mk_" + secrets.token_urlsafe(32)
