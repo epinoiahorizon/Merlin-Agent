@@ -38,6 +38,7 @@ function clip(s: string, maxW: number): string {
   if (stringWidth(s) <= maxW) {
     return s
   }
+
   let w = 0
   let out = ''
 
@@ -47,6 +48,7 @@ function clip(s: string, maxW: number): string {
     if (w + cw > maxW - 1) {
       break
     }
+
     w += cw
     out += ch
   }
@@ -99,6 +101,7 @@ function clipSegs(segs: Seg[], maxW: number): Seg[] {
   if (stringWidth(full) <= maxW) {
     return segs
   }
+
   let budget = maxW - 1
   const out: Seg[] = []
 
@@ -106,6 +109,7 @@ function clipSegs(segs: Seg[], maxW: number): Seg[] {
     if (budget <= 0) {
       break
     }
+
     let w = 0
     let s = ''
 
@@ -115,6 +119,7 @@ function clipSegs(segs: Seg[], maxW: number): Seg[] {
       if (w + cw > budget) {
         break
       }
+
       w += cw
       s += ch
     }
