@@ -1,5 +1,9 @@
+import { AlternateScreen, render } from "@merlin/ink";
 import React from "react";
-import { render } from "@merlin/ink";
-import { OperatorConsoleV2 } from "./operator-console-v2.js";
+import { OperatorConsoleV5 } from "./operator-console-v5.js";
 
-render(<OperatorConsoleV2 />);
+render(
+  <AlternateScreen>
+    <OperatorConsoleV5 />
+  </AlternateScreen>
+);
