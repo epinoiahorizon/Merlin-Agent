@@ -452,7 +452,14 @@ export class GatewayClient extends EventEmitter {
     // guard can force it ahead of any same-named package in the launch cwd.
     env.MERLIN_PYTHON_SRC_ROOT = root
     this.startReadyTimer(python, cwd)
-    this.proc = spawn(python, ['-m', 'tui_gateway.entry'], { cwd, env, stdio: ['pipe', 'pipe', 'pipe'] })
+    // -P (safe path) keeps the launch cwd out of sys.path: when the user's
+    // directory is itself a Merlin checkout, `-m` resolution would otherwise
+    // win from the cwd and boot checkout code on the store Python, which has
+    // no committed dependency environment for that checkout and refuses
+    // ("no dependency environment is committed for this install"). The
+    // gateway never imports from cwd by design (harden_import_path strips
+    // ''/'.'), and PYTHONPATH above already carries root first.
+    this.proc = spawn(python, ['-P', '-m', 'tui_gateway.entry'], { cwd, env, stdio: ['pipe', 'pipe', 'pipe'] })
     this.lifecycle(`[lifecycle] spawned gateway child ${describeChild(this.proc)} python=${python} cwd=${cwd}`)
 
     const stdin = this.proc.stdin!
