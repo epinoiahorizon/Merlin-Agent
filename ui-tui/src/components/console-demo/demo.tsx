@@ -1,9 +1,9 @@
 import { AlternateScreen, render } from "@merlin/ink";
 import React from "react";
-import { OperatorConsoleV5 } from "./operator-console-v5.js";
+import { OperatorConsoleV6 } from "./operator-console-v6.js";
 
 render(
   <AlternateScreen>
-    <OperatorConsoleV5 />
+    <OperatorConsoleV6 />
   </AlternateScreen>
 );
