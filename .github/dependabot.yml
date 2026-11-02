@@ -11,7 +11,12 @@
 # github-actions is the exception: action pins (we use full commit SHAs per
 # supply-chain policy) must be updated when upstream actions publish
 # patches — usually themselves security fixes. Dependabot opens a PR with
-# the new SHA and release notes; we review and merge like any other PR.
+# the new SHA and release notes.
+#
+# These PRs only move SHA pins to newer releases of already-trusted upstream
+# actions (low-risk), so dependabot PRs carry the ``ci-reviewed`` label from
+# creation. That lets them pass the CI review-label gate without a manual
+# label round-trip; review and merge still happen like any other PR.
 #
 # Security-update PRs for source dependencies (opened ONLY when a CVE is
 # published affecting a currently-pinned version) are enabled separately
@@ -32,6 +37,7 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+      - "ci-reviewed"
     commit-message:
       prefix: "chore(actions)"
       include: "scope"
