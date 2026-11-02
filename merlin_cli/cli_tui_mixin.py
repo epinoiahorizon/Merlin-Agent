@@ -470,15 +470,87 @@ class CLITuiMixin:
         c_dim   = skin.get_color("banner_dim",   "#657b83") if skin else "#657b83"
         c_text  = skin.get_color("banner_text",  "#fdf6e3") if skin else "#fdf6e3"
         c_good  = skin.get_color("ui_ok",        "#859900") if skin else "#859900"
+        c_warn  = skin.get_color("ui_warn",      "#b58900") if skin else "#b58900"
+        c_bad   = skin.get_color("ui_bad",       "#dc322f") if skin else "#dc322f"
+
+        def _term_width() -> int:
+            # Only a REAL running terminal may truncate rows. prompt_toolkit
+            # hands out a DummyApplication (80 cols) when no app is live —
+            # tests and one-shot renders would truncate live segments. Gate
+            # on the running flag; headless falls through to full rows.
+            try:
+                from prompt_toolkit.application import get_app
+                app = get_app()
+                if getattr(app, "is_running", False):
+                    return int(app.output.get_size().columns)
+            except Exception:
+                pass
+            return 10_000
+
+        def _fit_arcane_fragments(fragments, max_width: int):
+            """Truncate styled fragments to `max_width` display columns; a row that
+            runs past the terminal edge would tear the panel's right border, so cut
+            it with an ellipsis instead. O(n), preserves per-fragment styles."""
+            if max_width <= 1:
+                return [("fg:" + c_dim, "…"[:max_width])]
+            from prompt_toolkit.utils import get_cwidth
+
+            flat: list = []
+            for frag in fragments:
+                if isinstance(frag, (tuple, list)) and len(frag) >= 2:
+                    style, text = str(frag[0]), str(frag[1])
+                else:
+                    style, text = "", str(frag)
+                for ch in text:
+                    flat.append((style, ch))
+            widths = [get_cwidth(ch) for _, ch in flat]
+            if sum(widths) <= max_width:
+                return fragments
+            budget = max_width - 1  # reserve one column for the ellipsis
+            kept: list = []
+            for (style, ch), cw in zip(flat, widths):
+                if budget - cw < 0:
+                    break
+                kept.append((style, ch))
+                budget -= cw
+            merged: list = []
+            for style, ch in kept:
+                if merged and merged[-1][0] == style:
+                    merged[-1] = (style, merged[-1][1] + ch)
+                else:
+                    merged.append((style, ch))
+            merged.append(("fg:" + c_dim, "…"))
+            return merged
+
+        def _pad_between(left_fragments, right_fragments, max_width: int):
+            """Left label + spaces + right label, right-aligned, both truncated to fit."""
+            from prompt_toolkit.utils import get_cwidth
+
+            def frag_width(frags):
+                return sum(
+                    get_cwidth(ch)
+                    for frag in frags
+                    for ch in (str(frag[1]) if isinstance(frag, (tuple, list)) and len(frag) >= 2 else str(frag))
+                )
+
+            left = _fit_arcane_fragments(left_fragments, max_width)
+            room = max_width - frag_width(left)
+            right = _fit_arcane_fragments(right_fragments, max(0, room))
+            pad = max(0, room - frag_width(right))
+            return left + [("", " " * pad)] + right
 
         def status_text():
-            # Template band: title + key hints on ONE row, then a single inline
-            # status line — ᛟ Incantation ᛞ Runes ᚨ Mana ᛝ Response.
+            # ── SPELLBOOK STATUS (arcane console chrome) ──
+            # Four rows mirroring the approved console design: title + hints,
+            # vitals (ᛟ Incantation / ᛞ Runes / ᛝ Response Aura), the ᚨ Mana
+            # gauge with a state tag, and the ⚙ daemon strip. Every row is
+            # width-fit so it can never tear the panel's right border.
             #
             # Incantation and Runes read LIVE state on every repaint: the layout
             # is built once at startup, so capturing them in the outer scope
             # would freeze the panel to startup values across a mid-session
             # /model switch or skill install.
+            width = _term_width()
             model_now = getattr(self, "model", "") or "unconfigured"
             try:
                 from cli import get_skill_bundles
@@ -491,11 +563,13 @@ class CLITuiMixin:
             mana_part = ""
             mstyle = "fg:" + c_dim
             response_state = "warming"
+            daemon_count = 0
             try:
                 snap = self._get_status_bar_snapshot()
                 tokens = int(snap.get("context_tokens") or 0)
                 length = int(snap.get("context_length") or 0)
                 est = bool(snap.get("context_estimated"))
+                daemon_count = int(snap.get("active_background_tasks") or 0)
                 if length > 0:
                     pct = max(0, min(100, round((tokens / length) * 100)))
                     filled = round((pct / 100) * 16)
@@ -512,6 +586,13 @@ class CLITuiMixin:
                             response_state = f"idle · last {_pe}"
             except Exception:
                 pass
+            mana_pct = None
+            try:
+                _bar = mana_part[mana_part.index("[") + 1: mana_part.index("]")]
+                if set(_bar) <= {"▰", "▱"} and "▰" in _bar:
+                    mana_pct = round((_bar.count("▰") / len(_bar)) * 100)
+            except Exception:
+                mana_pct = None
             if not mana_part:
                 mana_part = f"[{'᛫' * 16}] warming"
                 mstyle = "fg:" + c_dim
@@ -541,29 +622,73 @@ class CLITuiMixin:
                 except Exception:
                     mana_label, label_style, mana_frags = "ᚨ", "fg:" + c_dim, [(mstyle, mana_part)]
 
+            if mana_pct is None:
+                state_tag, tag_style = ("WARMING", "fg:" + c_dim)
+            elif mana_pct < 30:
+                state_tag, tag_style = ("CRITICAL", "fg:" + c_bad)
+            elif mana_pct < 60:
+                state_tag, tag_style = ("DRAINING", "fg:" + c_warn)
+            else:
+                state_tag, tag_style = ("OPTIMAL", "fg:" + c_good)
+
+            title_row = _pad_between(
+                [("fg:" + c_title, "✧━ ⟨ SPELLBOOK STATUS ⟩ ━✧")],
+                [("fg:" + c_dim, "[ESC] banish ─ [/] runes ─ [CTRL+C] exit")],
+                width,
+            )
+            vitals_row = _fit_arcane_fragments(
+                [
+                    ("fg:" + c_title, "ᛟ Incantation: "),
+                    ("fg:" + c_text, str(model_now)),
+                    ("fg:" + c_dim, "   ᛞ Runes State: "),
+                    ("fg:" + c_text, skill_count),
+                    ("fg:" + c_dim, "   ᛝ Response Aura: "),
+                    ("fg:" + c_text, response_state),
+                ],
+                width,
+            )
+            mana_row = _fit_arcane_fragments(
+                [
+                    (label_style, f"{mana_label} MANA QUOTA: "),
+                    *mana_frags,
+                    ("", " "),
+                    (tag_style, f"[{state_tag}]"),
+                ],
+                width,
+            )
+            daemon_label = (
+                f"⚙ DAEMON SUBPROCESSES: [{daemon_count} RUNNING]"
+                if daemon_count > 0
+                else "⚙ DAEMON SUBPROCESSES: idle"
+            )
+            daemon_row = _pad_between(
+                [(("fg:" + c_good) if daemon_count > 0 else ("fg:" + c_dim), daemon_label)],
+                [("fg:" + c_dim, "[Ctrl+T] expand ─ [Ctrl+R] fold")],
+                width,
+            )
+
             return [
-                ("fg:" + c_title, "✧━ ⟨ SPELLBOOK STATUS ⟩ ━✧ "),
-                ("fg:" + c_dim, "| [ESC] banish ── [/] runes ── [CTRL+C] terminate"),
+                *title_row,
                 ("fg:" + c_dim, "\n"),
-                ("fg:" + c_title, "ᛟ Incantation: "),
-                ("fg:" + c_text, str(model_now)),
-                ("fg:" + c_dim, "  ᛞ Runes: "),
-                ("fg:" + c_text, skill_count),
-                (label_style, f"  {mana_label} Mana: "),
-                *mana_frags,
-                ("fg:" + c_dim, "  ᛝ Response: "),
-                ("fg:" + c_text, response_state),
+                *vitals_row,
+                ("fg:" + c_dim, "\n"),
+                *mana_row,
+                ("fg:" + c_dim, "\n"),
+                *daemon_row,
             ]
 
         def slots_text():
-            slots = [("ᛋ", "web-search"), ("ᛗ", "code-exec"), ("ᚠ", "file-read"), ("ᚦ", "tools")]
-            frag = [("fg:" + c_title, "ᚨ QUICK SLOTS  ")]
+            slots = [
+                ("ᛋ", "web-search"), ("ᛗ", "code-exec"), ("ᚠ", "file-read"), ("ᚦ", "tools"),
+                ("ᛟ", "mem-sync"), ("ᚱ", "fleet-trace"), ("ᛞ", "raw-terminal"), ("ᛝ", "recharge-mana"),
+            ]
+            frag = [("fg:" + c_title, "ᚨ QUICK SLOTS:  ")]
             for i, (rune, label) in enumerate(slots, 1):
                 frag += [("fg:" + c_title, f"[{i}] {rune} "), ("fg:" + c_text, f"{label}  ")]
-            return frag
+            return _fit_arcane_fragments(frag, _term_width())
 
         return [
-            Window(FormattedTextControl(status_text), height=2, dont_extend_height=True),
+            Window(FormattedTextControl(status_text), height=4, dont_extend_height=True),
             Window(FormattedTextControl(slots_text), height=1, dont_extend_height=True),
         ]
 
