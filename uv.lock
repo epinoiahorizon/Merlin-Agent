@@ -120,7 +120,6 @@ dingtalk-stream = false
 [manifest]
 overrides = [
     { name = "cryptography", specifier = "==50.0.1" },
-    { name = "pillow", specifier = "==12.3.0" },
     { name = "pynacl", specifier = ">=1.6,<1.7" },
     { name = "spacy-curated-transformers", marker = "sys_platform == 'never'" },
 ]
