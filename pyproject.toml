@@ -170,7 +170,11 @@ dependencies = [
   # libs required for the codecs we use, so it's safe to ship in the base
   # install rather than gating it behind an extra + a mid-session lazy install
   # (which deadlocked the CLI under prompt_toolkit — see #40490).
-  "Pillow==13.0.0; python_version >= '3.14'",
+  # The exact pin must stay in lockstep with browser-harness's own hard pin
+  # (12.3.0 today): `uv pip check` (pm install's validation gate) reads both
+  # metadata sets, so any divergence fails every install. Bump both together
+  # when browser-harness relocates its pin.
+  "Pillow==12.3.0; python_version >= '3.14'",
   # HEIF/HEIC/AVIF decode for the vision tools. iPhone photos and screenshots
   # are HEIC (frequently mislabeled .jpg by upload pipelines); Pillow has no
   # built-in HEIF codec, so without this the vision resolver rejects them as
@@ -629,13 +633,17 @@ override-dependencies = [
   # replace that requirement too, not only the vendor's upper bound.
   # Remove this line when alibabacloud-tea-openapi lifts the cap.
   "cryptography==50.0.1",
-  # browser-harness 0.1.13 (browser-use org) hard-pins pillow==12.3.0 exact.
-  # That pin blocks the CVE fixes that only land in pillow 13.0.0 (5 critical
-  # + 23 high decoder/ghostscript advisories in 12.3.0). Pillow 13 keeps the
-  # image-resize/screenshot API browser-harness uses, so forcing the whole
-  # graph onto 13.0.0 is the same shape as the pynacl/cryptography overrides
-  # above. Remove this line when browser-harness relocates its pillow pin.
-  "pillow==13.0.0",
+  # browser-harness 0.1.13 (browser-use org) hard-pins pillow==12.3.0 exact in
+  # its installed METADATA. The pillow==13.0.0 override that stood here resolved
+  # the lock to 13.0.0, but `uv pip check` (pm install's validation gate, and
+  # the source-update completion check) rejects every environment where
+  # browser-harness is installed alongside pillow 13.0.0 — so `merlin pm install`
+  # could never complete and every CLI invocation retried the pending
+  # source-update completion forever. Overrides rewrite resolution, not the
+  # vendor's installed Requires-Dist, so no override value can satisfy the
+  # check except the exact pin itself. Update or drop this pin when
+  # browser-harness relocates its pillow pin.
+  "pillow==12.3.0",
   # misaki[en] (pulled by [kittentts]) lists spacy-curated-transformers.
   # The newest release that fits spacy 3.8 (2.x needs thinc 9), 0.3.1, caps
   # Python below 3.14, so PM's `uv pip check` rejects the venv. Nothing
