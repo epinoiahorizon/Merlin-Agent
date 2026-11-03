@@ -646,6 +646,14 @@ override-dependencies = [
   # never builds a misaki G2P. The never-true marker removes it from the lock.
   # Remove this line when misaki drops it or a 3.14-capable release fits.
   "spacy-curated-transformers; sys_platform == 'never'",
+  # httpx2 2.12 pulls httpx2-jsfetch on Emscripten only (Pyodide transports).
+  # The package ships sdist-only and its build-system requires uv-dynamic-
+  # versioning, which uv does not record in the lock; uv2nix must build every
+  # lock entry, so the unbuildable entry broke `nix flake check` the moment
+  # the httpx2 bump landed. Merlin never runs on Emscripten, so the never-true
+  # marker removes it from the lock, exactly like the spacy entry above.
+  # Re-add it when it ships wheels (or uv records its build deps).
+  "httpx2-jsfetch; sys_platform == 'never'",
 ]
 exclude-newer = "14 days"
 # h2: temporary exclude-newer exception for the CVE-2026-71554 (GHSA-6hr6-w5qg-qmwg,
