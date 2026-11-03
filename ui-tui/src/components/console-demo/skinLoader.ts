@@ -75,6 +75,7 @@ export function loadActiveSkin(): LoadedSkin | null {
 
       if (colorMatch) {
         colors[colorMatch[1]] = `#${colorMatch[2]}`
+
         continue
       }
 
@@ -82,6 +83,7 @@ export function loadActiveSkin(): LoadedSkin | null {
 
       if (brandMatch) {
         branding[brandMatch[1]] = brandMatch[2]
+
         continue
       }
 
