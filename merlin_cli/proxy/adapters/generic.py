@@ -125,7 +125,7 @@ def _read_config(path: Path) -> dict:
             f"{CONFIG_TEMPLATE}"
         )
     try:
-        text = path.read_text(encoding="utf-8")
+        text = path.read_text(encoding="utf-8-sig")
     except OSError as exc:
         raise UpstreamConfigError(f"Cannot read upstream config {path}: {exc}") from exc
     if path.suffix.lower() in {".yaml", ".yml"}:

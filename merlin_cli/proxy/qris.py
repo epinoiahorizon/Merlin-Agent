@@ -226,7 +226,7 @@ def load_static(source: str) -> str:
             if not data:
                 raise QrisError(f"no QR code found in {path}")
             return _checked(data)
-        return _checked(path.read_text(encoding="utf-8"))
+        return _checked(path.read_text(encoding="utf-8-sig"))
     return _checked(source)
 
 
