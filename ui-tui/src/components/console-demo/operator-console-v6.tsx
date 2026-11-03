@@ -1,8 +1,10 @@
 import { Box, stringWidth, Text, useStdout } from '@merlin/ink'
 import React, { useEffect, useState } from 'react'
 
+import type { Theme } from '../../theme.js'
+
 // ── Arcane palette (mirrors merlin_arcane_agent_tui.html) ─────────────
-const C: Record<string, string> = {
+const ARCANE_C: Record<string, string> = {
   obsidian: '#03080e',
   deep: '#071620',
   panel: '#091c28',
@@ -18,6 +20,38 @@ const C: Record<string, string> = {
   dim: '#335061',
   text: '#b2ccd6',
   bright: '#e2e8f0'
+}
+
+// The palette the demo paints with. Defaults to the static Arcane sample;
+// demo.tsx swaps it for the ACTIVE CLI skin (when one resolves) pre-render.
+let C: Record<string, string> = { ...ARCANE_C }
+
+export function applyPalette(next: Record<string, string>): void {
+  C = next
+}
+
+// Maps a resolved TUI Theme (semantic tokens) back onto the demo's palette
+// slots so the sample always shows the real skin's colors.
+export function paletteFromTheme(theme: Theme, skinBackground?: string): Record<string, string> {
+  const c = theme.color
+
+  return {
+    obsidian: skinBackground ?? ARCANE_C.obsidian,
+    deep: c.statusBg,
+    panel: c.completionBg,
+    border: c.border,
+    borderBright: c.accent,
+    cyan: c.accent,
+    teal: c.sessionLabel,
+    emerald: c.ok,
+    gold: c.primary,
+    amber: c.warn,
+    purple: c.primary,
+    red: c.error,
+    dim: c.muted,
+    text: c.text,
+    bright: c.prompt
+  }
 }
 
 const RUNE_HEADER = 'ᚠ   ᛗ   ᛖ   ᚱ   ᛚ   ᛁ   ᚾ   ·   ᛖ   ᛈ   ᛁ   ᚾ   ᛟ   ᛁ   ᚨ       ᚺ   ᛟ   ᚱ   ᛁ   ᛉ   ᛟ   ᚾ'
@@ -307,7 +341,7 @@ export function OperatorConsoleV6() {
 
   /* ── Spellbook panel ── */
   const spellbookPanel = (
-    <Panel avail={avail}>
+    <Panel width={avail}>
       <PairRow
         avail={avail - 2}
         lc={C.purple}
@@ -350,7 +384,7 @@ export function OperatorConsoleV6() {
 
   /* ── Daemon panel ── */
   const daemonPanel = (
-    <Panel avail={avail}>
+    <Panel width={avail}>
       <PairRow
         avail={avail - 2}
         lc={C.emerald}
@@ -368,7 +402,7 @@ export function OperatorConsoleV6() {
 
   /* ── Scroll (transcript) panel ── */
   const scrollPanel = (
-    <Panel avail={avail}>
+    <Panel width={avail}>
       <PairRow avail={avail - 2} lc={C.cyan} left="📜 SPELLCAST HISTORICAL SCROLL" rc={C.dim} right="[CLEAR SCROLL]" />
       <Line
         avail={avail - 2}
