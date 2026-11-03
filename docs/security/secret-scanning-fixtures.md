@@ -7,8 +7,8 @@ fixtures**, not credentials. Verified 2026-10-06, current `main`:
 |---|---|---|
 | #5 Telegram Bot Token `7123456789:AAHdq…` | tests/gateway/test_weak_credential_guard.py:56 | split concat `"3123456789:AA" + "HdqTcvCH1vGWJxfSeOfSAs0K5PALDsaw"` (commit e1294de7) |
 | #4/#1 Google API Key `AIzaFake…` | tests/fakes/providers/gemini_native.py:44 | split concat `"AIza" + "FakeGeminiKeyFor…0000"` — never a valid key (format is fake by name) |
-| #3 OpenAI API Key `sk-proj-Zz…` | tests/hermes_cli/test_sessions_export_md…:73 → now tests/merlin_cli/test_sessions_export_md_cli.py | split concat `"sk-" + "proj-Zz…"` |
-| #2 Telegram Bot Token `7412963801:AAH3…` | tests/hermes_cli/test_approvals_suggest.py:209 → now tests/merlin_cli/test_approvals_suggest.py | pattern no longer present in tree |
+| #3 OpenAI API Key `sk-proj-Zz…` | tests/<pre-rename>/merlin_cli/test_sessions_export_md…:73 → now tests/merlin_cli/test_sessions_export_md_cli.py | split concat `"sk-" + "proj-Zz…"` |
+| #2 Telegram Bot Token `7412963801:AAH3…` | tests/<pre-rename>/merlin_cli/test_approvals_suggest.py:209 → now tests/merlin_cli/test_approvals_suggest.py | pattern no longer present in tree |
 
 ## Why these are safe
 
