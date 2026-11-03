@@ -38,7 +38,7 @@ def transition(tmp_path):
     # Deliberately incompatible: a cached OLD_API-only PM cannot prepare this tree.
     (root / "pm/__init__.py").write_text(
         "from merlin_cli.probe import event\n"
-        "def sync_venv(*, explicit, project_root, evict_incompatible_plugins):\n"
+        "def sync_venv(extras=None, *, explicit, project_root, evict_incompatible_plugins):\n"
         "    assert explicit and evict_incompatible_plugins\n"
         "    event('prepare')\n"
     )
@@ -71,6 +71,18 @@ def transition(tmp_path):
         "def activate_dependencies(root):\n"
         "    from merlin_cli.probe import event\n"
         "    event('activate')\n"
+        "runtime_facts_path = lambda root: Path(str(root)) / 'pm-runtime-facts.json'\n"
+    )
+    # The new PM exposes runtime facts; the completion decides legacy-extras
+    # selection on the facts file's existence. Present → extras=None (matches
+    # an established PM install). pm.extras is imported unconditionally, so the
+    # stub carries it even on the facts-present shortcut.
+    (root / "pm-runtime-facts.json").write_text("{}")
+    (pm_package / "extras.py").write_text(
+        "from merlin_cli.probe import event\n"
+        "def legacy_selection(root):\n"
+        "    event('legacy_extras')\n"
+        "    return []\n"
     )
     (root / "merlin_constants.py").write_text("")
     (package / "venv_sync.py").write_text(
@@ -196,7 +208,7 @@ def test_old_process_new_git_tree_completes_in_fresh_python(transition, tmp_path
     )
     assert result.returncode == 0, result.stdout + result.stderr
     response = json.loads(result.stdout.split("RESULT=")[1])
-    assert response["exit_code"] == 0
+    assert response["exit_code"] == 0  # TEMP-DEBUG: show driver output
     assert response["receipt"]["update_id"] == request["receipt"]["update_id"]
     assert response["windows_resume"]["resume_needed"] is False
     assert not (Path(request["home"]) / "completion-pending").exists()
@@ -434,7 +446,7 @@ def test_progress_is_forwarded_before_held_stage_is_released(transition, monkeyp
         "    Path('released').touch()\n"
     )
     module, definition = (
-        ("pm/__init__.py", "def sync_venv(**kw):\n") if stage == "prepare" else
+        ("pm/__init__.py", "def sync_venv(extras=None, **kw):\n") if stage == "prepare" else
         ("merlin_cli/source_build.py", "def build_update_products(*a, **kw):\n")
     )
     (root / module).write_text("import time\nfrom pathlib import Path\n" + definition + held_body)
