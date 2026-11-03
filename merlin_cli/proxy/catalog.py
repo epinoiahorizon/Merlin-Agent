@@ -123,7 +123,7 @@ def load_reference(source: str | Path | None = None, timeout_s: float = 25.0) ->
         if not path.exists():
             raise RuntimeError(f"price reference file not found: {path}")
         try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload = json.loads(path.read_text(encoding="utf-8-sig"))
         except ValueError as exc:
             raise RuntimeError(f"price reference {path} is not valid JSON: {exc}") from exc
     book = parse_reference(payload)

@@ -30,7 +30,7 @@ def _load_env_file(path: str) -> None:
     target = Path(path)
     if not target.exists():
         raise SystemExit(f"error: env file not found: {target}")
-    for line in target.read_text(encoding="utf-8", errors="replace").splitlines():
+    for line in target.read_text(encoding="utf-8-sig", errors="replace").splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
