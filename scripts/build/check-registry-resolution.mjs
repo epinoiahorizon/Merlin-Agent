@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Registry-resolution guard: every package the lockfile pins must exist as a
 // downloadable tarball. Catches the class of failure a Malaysia user hit first
-// on 2026-10-10: a repo-wide rename (hermes->merlin) rewrote third-party names
+// on 2026-10-10: a repo-wide product rename rewrote third-party names
 // inside package-lock.json; dev machines never noticed (reuse path skips npm
 // ci) and the scheduled E2E ran no release tags, so the first signal was a
 // real user's npm E404 at "Building the merlin command and apps".

@@ -33,10 +33,10 @@ skills engine, gateway, scheduler, cron, TUI, and the majority of the desktop
 application are upstream work and remain credited here and in LICENSE.
 
 Repository history note: the git history of this repository begins at the fork
-import on 2026-09-30 and does not contain upstream's commit history. Upstream
-(https://github.com/NousResearch/hermes-agent) remains the canonical source;
-Merlin ports upstream changes rather than the reverse, and should be expected
-to lag it.
+import on 2026-09-30 and does not contain upstream's commit history. Merlin is
+developed and released independently by Epinoia Horizon on top of this
+MIT-licensed base; provenance of upstream-derived components is disclosed here
+in full regardless of future development direction.
 
 This notice does not imply endorsement by Nous Research, and no claim of
 authorship is made over the upstream portions of the software.

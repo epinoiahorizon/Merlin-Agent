@@ -235,7 +235,7 @@ class CLIStreamMixin:
             render_notification(lambda: ChatConsole().print(f"[dim]◈ {_escape(user_input.display_text)}[/dim]"),
                                 platform="cli", diagnostic=user_input.notification_category == "diagnostic")
             return
-        # De-Hermes turn rail: skinned label + glyph arrow; single-line turns
+        # Branded-identity turn rail: skinned label + glyph arrow; single-line turns
         # render as "[ᛞ Archmage] ❯ message" on one line like the assistant rail.
         try:
             from merlin_cli.skin_engine import get_active_skin

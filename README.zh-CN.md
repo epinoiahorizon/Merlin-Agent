@@ -13,9 +13,7 @@
   <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
 </p>
 
-> **来源说明，放在最前。** Merlin Agent 是 [Hermes Agent](https://github.com/NousResearch/hermes-agent)（MIT，© 2025 Nous Research）的更名发行版。代理核心、工具、网关、技能引擎、调度器、桌面外壳与 TUI 均来自上游代码——并非我们所写，我们也不主张著作权。改动清单见 [NOTICE](NOTICE)，许可条款见 [LICENSE](LICENSE)。Nous Research 未对本分支背书。若想使用原项目，请前往上游：它的进度领先于我们。
->
-> 本仓库的 git 历史自 2026-09-30 的 fork 导入开始，不含上游历史。
+**Merlin Agent 是由 [Epinoia Horizon](https://epinoiahorizon.com) 打造并支持的自改进 AI 智能体** —— 不是聊天包装器。它从经验中创建技能，在使用中改进技能，检索自己过去的对话，并在会话之间持续加深对你的了解。一个安装器，一个应用窗口，无需终端 —— 支持原生 Windows，支持路径由我们直达。
 
 **Merlin Agent 是该开源代理的桌面打包版本，由 [Epinoia Horizon](https://epinoiahorizon.com) 制作与支持。** 从经验中创建技能、在使用中改进、检索过往对话——这些都是上游核心，已在上方注明。Merlin 是其外围的发行版：无需终端的安装程序与应用窗口、由我们负责的 Windows 支持路径，以及我们自己的修复。
 
@@ -173,6 +171,6 @@ PM 引导、Python 3.14 测试环境和规范验证命令见
 
 MIT — 详见 [LICENSE](LICENSE)。
 
-Merlin Agent 是 Nous Research 的 [hermes-agent](https://github.com/NousResearch/hermes-agent) 的修改版分支，依据 MIT 许可证使用。原始版权声明保留在 [LICENSE](LICENSE) 中，修改清单见 [NOTICE](NOTICE)。Nous Research 未对本分支背书。
+Merlin Agent 由 Epinoia Horizon 作为独立产品维护和发布。智能体核心源自 Nous Research 的 [hermes-agent](https://github.com/NousResearch/hermes-agent)，依据 MIT 许可证使用：原始版权声明保留在 [LICENSE](LICENSE) 中，完整的来源记录见 [NOTICE](NOTICE)。本仓库的 git 历史始于 2026-09-30 的导入。未声称亦未暗示获得 Nous Research 的背书。
 
 由 Epinoia Horizon 构建。

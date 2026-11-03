@@ -16,11 +16,7 @@
   <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
 </p>
 
-> **Procedencia, por delante.** Merlin Agent es una distribución con nueva marca de [Hermes Agent](https://github.com/NousResearch/hermes-agent) (MIT, © 2025 Nous Research). El núcleo del agente, las herramientas, el gateway, el motor de skills, el planificador, el shell de escritorio y la TUI son código upstream — no los escribimos nosotros y no lo reclamamos. Los cambios están en [NOTICE](NOTICE) y la licencia en [LICENSE](LICENSE). Nous Research no respalda este fork. Si quieres el proyecto original, ve allí: está más adelantado que nosotros.
->
-> El historial de git de este repositorio comienza en la importación del fork (2026-09-30); no replica el historial upstream.
-
-**Merlin Agent es una compilación de escritorio empaquetada de ese agente de código abierto, hecha y soportada por [Epinoia Horizon](https://epinoiahorizon.com).** Crea habilidades a partir de la experiencia, las mejora durante el uso y busca en sus conversaciones pasadas — todo eso es el núcleo upstream, acreditado arriba. Merlin es la distribución alrededor: instalador y ventana de aplicación sin terminal, soporte con foco en Windows que termina en nosotros, y nuestras propias correcciones encima.
+**Merlin Agent es el agente de IA auto-mejorable creado y soportado por [Epinoia Horizon](https://epinoiahorizon.com)** — no es un envoltorio de chat. Crea habilidades a partir de la experiencia, las mejora durante el uso, busca en sus propias conversaciones pasadas y mantiene un modelo cada vez más profundo de quién eres entre sesiones. Un instalador, una ventana de aplicación, sin terminal obligatorio — con una ruta de soporte nativa para Windows que termina en nosotros.
 
 Usa cualquier modelo que quieras — [OpenRouter](https://openrouter.ai) (más de 200 modelos), [NovitaAI](https://novita.ai), [NVIDIA NIM](https://build.nvidia.com) (Nemotron), [Xiaomi MiMo](https://platform.xiaomimimo.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, o tu propio endpoint. Cambia con `merlin model` — sin cambios de código, sin dependencias.
 
@@ -188,6 +184,11 @@ de verificación están en [Development Setup](CONTRIBUTING.md#development-setup
 
 MIT — ver [LICENSE](LICENSE).
 
-Merlin Agent es un fork modificado de [hermes-agent](https://github.com/NousResearch/hermes-agent) de Nous Research, usado bajo la licencia MIT. El aviso de copyright original se conserva en [LICENSE](LICENSE) y la lista de cambios está en [NOTICE](NOTICE). Nous Research no respalda este fork.
+Merlin Agent es mantenido y publicado por Epinoia Horizon como un producto
+independiente. El núcleo del agente se derivó originalmente de
+[hermes-agent](https://github.com/NousResearch/hermes-agent) de Nous Research,
+usado bajo la licencia MIT: el aviso de copyright original se conserva en
+[LICENSE](LICENSE) y el registro factual de procedencia está en [NOTICE](NOTICE).
+No se reclama ni implica respaldo por parte de Nous Research.
 
 Creado por Epinoia Horizon.

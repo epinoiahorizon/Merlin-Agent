@@ -674,7 +674,7 @@ def _banner_skill_lines(skills_by_category: Dict[str, List[str]], skills_enabled
 def build_welcome_panel(console: "Console", layout_table) -> None:
     """Print the full welcome banner: header title, skinned outer panel, version line.
 
-    De-Hermes rewrite of the old ARCANE AGENT TUI panel: title = branding agent_name
+    Branded-identity rewrite of the old ARCANE AGENT TUI panel: title = branding agent_name
     (skin-aware), version moves to a dim footer line, no nested giant grid look.
     """
     from rich.panel import Panel

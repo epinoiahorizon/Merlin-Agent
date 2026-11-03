@@ -1,7 +1,7 @@
 # Piagam Identitas & Originalitas — Merlin Agent by Epinoia Horizon
 
 Dokumen kanonik. Semua permukaan produk WAJIB merujuk ke sini.
-Versi: 1.1 · Dibuat: 2026-10-21 · Pemilik: Epinoia Horizon (June Arthov)
+Versi: 1.2 · Dibuat: 2026-10-21 · Diperbarui: 2026-11-03 · Pemilik: Epinoia Horizon (June Arthov)
 
 ## 1. Satu Nama, Satu Organisasi
 
@@ -10,6 +10,19 @@ Versi: 1.1 · Dibuat: 2026-10-21 · Pemilik: Epinoia Horizon (June Arthov)
 - Repo kanonik: github.com/epinoiahorizon/Merlin-Agent
 - Dilarang memakai nama lain untuk entitas yang sama ("Arthov Labs",
   "Hermes Agent", dll) di permukaan publik mana pun.
+
+### 1a. Kebijakan Atribusi (baca sebelum menyapu nama)
+
+- `NOTICE` dan `LICENSE` adalah **rekam legal MIT** — JANGAN dihapus atau
+  dikosongkan. Mereka bukan "branding"; menyapunya = pelanggaran lisensi.
+- Yang disapu dari permukaan publik: penyebutan nama lain sebagai identitas
+  produk (hero README, tagline situs, meta description, banner, persona).
+- Posisi atribusi di README: **bukan di hero** — cukup satu bagian
+  `License & Provenance` di bawah, faktual, nada setara (bukan nada
+  "kami cuma ganti nama / kami di belakang upstream").
+- Merlin diposisikan sebagai produk independen buatan Epinoia Horizon yang
+  dibangun di atas inti open-source berlisensi MIT. Arah jangka panjang:
+  lihat `INDEPENDENCE-ROADMAP.md`.
 
 ## 2. Watermark Wajib (signature block)
 
@@ -38,13 +51,16 @@ Logo ASCII kanonik (tampil di banner CLI/TUI/desktop):
 ## 4. Checklist Permukaan (semua wajib konsisten)
 
 - [x] SOUL.md Windows + WSL — sudah diseragamkan 2026-10-21
-- [ ] Banner CLI (merlin --version / splash)
-- [ ] Nama aplikasi Desktop (window title, about page)
-- [ ] Nama bot Telegram di BotFather (ganti dari "Hermes")
-- [ ] README GitHub + badges + OG image
-- [ ] Docs header (docs.withmerlin.online/docs)
-- [ ] llms.txt — sudah live, pastikan identity block ada
-- [ ] Persona gateway (semua platform)
+- [x] Banner CLI (merlin --version / splash) — sudah Merlin penuh, diverifikasi 2026-11-03
+- [ ] Nama aplikasi Desktop (window title, about page) — perlu verifikasi build Electron
+- [ ] Nama bot Telegram di BotFather (ganti dari "Hermes") — aksi manual di luar repo
+- [x] README GitHub + badges — prosedensi pindah ke bagian `License & Provenance`, 2026-11-03
+  - [ ] OG image (aset masih perlu dibuat)
+- [x] Docs header (docs.withmerlin.online/docs) — blok identitas Merlin-first, 2026-11-03
+- [x] llms.txt — sudah live, identity block Merlin-first, 2026-11-03
+- [ ] Persona gateway (semua platform) — perlu audit bio/about tiap adapter
+- [x] Vendor `@merlin/ui` dist — teks poster "nama lama" dipatch stopgap di dist;
+      sumber paket harus diperbarui + republish (lihat roadmap Fase 2)
 
 ## 5. Jejak Digital (biar LLM luar bisa "kenal")
 
