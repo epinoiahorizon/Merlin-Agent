@@ -62,62 +62,38 @@ _MERLIN_BRANDING: Dict[str, str] = _branding(
 
 _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
     "default": {
-        "name": "default", "description": "Arcane Grimoire - spellbook panel, Elder Futhark runes, mana-bar telemetry (landing native Solarized)",
+        "name": "default", "description": "Arcane terminal - cyan/emerald on obsidian, Elder Futhark runes, mana-bar telemetry (console-demo native palette)",
         "colors": {
-            "banner_border": "#b58900",
-            "banner_title": "#e6c04a",
-            "banner_accent": "#e6c04a",
-            "banner_dim": "#657b83",
-            "banner_text": "#fdf6e3",
-            "ui_accent": "#e6c04a",
-            "ui_label": "#b58900",
-            "ui_ok": "#859900",
-            "ui_error": "#dc322f",
-            "ui_warn": "#cb4b16",
-            "prompt": "#fdf6e3",
-            "input_rule": "#b58900",
-            "response_border": "#b58900",
-            "status_bar_bg": "#073642",
-            "status_bar_text": "#93a1a1",
-            "status_bar_strong": "#e6c04a",
-            "status_bar_dim": "#839496",
-            "status_bar_good": "#859900",
-            "status_bar_warn": "#cb4b16",
-            "status_bar_bad": "#dc322f",
-            "status_bar_critical": "#dc322f",
-            "session_label": "#b58900",
-            "session_border": "#b58900",
-            "completion_menu_bg": "#073642",
-            "completion_menu_current_bg": "#0d4250",
-            "selection_bg": "#0d4250",
-            "shell_dollar": "#268bd2",
-            "voice_status_bg": "#073642"},
-        "light_colors": {
-            "banner_title": "#8a6508",
-            "banner_accent": "#9a740c",
-            "banner_dim": "#839496",
-            "banner_text": "#3a4b52",
-            "ui_accent": "#9a740c",
-            "ui_label": "#7a5c00",
-            "ui_ok": "#5c7c00",
-            "ui_error": "#c62828",
-            "ui_warn": "#b53d0c",
-            "prompt": "#3a4b52",
-            "response_border": "#8a6508",
-            "session_label": "#7a5c00",
-            "status_bar_text": "#4a5b62",
-            "status_bar_strong": "#8a6508",
-            "status_bar_dim": "#93a1a1",
-            "status_bar_good": "#5c7c00",
-            "status_bar_warn": "#b53d0c",
-            "status_bar_bad": "#c62828",
-            "status_bar_critical": "#b71c1c",
-            "shell_dollar": "#1a6fb0",
-            "completion_menu_bg": "#fdf6e3",
-            "completion_menu_current_bg": "#e8dcc8",
-            "selection_bg": "#d8d0bb",
-            "status_bar_bg": "#fdf6e3",
-            "voice_status_bg": "#fdf6e3"},
+            "banner_border": "#1a384b",
+            "banner_title": "#00f2fe",
+            "banner_accent": "#00f2fe",
+            "banner_dim": "#335061",
+            "banner_text": "#b2ccd6",
+            "ui_accent": "#00f2fe",
+            "ui_label": "#b2ccd6",
+            "ui_ok": "#10b981",
+            "ui_error": "#f43f5e",
+            "ui_warn": "#f59e0b",
+            "prompt": "#e2e8f0",
+            "input_rule": "#1a384b",
+            "response_border": "#0e7490",
+            "status_bar_bg": "#071620",
+            "status_bar_text": "#b2ccd6",
+            "status_bar_strong": "#00f2fe",
+            "status_bar_dim": "#335061",
+            "status_bar_good": "#10b981",
+            "status_bar_warn": "#f59e0b",
+            "status_bar_bad": "#f43f5e",
+            "status_bar_critical": "#f43f5e",
+            "session_label": "#00f2fe",
+            "session_border": "#1a384b",
+            "completion_menu_bg": "#091c28",
+            "completion_menu_current_bg": "#0e7490",
+            "completion_menu_meta_bg": "#091c28",
+            "completion_menu_meta_current_bg": "#0e7490",
+            "selection_bg": "#0e7490",
+            "shell_dollar": "#00f2fe",
+            "voice_status_bg": "#071620"},
         "spinner": {
             "waiting_faces": ["(ᛟ)", "(ᛞ)", "(ᚨ)", "(ᛝ)", "(ᛉ)"],
             "thinking_faces": ["(ᚨ)", "(ᛟ)", "(ᛞ)", "(ᛝ)", "(ᛉ)"],
@@ -138,27 +114,37 @@ _BUILTIN_SKINS: Dict[str, Dict[str, Any]] = {
             "agent_tui_title": "✧ MERLIN ARCANE AGENT TUI"},
         "tool_prefix": "┃",
         "banner_logo": (
-            "[bold #2aa198]███╗   ███╗███████╗██████╗ ██╗     ██╗███╗   ██╗[/]\n"
-            "[bold #268bd2]████╗ ████║██╔════╝██╔══██╗██║     ██║████╗  ██║[/]\n"
-            "[bold #2aa198]██╔████╔██║█████╗  ██████╔╝██║     ██║██╔██╗ ██║[/]\n"
-            "[bold #268bd2]██║╚██╔╝██║██╔══╝  ██╔══██╗██║     ██║██║╚██╗██║[/]\n"
-            "[bold #2aa198]██║ ╚═╝ ██║███████╗██║  ██║███████╗██║██║ ╚████║[/]\n"
-            "[bold #268bd2]╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝[/]"),
-        "banner_hero": """[#586e75]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#586e75]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#b58900]⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠈⠛⠛⠛⠁⠀⠙⠲⢄⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#b58900]⠀⠀⠀⠀⠀⠀⠀⠀⢠⠞⠀⠀⣠⣤⣤⣤⣤⣤⣄⡀⠀⠈⢆⠀⠀⠀⠀⠀⠀⠀[/]
-[#e6c04a]⠀⠀⠀⠀⠀⠀⠀⠀⡟⢀⡤⠚⠉⠀⣿⡇⠀⣿⡿⠉⠲⢄⢸⠀⠀⠀⠀⠀⠀⠀[/]
-[#e6c04a]⠀⠀⠀⠀⠀⠀⠀⢸⡇⢸⡀⢸⠀⣸⣿⡇⢸⣿⣇⠀⢰⡇⢸⠀⠀⠀⠀⠀⠀⠀[/]
-[#fdf6e3]⠀⠀⠀⠀⠀⠀⠀⢸⡇⠈⠓⠀⠸⣿⣿⡇⢸⣿⡟⠀⠘⠓⢸⠀⠀⠀⠀⠀⠀⠀[/]
-[#fdf6e3]⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⢀⡀⠀⠙⠋⠃⠘⠋⠁⢀⡀⠀⢸⠀⠀⠀⠀⠀⠀⠀[/]
-[#e6c04a]⠀⠀⠀⠀⠀⠀⠀⢸⡇⢠⠞⠁⢰⣶⣶⡄⢠⣶⣶⡆⠈⠳⠁⢸⠀⠀⠀⠀⠀⠀[/]
-[#e6c04a]⠀⠀⠀⠀⠀⠀⠀⢸⡇⡜⠀⢠⠟⠀⠀⠀⠈⢀⠀⠀⠙⢄⢸⡇⠀⠀⠀⠀⠀⠀[/]
-[#b58900]⠀⠀⠀⠀⠀⠀⠀⠈⢧⡇⣀⡤⠖⠒⠒⠛⠛⠛⠒⠲⢄⣀⢸⡏⠁⠀⠀⠀⠀⠀⠀[/]
-[#b58900]⠀⠀⠀⠀⠀⠀⠀⠀⠈⠳⠦⣀⣀⣀⣀⣀⣀⣀⣀⣀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#93a1a1]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠷⠦⣄⣀⣀⣠⠴⠷⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#93a1a1]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
-[#586e75]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]"""
+            "[bold #00f2fe]███╗   ███╗███████╗██████╗ ██╗     ██╗███╗   ██╗[/]\n"
+            "[bold #00f2fe]████╗ ████║██╔════╝██╔══██╗██║     ██║████╗  ██║[/]\n"
+            "[bold #00f2fe]██╔████╔██║█████╗  ██████╔╝██║     ██║██╔██╗ ██║[/]\n"
+            "[bold #335061]██║╚██╔╝██║██╔══╝  ██╔══██╗██║     ██║██║╚██╗██║[/]\n"
+            "[bold #335061]██║ ╚═╝ ██║███████╗██║  ██║███████╗██║██║ ╚████║[/]\n"
+            "[bold #335061]╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝[/]"),
+        "banner_hero": """[#335061]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#335061]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#1a384b]⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠈⠛⠛⠛⠁⠀⠙⠲⢄⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#1a384b]⠀⠀⠀⠀⠀⠀⠀⠀⢠⠞⠀⠀⣠⣤⣤⣤⣤⣤⣄⡀⠀⠈⢆⠀⠀⠀⠀⠀⠀⠀[/]
+[#00f2fe]⠀⠀⠀⠀⠀⠀⠀⠀⡟⢀⡤⠚⠉⠀⣿⡇⠀⣿⡿⠉⠲⢄⢸⠀⠀⠀⠀⠀⠀⠀[/]
+[#00f2fe]⠀⠀⠀⠀⠀⠀⠀⢸⡇⢸⡀⢸⠀⣸⣿⡇⢸⣿⣇⠀⢰⡇⢸⠀⠀⠀⠀⠀⠀⠀[/]
+[#b2ccd6]⠀⠀⠀⠀⠀⠀⠀⢸⡇⠈⠓⠀⠸⣿⣿⡇⢸⣿⡟⠀⠘⠓⢸⠀⠀⠀⠀⠀⠀⠀[/]
+[#b2ccd6]⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⢀⡀⠀⠙⠋⠃⠘⠋⠁⢀⡀⠀⢸⠀⠀⠀⠀⠀⠀⠀[/]
+[#00f2fe]⠀⠀⠀⠀⠀⠀⠀⢸⡇⢠⠞⠁⢰⣶⣶⡄⢠⣶⣶⡆⠈⠳⠁⢸⠀⠀⠀⠀⠀⠀[/]
+[#00f2fe]⠀⠀⠀⠀⠀⠀⠀⢸⡇⡜⠀⢠⠟⠀⠀⠀⠈⢀⠀⠀⠙⢄⢸⡇⠀⠀⠀⠀⠀⠀[/]
+[#1a384b]⠀⠀⠀⠀⠀⠀⠀⠈⢧⡇⣀⡤⠖⠒⠒⠛⠛⠛⠒⠲⢄⣀⢸⡏⠁⠀⠀⠀⠀⠀⠀[/]
+[#1a384b]⠀⠀⠀⠀⠀⠀⠀⠀⠈⠳⠦⣀⣀⣀⣀⣀⣀⣀⣀⣀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#e2e8f0]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠷⠦⣄⣀⣀⣠⠴⠷⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#e2e8f0]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]
+[#335061]⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀[/]"""
+    },
+    "arcane": {
+        "name": "arcane", "description": "Arcane terminal - cyan/emerald on obsidian, the console-demo native palette",
+        "banner_logo": (
+            "[bold #00f2fe]███╗   ███╗███████╗██████╗ ██╗     ██╗███╗   ██╗[/]\n"
+            "[bold #00f2fe]████╗ ████║██╔════╝██╔══██╗██║     ██║████╗  ██║[/]\n"
+            "[bold #00f2fe]██╔████╔██║█████╗  ██████╔╝██║     ██║██╔██╗ ██║[/]\n"
+            "[bold #335061]██║╚██╔╝██║██╔══╝  ██╔══██╗██║     ██║██║╚██╗██║[/]\n"
+            "[bold #335061]██║ ╚═╝ ██║███████╗██║  ██║███████╗██║██║ ╚████║[/]\n"
+            "[bold #335061]╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝[/]"),
     },
     "grimoire": {
         "name": "grimoire", "description": "Arcane Grimoire - spellbook panel, Elder Futhark runes, mana-bar telemetry (landing native Solarized)",
