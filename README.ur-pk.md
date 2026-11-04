@@ -15,11 +15,7 @@
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=for-the-badge" alt="中文"></a>
 </p>
 
-> **اصل و نسب، سب سے پہلے۔** Merlin Agent، [Hermes Agent](https://github.com/NousResearch/hermes-agent) (MIT، © 2025 Nous Research) کی نئی برانڈنگ کے ساتھ تقسیم ہے۔ ایجنٹ کور، ٹولز، گیٹ وے، اسکلز انجن، شیڈولر، ڈیسک ٹاپ شیل اور TUI اپ اسٹریم کوڈ ہیں — یہ ہم نے نہیں لکھے اور نہ ان پر دعویٰ کرتے ہیں۔ تبدیلیوں کی فہرست [NOTICE](NOTICE) میں اور لائسنس [LICENSE](LICENSE) میں ہے۔ Nous Research اس فورک کی توثیق نہیں کرتا۔ اصل پروجیکٹ کے لیے وہاں جائیں: وہ ہم سے آگے ہے۔
->
-> اس ریپوزٹری کی git ہسٹری 2026-09-30 کو فورک امپورٹ سے شروع ہوتی ہے؛ اپ اسٹریم کی ہسٹری یہاں شامل نہیں۔
-
-**Merlin Agent اس اوپن سورس ایجنٹ کی ڈیسک ٹاپ پیکج شدہ تقسیم ہے، جسے [Epinoia Horizon](https://epinoiahorizon.com) بناتا اور سپورٹ کرتا ہے۔** تجربے سے مہارتیں بنانا، استعمال میں بہتر کرنا اور پرانی گفتگو تلاش کرنا — یہ سب اپ اسٹریم کور ہے، جس کا ذکر اوپر ہے۔ Merlin اس کے گرد تقسیم ہے: بغیر ٹرمینل کے انسٹالر اور ایپ ونڈو، ہماری Windows سپورٹ، اور ہماری اپنی اصلاحات۔
+**Merlin Agent وہ خود بہتر بننے والا AI ایجنٹ ہے جو [Epinoia Horizon](https://epinoiahorizon.com) بناتا اور سپورٹ کرتا ہے** — یہ صرف چیٹ ریپر نہیں۔ تجربے سے مہارتیں بناتا ہے، استعمال کے دوران بہتر کرتا ہے، اپنی پرانی گفتگو تلاش کرتا ہے اور سیشنوں کے درمیان آپ کے بارے میں مسلسل گہرا فہم بناتا ہے۔ ایک انسٹالر، ایک ایپ ونڈو، ٹرمینل کی ضرورت نہیں — مکمل نیٹو Windows سپورٹ، اور سپورٹ کا راستہ ہماری طرف ختم ہوتا ہے۔
 
 آپ اپنی مرضی کا کوئی بھی ماڈل استعمال کر سکتے ہیں — [OpenRouter](https://openrouter.ai) (200 سے زائد ماڈلز)، [NovitaAI](https://novita.ai) (ماڈل API، ایجنٹ سینڈ باکس، اور GPU کلاؤڈ کے لیے اے آئی مقامی کلاؤڈ)، [NVIDIA NIM](https://build.nvidia.com) (Nemotron)، [Xiaomi MiMo](https://platform.xiaomimimo.com)، [z.ai/GLM](https://z.ai)، [Kimi/Moonshot](https://platform.moonshot.ai)، [MiniMax](https://www.minimax.io)، [Hugging Face](https://huggingface.co)، OpenAI، یا اپنا حسب ضرورت اینڈ پوائنٹ (endpoint) استعمال کریں۔ ماڈل تبدیل کرنے کے لیے صرف `merlin model` استعمال کریں — کسی کوڈ کو تبدیل کرنے کی ضرورت نہیں، کوئی پابندی نہیں۔
 
@@ -215,7 +211,7 @@ PM اور Python 3.14 کے ٹیسٹ ماحول اور تصدیقی کمانڈز 
 
 MIT — تفصیلات کے لیے [LICENSE](LICENSE) دیکھیں۔
 
-Merlin Agent، Nous Research کے [hermes-agent](https://github.com/NousResearch/hermes-agent) کا ترمیم شدہ فورک ہے، جو MIT لائسنس کے تحت استعمال ہوتا ہے۔ اصل کاپی رائٹ اطلاع [LICENSE](LICENSE) میں محفوظ ہے اور تبدیلیوں کی فہرست [NOTICE](NOTICE) میں ہے۔ Nous Research اس فورک کی توثیق نہیں کرتا۔
+Merlin Agent کو Epinoia Horizon ایک آزاد پروڈکٹ کے طور پر برقرار رکھتا اور جاری کرتا ہے۔ ایجنٹ کور اصل میں Nous Research کے [hermes-agent](https://github.com/NousResearch/hermes-agent) سے ماخوذ ہے، جو MIT لائسنس کے تحت استعمال ہوتا ہے: اصل کاپی رائٹ اطلاع [LICENSE](LICENSE) میں محفوظ ہے اور مکمل وابستگی کا ریکارڈ [NOTICE](NOTICE) میں ہے۔ Nous Research کی توثیق کا کوئی دعویٰ یا اشارہ نہیں کیا جاتا۔
 
 [نوس ریسرچ (Epinoia Horizon)](https://epinoiahorizon.com) کی جانب سے تیار کردہ۔
 

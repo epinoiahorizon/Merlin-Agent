@@ -154,7 +154,7 @@ export function Poster({
                   /* @__PURE__ */ jsx(CornerMark, { className: "right-3 bottom-3" })
                 ] }),
                 /* @__PURE__ */ jsx(ScanlineOverlay, {}),
-                /* @__PURE__ */ jsx(Small, { className: "absolute bottom-4 left-4 z-1 opacity-80", children: "Hermes Agent" })
+                /* @__PURE__ */ jsx(Small, { className: "absolute bottom-4 left-4 z-1 opacity-80", children: "Merlin Agent" })
               ]
             }
           ),

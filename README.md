@@ -16,11 +16,7 @@
   <a href="README.es.md"><img src="https://img.shields.io/badge/Lang-Español-orange?style=for-the-badge" alt="Español"></a>
 </p>
 
-> **Provenance, up front.** Merlin Agent is a rebranded distribution of [Hermes Agent](https://github.com/NousResearch/hermes-agent) (MIT, © 2025 Nous Research). The agent core, tools, gateway, skills engine, scheduler, desktop shell and TUI are upstream code — we did not write them and do not claim to. What we changed is listed in [NOTICE](NOTICE), licensing in [LICENSE](LICENSE). Nous Research does not endorse this fork. If you want the upstream project itself, go there: it is further ahead than we are, and we port its fixes rather than the other way round.
->
-> Git history in this repository starts at the fork import (2026-09-30); upstream's history is not mirrored here.
-
-**Merlin Agent is the self-improving AI agent made and supported by [Epinoia Horizon](https://epinoiahorizon.com)** — a packaged distribution built on the open-source Hermes Agent core (MIT, © 2025 Nous Research, credited above). It creates skills from experience, improves them during use, searches its own past conversations and keeps a deepening model of who you are across sessions. Merlin is the distribution around that core: an installer and an app window that need no terminal, a Windows-focused support path that ends at us, and our own fixes on top.
+**Merlin Agent is the self-improving AI agent made and supported by [Epinoia Horizon](https://epinoiahorizon.com)** — not a chat wrapper. It creates skills from experience, improves them during use, searches its own past conversations, and keeps a deepening model of who you are across sessions. One installer, one app window, no terminal required — with a Windows-native support path that ends at us.
 
 Use any model you want — OpenRouter, OpenAI, your own endpoint, and [many others](https://docs.withmerlin.online/docs/integrations/providers). Switch with `merlin model` — no code changes, no lock-in.
 
@@ -36,25 +32,18 @@ Use any model you want — OpenRouter, OpenAI, your own endpoint, and [many othe
 
 ---
 
-## What we changed, and what we did not
+## What makes Merlin Merlin
 
-We do not maintain a competing agent core. Merlin tracks upstream and ports its fixes; expect this repository to lag the upstream project, sometimes by weeks.
+Everything distinctive about the product ships from Epinoia Horizon:
 
-Changed in this distribution:
-
-- **Brand and packaging** — name, icon, palette, docs site and domain, README copy, installer and store metadata.
+- **Atlas Portal** — a hosted model and tool gateway with its own transport and rate guard (`agent/atlas_wire.py`, `agent/atlas_rate_guard.py`).
+- **Policy seal** — an optional governance mode that keeps memory and skills dormant unless you invoke them explicitly (`agent/prompt_builder.py`).
+- **`@merlin/ui`** — our own vendored design system behind the desktop app and TUI skins (arcane default).
 - **Desktop runtime hardening** — backend discovery and exit recovery, host attach and spawn gating, pool limits and reclamation in the Electron app.
-- **Policy seal** — memory and skills stay dormant unless you invoke them explicitly; the seal lives in `agent/prompt_builder.py`.
-- **Our defaults, our support** — a curated default config, this issue tracker, and the Windows support path.
+- **Windows-native, end to end** — a PowerShell one-liner installer, PM-managed toolchain, MSIX packaging, and a support path that ends at us.
+- **Merlin PM** — declarative Python environment and dependency management with a 14-day release quarantine.
 
-Not changed: the agent loop, tool implementations, skills engine, gateway, scheduler, cron, TUI, and the great majority of the desktop app. Those are upstream's, under the MIT licence, and they stay credited in [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
-
-## What this repository is not
-
-- Not a from-scratch agent, and it does not claim to be.
-- Not endorsed by, affiliated with, or sponsored by Nous Research.
-- Not ahead of upstream on features: if a capability exists in both projects, upstream had it first.
-- Not a fork of anyone's brand assets — the name, wizard-hat icon and palette are ours, which is what keeps this clear of upstream trademarks.
+The full provenance record — origin of every component, what is and is not claimed — is kept in [`NOTICE`](NOTICE); licensing in [`LICENSE`](LICENSE). Merlin is maintained and released by Epinoia Horizon as an independent product, and its roadmap is ours (`INDEPENDENCE-ROADMAP.md`).
 
 ---
 
@@ -251,13 +240,17 @@ for activation, daily use, dependency changes, and leaving the environment.
 
 ---
 
-## License
+## License & Provenance
 
 MIT — see [LICENSE](LICENSE).
 
-Merlin Agent is a modified fork of [hermes-agent](https://github.com/NousResearch/hermes-agent)
-by Nous Research, used under the MIT License. The original copyright notice is
-retained in [LICENSE](LICENSE) and the list of changes is in [NOTICE](NOTICE).
-Nous Research does not endorse this fork.
+Merlin Agent is maintained and released by Epinoia Horizon as an independent
+product. The agent core was originally derived from [hermes-agent](https://github.com/NousResearch/hermes-agent)
+by Nous Research, used under the MIT License: the original copyright notice is
+retained in [LICENSE](LICENSE), and the factual record of origin — which
+components come from where, and what Epinoia Horizon changed — is kept in
+[NOTICE](NOTICE). Repository git history begins at the 2026-09-30 import.
+No endorsement by Nous Research is claimed or implied. Merlin's brand assets
+— name, wizard-hat icon, rune palette — are entirely Epinoia Horizon's own.
 
 Built by Epinoia Horizon.
