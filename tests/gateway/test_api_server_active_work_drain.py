@@ -128,13 +128,24 @@ class TestDrainWaitsForApiWork:
         task_started = asyncio.Event()
         allow_task = asyncio.Event()
 
-        def delayed_create_task(coro):
+        def delayed_create_task(coro, **kwargs):
+            """Delay only the /v1/runs execution task; everything else passes through.
+
+            aiohttp 3.14.5 calls ``create_task(..., eager_start=True)`` for the HTTP
+            server's request-handler start (web_protocol.connection_made) and client
+            writes (client_reqrep.send); this mock patches the asyncio module's
+            ``create_task`` process-wide, so without both the kwarg forwarding and the
+            coroutine filter the server's own start task would be held here and the
+            test would deadlock on its first request.
+            """
+            wants_delay = getattr(coro, "__qualname__", "").startswith("_execute_run")
+
             async def delayed():
                 task_started.set()
                 await allow_task.wait()
                 return await coro
 
-            return original_create_task(delayed())
+            return original_create_task(delayed() if wants_delay else coro, **kwargs)
 
         mock_agent = MagicMock()
         mock_agent.run_conversation.return_value = {"final_response": "done"}

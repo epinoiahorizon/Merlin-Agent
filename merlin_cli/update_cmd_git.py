@@ -454,8 +454,10 @@ def _git_is_trampoline(git_cmd: list) -> bool:
 
 
 def _portable_git_candidates() -> list:
-    """PortableGit candidates: shared root first (where the managed tree actually lives, not the
-    profile-scoped MERLIN_HOME), then profile home as a fallback for custom layouts.
+    """PortableGit candidates, per Git-for-Windows runtime dir: shared root first (where the
+    managed tree actually lives, not the profile-scoped MERLIN_HOME), then profile home as a
+    fallback for custom layouts; same-root-pair per arch so a home mingw64 never outranks the
+    managed shared root (monerostar review, #88136).
 
     The Merlin-managed PortableGit tree lives under the SHARED root (``<root>/git/...``), not the
     profile-scoped MERLIN_HOME (``<root>/profiles/<name>``), so a profile-scoped ``merlin update`` must look
@@ -464,7 +466,7 @@ def _portable_git_candidates() -> list:
     from merlin_constants import get_default_merlin_root, get_merlin_home
     candidates = []
     with suppress(Exception):
-        candidates += [root / "git" / arch / "libexec" / "git-core" / "git.exe" for root in (get_default_merlin_root(), Path(get_merlin_home())) for arch in ("mingw64", "ucrt64", "clangarm64")]
+        candidates += [root / "git" / arch / "libexec" / "git-core" / "git.exe" for arch in ("mingw64", "ucrt64", "clangarm64") for root in (get_default_merlin_root(), Path(get_merlin_home()))]
     return candidates
 
 
