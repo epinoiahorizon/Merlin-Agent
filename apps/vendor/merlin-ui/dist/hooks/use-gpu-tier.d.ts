@@ -23,7 +23,7 @@
  *    under SwiftShader / llvmpipe can block the main thread for hundreds of
  *    milliseconds. Running it synchronously at module load stalled first paint
  *    and produced a visible boot-time flash in apps that merely import this
- *    hook (e.g. the Hermes dashboard backdrop). Deferring past first paint
+ *    hook (e.g. the Merlin dashboard backdrop). Deferring past first paint
  *    keeps boot smooth; the tier just upgrades a frame or two later.
  *  - For SSR the server keeps the default `0` and the client's first render
  *    also reads `0`, so there is no hydration mismatch.
