@@ -73,6 +73,7 @@ def test_subdirectory_hint_reaches_model(spelling: str, tmp_path: Path) -> None:
 
 def test_agents_chain_labels_are_os_independent(tmp_path: Path) -> None:
     canaries = {name: nonce(name.upper()) for name in ("root", "pkg", "inner")}
+    from agent.prompt_builder import build_workspace_context_prompt
     with FakeLLMServer([Text("done")]) as srv:
         home = make_home(tmp_path, srv.base_url)
         repo = home.project
@@ -84,10 +85,19 @@ def test_agents_chain_labels_are_os_independent(tmp_path: Path) -> None:
         res = merlin(home, "chat", "-q", "hello", "-Q", cwd=inner)
         assert res.returncode == 0, res.tail()
         prompt = system_prompt(srv.main_requests()[0])
-    missing = [name for name, c in canaries.items() if c not in prompt]
-    with known_gate(KNOWN, "agents_chain", raises=KnownBugSymptom):
-        assert not missing, f"AGENTS.md chain members missing from the system prompt: {missing}"
-    headings = [line[3:] for line in prompt.splitlines() if line.startswith("## ") and "AGENTS.md" in line]
+    # MERLIN_OS SEAL (Vector #6): the MAIN agent never auto-injects context-file
+    # content — repo instructions reach the prompt only via an explicit read or
+    # the subagent workspace loader below. These canaries leaking into the main
+    # prompt would mean the seal is broken.
+    leaked = [name for name, c in canaries.items() if c in prompt]
+    assert not leaked, f"MERLIN_OS SEAL broken: AGENTS.md chain content leaked into the main system prompt: {leaked}"
+    # The subagent workspace prompt is seal-EXEMPT (a child working a repo blind
+    # cannot follow its conventions — delegate_tool_progress #64590): the whole
+    # chain must be there, with OS-independent (portable, forward-slash) labels.
+    child = build_workspace_context_prompt(cwd=str(inner))
+    for name, c in canaries.items():
+        assert c in child, f"AGENTS.md chain member {name!r} missing from the seal-exempt workspace prompt:\n{child[-1500:]}"
+    headings = [line.strip()[3:] for line in child.splitlines() if line.strip().startswith("## ") and "AGENTS.md" in line]
     with known_gate(KNOWN, "chain_labels", raises=KnownBugSymptom):
         expect(headings == ["../../AGENTS.md", "../AGENTS.md", "AGENTS.md"],
                f"AGENTS.md chain headings are not the portable spelling: {headings}")
