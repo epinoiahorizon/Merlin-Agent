@@ -11,7 +11,7 @@ Chat with Merlin from Telegram, Discord, Slack, WhatsApp, Signal, SMS, Email, Ho
 For the full voice feature set — including CLI microphone mode, spoken replies in messaging, and Discord voice-channel conversations — see [Voice Mode](../features/voice-mode.md) and [Use Voice Mode with Merlin](../../guides/use-voice-mode-with-merlin.md).
 
 :::tip
-Bots need both a model provider and tool providers (TTS, web). A [Atlas Portal](../../integrations/atlas-portal.md) subscription bundles all of them.
+Bots need both a model provider and tool providers (TTS, web).
 :::
 
 ## Messaging status in Desktop and the dashboard

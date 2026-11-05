@@ -12,7 +12,7 @@ When using [OpenRouter](https://openrouter.ai) as your LLM provider, Merlin Agen
 OpenRouter routes requests to many providers (e.g., Anthropic, Google, AWS Bedrock, Together AI). Provider routing lets you optimize for cost, speed, quality, or enforce specific provider requirements.
 
 :::note
-[Atlas Portal](../../integrations/atlas-portal.md) decides routing centrally per model and does not accept caller-supplied provider preferences; Merlin never sends the `provider` object to Portal, so `provider_routing` is simply ignored there.
+
 :::
 
 ## Configuration
