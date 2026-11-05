@@ -36,13 +36,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # A queued run of an OLD commit can start after a newer run already deployed and
+  # then overwrite the site with stale content: commit 3fcbe268 finished at 12:53
+  # while ae562ff8 had finished at 12:47, so Pages ended up serving pre-#69 docs
+  # with the old install URLs. concurrency.cancel-in-progress cannot help (it would
+  # kill a *running* deploy); the deploy jobs instead refuse to run when their
+  # commit is no longer the tip of main.
+  stale-guard:
+    runs-on: ubuntu-latest
+    outputs:
+      fresh: ${{ steps.check.outputs.fresh }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
+      - name: Is this commit still the tip of main?
+        id: check
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "release" ]; then
+            # A release tag deploys its own tree on purpose.
+            echo "fresh=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch --quiet --depth=1 origin main
+          head_sha="$(git rev-parse HEAD)"
+          main_sha="$(git rev-parse origin/main)"
+          if [ "$head_sha" = "$main_sha" ]; then
+            echo "fresh=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "fresh=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::skipping deploy: ${head_sha} is behind main (${main_sha}); a newer run owns the site"
+          fi
+
   deploy-vercel:
-    # Triggered automatically on release publish (production cuts) and
-    # manually via `gh workflow run deploy-site.yml` when an out-of-band
-    # main commit needs to ship live before the next release tag — e.g.
-    # a skills-index PR that doesn't touch website/** paths and so
-    # doesn't auto-deploy via the deploy-docs path.
-    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    needs: stale-guard
+    if: needs.stale-guard.outputs.fresh == 'true' && (github.event_name == 'release' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -60,7 +89,8 @@ jobs:
           curl -fsS --retry 3 --retry-delay 10 -X POST "$VERCEL_DEPLOY_HOOK"
 
   deploy-docs:
-    if: github.repository == 'epinoiahorizon/Merlin-Agent'
+    needs: stale-guard
+    if: github.repository == 'epinoiahorizon/Merlin-Agent' && needs.stale-guard.outputs.fresh == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment:
