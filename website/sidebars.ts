@@ -739,7 +739,6 @@ const sidebars: SidebarsConfig = {
       collapsed: true,
       items: [
         'integrations/index',
-        'integrations/atlas-portal',
         'integrations/providers',
         'integrations/buzz',
         'user-guide/features/mcp',
@@ -755,7 +754,6 @@ const sidebars: SidebarsConfig = {
       collapsed: true,
       items: [
         'guides/run-nemotron-3-ultra-free',
-        'guides/run-merlin-with-atlas-portal',
         'guides/tips',
         'guides/local-llm-on-mac',
         'guides/daily-briefing-bot',

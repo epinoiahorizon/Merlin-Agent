@@ -2,7 +2,7 @@
 slug: /
 sidebar_position: 0
 title: "Merlin Agent Documentation"
-description: "Merlin Agent is a desktop AI agent you install and run yourself: app window, agent-authored skills, persistent memory, any model provider, and Atlas Portal if you would rather not collect API keys."
+description: "Merlin Agent is a desktop AI agent you install and run yourself: app window, agent-authored skills, persistent memory, and any model provider."
 hide_table_of_contents: true
 displayed_sidebar: docs
 ---
@@ -11,7 +11,7 @@ import Link from "@docusaurus/Link";
 
 # Merlin Agent
 
-**Merlin Agent is a desktop AI agent you install and run yourself** — an app window and an installer, no terminal required. It writes its own skills, keeps memory across sessions, drives real applications and a logged-in browser, and runs on any model provider: [Atlas Portal](https://portal.epinoiahorizon.com), OpenRouter, OpenAI, or your own endpoint.
+**Merlin Agent is a desktop AI agent you install and run yourself** — an app window and an installer, no terminal required. It writes its own skills, keeps memory across sessions, drives real applications and a logged-in browser, and runs on any model provider: OpenRouter, OpenAI, or your own endpoint.
 
 <p style={{opacity: 0.72, fontSize: "0.92rem"}}>
   Made and supported by <a href="https://epinoiahorizon.com">Epinoia Horizon</a>. Provenance and licensing: see the repository's <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/NOTICE">NOTICE</a>.
@@ -106,7 +106,7 @@ iex (irm https://epinoiahorizon.com/install.ps1)
 See the full **[Installation Guide](./getting-started/installation.md)** for what the installer does, installation ownership and data locations, and Windows-specific notes. For the complete platform support matrix, see **[Platform Support](./getting-started/platform-support.md)**.
 
 :::tip Fastest path to a working agent
-After installing, run `merlin setup --portal` — one OAuth covers a model plus all four Tool Gateway tools (web search, image generation, TTS, browser). See [Atlas Portal](./integrations/atlas-portal.md).
+After installing, run `merlin model` to point Merlin at the provider you already have — OpenRouter, OpenAI, a local endpoint, or your own key. The [providers page](./integrations/providers.md) lists what works out of the box.
 :::
 
 ## What is Merlin Agent?
@@ -142,12 +142,12 @@ It's not a coding copilot tethered to an IDE or a chatbot wrapper around a singl
 - **A closed learning loop** — Agent-curated memory with periodic nudges, autonomous skill creation, skill self-improvement during use, FTS5 cross-session recall with LLM summarization, and [Honcho](https://github.com/plastic-labs/honcho) dialectic user modeling
 - **Runs anywhere, not just your laptop** — 7 terminal backends: local, Docker, SSH, Daytona, Singularity, Modal, Vercel Sandbox. Daytona and Modal offer serverless persistence — your environment hibernates when idle, costing nearly nothing
 - **Lives where you do** — CLI, Telegram, Discord, Slack, WhatsApp, Signal, Matrix, Mattermost, Email, SMS, DingTalk, Feishu, WeCom, Weixin, QQ Bot, Yuanbao, BlueBubbles, Home Assistant, Microsoft Teams, Google Chat, and more — 20+ platforms from one gateway
-- **Built by model trainers** — Created by Merlin Agent, the lab behind Merlin, Nomos, and Psyche. Works with [Atlas Portal](https://portal.epinoiahorizon.com), [OpenRouter](https://openrouter.ai), OpenAI, or any endpoint
+- **Built by model trainers** — Created by Merlin Agent, the lab behind Merlin, Nomos, and Psyche. Works with [OpenRouter](https://openrouter.ai), OpenAI, or any endpoint
 - **Scheduled automations** — Built-in cron with delivery to any platform
 - **[Bot Mode](./user-guide/bot-mode.md)** — Build a durable team of specialist Bots that work together in group chats and through `@mentions`
 - **Delegates & parallelizes** — Spawn isolated subagents for parallel workstreams. Programmatic Tool Calling via `execute_code` collapses multi-step pipelines into single inference calls
 - **Open standard skills** — Compatible with [agentskills.io](https://agentskills.io). Skills are portable, shareable, and community-contributed via the Skills Hub
-- **Full web control** — Search, extract, browse, vision, image generation, TTS — one subscription via [Atlas Portal](./integrations/atlas-portal.md) bundles all of them
+- **Full web control** — Search, extract, browse, vision, image generation and TTS, each using the provider you configure under [Tools](./user-guide/features/tools.md)
 - **MCP support** — Connect to any MCP server for extended tool capabilities
 - **Research-ready** — Batch processing, trajectory export, RL training with Atropos. Built by Merlin Agent — the lab behind Merlin, Nomos, and Psyche models
 

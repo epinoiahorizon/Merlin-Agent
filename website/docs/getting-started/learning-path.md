@@ -13,7 +13,7 @@ If you haven't installed Merlin Agent yet, begin with the [Installation guide](.
 :::
 
 :::tip First-time provider setup
-First-time users almost always want `merlin setup --portal` — one OAuth covers a model plus the four Tool Gateway tools (search/image/TTS/browser). See [Atlas Portal](../integrations/atlas-portal.md).
+First-time users almost always want `merlin model` — pick the provider you already pay for (OpenRouter, OpenAI, or your own endpoint). See [Configuring models](../user-guide/configuring-models.md).
 :::
 
 ## How to Use This Page

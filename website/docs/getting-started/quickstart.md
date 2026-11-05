@@ -88,20 +88,14 @@ The single most important setup step. Use `merlin model` to walk through the cho
 merlin model
 ```
 
-:::tip Easiest path: Atlas Portal
-One subscription covers 300+ models plus the [Tool Gateway](../user-guide/features/tool-gateway.md) (web search, image generation, TTS, cloud browser). On a fresh install:
-
-```bash
-merlin setup --portal
-```
-
-That logs you in, sets Atlas as your provider, and turns on the Tool Gateway in one command.
+:::tip Picking a provider
+Any OpenAI-compatible endpoint works. `merlin model` sets the provider and model in one step; if you already pay for OpenRouter or OpenAI, use that key. Tool providers (search, image, TTS, browser) are configured separately under [Tools](../user-guide/features/tools.md).
 :::
 
 :::info Setup modes
 On a fresh install, `merlin setup` offers three modes:
 
-- **Quick Setup (Atlas Portal)** — OAuth login, no API keys to manage; sets up a model plus the Tool Gateway tools, billed to your [Atlas Portal subscription](../integrations/atlas-portal.md). The recommended fast path.
+- **Quick Setup (`merlin setup`)** — the wizard walks you through provider, model, and gateway in one pass. No terminal expertise required.
 - **Full Setup** — walk through every provider, tool, and option yourself (bring your own keys).
 - **Blank Slate** — everything starts **off** except the bare minimum needed to run an agent: **provider & model, the File Operations toolset, and the Terminal toolset**. No web, browser, code execution, vision, memory, delegation, cron, skills, plugins, or MCP servers — and compression, checkpoints, smart routing, and memory capture are all disabled. After the minimal baseline is applied, you choose one of two paths: **start with everything disabled** (finish now with the minimal agent), or **walk through all configurations** (opt in to tools, skills, plugins, MCP, and messaging). Pick this when you want a minimal, fully-controlled agent and intend to enable only exactly what you need.
 
@@ -112,7 +106,6 @@ Good defaults:
 
 | Provider | What it is | How to set up |
 |----------|-----------|---------------|
-| **Atlas Portal** | Subscription-based, zero-config | OAuth login via `merlin model` |
 | **OpenAI Codex** | ChatGPT or Codex subscription, uses Codex models | Device code auth via `merlin model` → **ChatGPT or Codex Subscription** |
 | **Anthropic** | Claude models directly — Max plan + extra usage credits (OAuth), or API key for pay-per-token | `merlin model` → OAuth login (requires Max + extra credits), or an Anthropic API key |
 | **OpenRouter** | Multi-provider routing across many models | Enter your API key |

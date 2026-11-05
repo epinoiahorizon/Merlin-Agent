@@ -9,7 +9,7 @@ sidebar_position: 0
 Merlin Agent connects to external systems for AI inference, tool servers, IDE workflows, programmatic access, and more. These integrations extend what Merlin can do and where it can run.
 
 :::tip Start here
-If you only have time to set up one integration, set up [Atlas Portal](./atlas-portal.md) — a single OAuth login covers 300+ models plus the four Tool Gateway tools (web search, image generation, TTS, and browser automation).
+If you only have time to set up one integration, set up a model provider — [OpenRouter](./openrouter.md) covers 300+ models with one key. Tool providers (web search, image generation, TTS, browser) are configured separately under [Tools](../user-guide/features/tools.md).
 :::
 
 ## AI Providers & Routing

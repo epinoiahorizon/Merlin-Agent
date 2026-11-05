@@ -13,7 +13,7 @@ Coming from **Claude Code** or **OpenAI Codex CLI** instead? Use [`merlin import
 :::
 
 :::tip
-If your OpenClaw setup was multi-provider, `merlin setup --portal` collapses it to one OAuth — 300+ models plus the Tool Gateway in a single login. See [Atlas Portal](../integrations/atlas-portal.md).
+If your OpenClaw setup was multi-provider, `merlin claw migrate` ports the keys it knows about; anything it withholds is reported so you can add it under `merlin model`.
 :::
 
 ## Quick start
