@@ -82,6 +82,14 @@ runtime/
 apps/
 !apps/shared/
 !apps/shared/**
+# web/package.json also depends on "@merlin/ui": "file:../apps/vendor/merlin-ui",
+# so the vendor package must be in the context or npm links nothing and the
+# frontend build dies with TS2307 "Cannot find module '@merlin/ui/...'" for every
+# component. Its own node_modules/dist stay out.
+!apps/vendor/
+!apps/vendor/merlin-ui/
+!apps/vendor/merlin-ui/**
+apps/vendor/merlin-ui/node_modules
 
 # Test suite — not shipped in production images
 tests/
