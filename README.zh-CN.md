@@ -5,7 +5,7 @@
 # Merlin Agent ☤
 
 <p align="center">
-  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentation"></a>
+  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-docs.withmerlin.online-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
   <a href="https://epinoiahorizon.com"><img src="https://img.shields.io/badge/Built%20by-Epinoia%20Horizon-blueviolet?style=for-the-badge" alt="Built by Epinoia Horizon"></a>
@@ -34,7 +34,7 @@
 ## 快速安装
 
 ```bash
-curl -fsSL https://epinoiahorizon.com/install.sh | bash
+curl -fsSL https://withmerlin.online/install.sh | bash
 ```
 
 支持 Linux、macOS 和 WSL2。安装程序会自动处理平台特定的配置。
@@ -43,7 +43,7 @@ curl -fsSL https://epinoiahorizon.com/install.sh | bash
 >
 > **Windows：** 在 PowerShell 中运行：
 > ```powershell
-> iex (irm https://epinoiahorizon.com/install.ps1)
+> iex (irm https://withmerlin.online/install.ps1)
 > ```
 > 安装完成后，可能需要重启终端，然后运行 `merlin` 开始对话。
 

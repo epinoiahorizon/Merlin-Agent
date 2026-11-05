@@ -7,7 +7,7 @@
   <a href="https://withmerlin.online/">Merlin Agent</a> | <a href="https://withmerlin.online/">Merlin Desktop</a>
 </p>
 <p align="center">
-  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentation"></a>
+  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-docs.withmerlin.online-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
   <a href="https://epinoiahorizon.com"><img src="https://img.shields.io/badge/Built%20by-Epinoia%20Horizon-blueviolet?style=for-the-badge" alt="Built by Epinoia Horizon"></a>
@@ -51,7 +51,7 @@ The full provenance record — origin of every component, what is and is not cla
 ### Linux, macOS, WSL2
 
 ```bash
-curl -fsSL https://epinoiahorizon.com/install.sh | bash
+curl -fsSL https://withmerlin.online/install.sh | bash
 ```
 
 ### Windows (native, PowerShell)
@@ -61,7 +61,7 @@ curl -fsSL https://epinoiahorizon.com/install.sh | bash
 Run this in PowerShell:
 
 ```powershell
-iex (irm https://epinoiahorizon.com/install.ps1)
+iex (irm https://withmerlin.online/install.ps1)
 ```
 
 The source installer delegates Python 3.14, Node.js, npm, ripgrep, FFmpeg,
