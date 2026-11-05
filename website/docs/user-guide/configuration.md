@@ -13,7 +13,7 @@ After a dependency change, reactivate the checkout and restart Merlin.
 All settings are stored in the `~/.merlin/` directory for easy access.
 
 :::tip Easiest path to a working `config.yaml`
-Run `merlin setup --portal` — one OAuth gets you a model provider and all four Tool Gateway tools without hand-editing YAML. Portal subscribers also get 10% off token-billed providers. See [Atlas Portal](../integrations/atlas-portal.md).
+Run `merlin setup --portal` — one OAuth gets you a model provider and all four Tool Gateway tools without hand-editing YAML. Portal subscribers also get 10% off token-billed providers.
 :::
 
 ## Directory Structure

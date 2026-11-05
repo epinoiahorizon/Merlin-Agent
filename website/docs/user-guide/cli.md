@@ -9,7 +9,7 @@ description: "Master the Merlin Agent terminal interface — commands, keybindin
 Merlin Agent's CLI is a full terminal user interface (TUI) — not a web UI. It features multiline editing, slash-command autocomplete, conversation history, interrupt-and-redirect, and streaming tool output. Built for people who live in the terminal.
 
 :::tip First-time setup
-One command — `merlin setup --portal` — and you're ready to `merlin chat`. See [Atlas Portal](../integrations/atlas-portal.md).
+One command — `merlin setup --portal` — and you're ready to `merlin chat`.
 :::
 
 :::tip
