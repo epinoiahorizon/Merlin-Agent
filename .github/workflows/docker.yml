@@ -88,10 +88,14 @@ jobs:
                   echo "phase=$PHASE"      >> "$GITHUB_OUTPUT"; echo "release=true"  >> "$GITHUB_OUTPUT" ;;
             *)    echo "::error::Invalid release-phase input: $PHASE"; exit 1 ;;
           esac
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo 'archs=["amd64"]' >> "$GITHUB_OUTPUT"
-          else
+          # arm64 is QEMU-emulated on this account (no native arm64 runner), which
+          # takes 40+ minutes per leg and gets cancelled or times out before the
+          # manifest is stitched. Only a release phase asks for it; PRs and plain
+          # main pushes build amd64 and publish a single-arch :main image.
+          if [ -n "$PHASE" ]; then
             echo 'archs=["amd64","arm64"]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'archs=["amd64"]' >> "$GITHUB_OUTPUT"
           fi
 
   # Classify the PR's changed files. ci.yml used to gate the docker call on
@@ -239,8 +243,14 @@ jobs:
           # (desktop writes mode=min — its gated apt layer is the only thing
           # worth keeping). PRs only read: a PR must never poison a cache that
           # main's release image will later trust.
-          cache-from: type=gha,scope=docker-${{ matrix.arch }}-${{ matrix.variant }}
-          cache-to: ${{ github.event_name != 'pull_request' && format('type=gha,mode={0},scope=docker-{1}-{2}', matrix.variant == 'slim' && 'max' || 'min', matrix.arch, matrix.variant) || '' }}
+          # both variants read the slim scope: the layers are shared and only
+          # slim exports, so a desktop-only scope would always be empty.
+          cache-from: type=gha,scope=docker-${{ matrix.arch }}-slim
+          # Only slim exports. Two jobs exporting at once race for the same
+          # BuildKit keys ("Failed to save: Unable to reserve cache … another
+          # job may be creating this cache"), and that is reported as a failed
+          # job, not a warning. Desktop still reads its own scope.
+          cache-to: ${{ github.event_name != 'pull_request' && matrix.variant == 'slim' && format('type=gha,mode=max,scope=docker-{0}-slim', matrix.arch) || '' }}
 
 
       # Run the docker-integration test suite against the freshly-built image
@@ -474,6 +484,15 @@ jobs:
           pattern: digest-${{ matrix.variant }}-*
           merge-multiple: true
 
+      # download-artifact creates nothing when no leg produced an artifact (a
+      # cancelled or failed arch), and the next step runs with
+      # `working-directory: /tmp/digests` — the runner then cannot even start
+      # bash: "An error occurred trying to start process '/usr/bin/bash' with
+      # working directory '/tmp/digests'". Create it unconditionally; the
+      # digest-count check below still fails the job with a real message.
+      - name: Prepare digest directory
+        run: mkdir -p /tmp/digests
+
       # Retry once on transient Docker Hub / buildkit pull failures.
       # See build job for rationale; same pattern.
       - name: Set up Docker Buildx
@@ -505,7 +524,12 @@ jobs:
           for digest_file in *; do
             args+=("${IMAGE_NAME}@sha256:${digest_file}")
           done
-          if [ "${#args[@]}" -ne 2 ]; then echo "::error::Expected two ${SUFFIX} digests"; exit 1; fi
+          # 1 arch on PR/standalone pushes, 2 on a release phase. Anything else is
+          # a real problem (a leg produced no artifact).
+          if [ "${#args[@]}" -lt 1 ] || [ "${#args[@]}" -gt 2 ]; then
+            echo "::error::Expected 1-2 ${SUFFIX} digests, found ${#args[@]}"; exit 1
+          fi
+          echo "stitching ${#args[@]} arch digest(s) into ${IMAGE_NAME}:main${SUFFIX}"
           tags=(-t "${IMAGE_NAME}:main${SUFFIX}")
           # Retry: Docker Hub API + just-pushed digest eventual consistency
           # can transiently fail the create; the operation is idempotent.
