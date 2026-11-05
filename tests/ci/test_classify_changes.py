@@ -98,7 +98,7 @@ CASES = {
     # otherwise shows up as a blocking "uv.lock out of sync" red X.
     "docs → no uv_lock": (
         ["website/docs/developer-guide/plugins/index.md"],
-        _lanes(python=True, site=True),
+        _lanes(python=True, python_prod=False, site=True),
     ),
     "frontend → no uv_lock": (["apps/desktop/src/store/profile.ts"], _lanes(frontend=True)),
     # Cross-language contract JSON under apps/: the pytest that pins it against
@@ -123,18 +123,18 @@ CASES = {
     # lone edit there must not skip the lane that would catch a bad edit.
     "cimd document → python + site": (
         ["website/static/oauth/client-metadata.json"],
-        _lanes(python=True, site=True),
+        _lanes(python=True, python_prod=False, site=True),
     ),
     # A new docs page must reach llms.txt, and the generator that puts it there
     # has its own tests. Skipping Python on either is how the index drifted to
     # 53% coverage while every PR stayed green.
     "docs page → python + site": (
         ["website/docs/user-guide/bot-mode.md"],
-        _lanes(python=True, site=True),
+        _lanes(python=True, python_prod=False, site=True),
     ),
     "docs generator → python + site": (
         ["website/scripts/generate-llms-txt.py"],
-        _lanes(python=True, scan=True, site=True),
+        _lanes(python=True, python_prod=False, scan=True, site=True),
     ),
     # SKILL.md reads like docs, but the skill-doc tests read skills/, so a
     # skill edit must still run Python.
