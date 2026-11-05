@@ -10,7 +10,7 @@ Merlin can optionally hand `openai/*`, `openai-codex/*` and [named custom provid
 This is **opt-in only**. Default Merlin behavior is unchanged unless you flip the flag. Merlin never auto-routes you onto this runtime.
 
 :::tip
-Not using OpenAI Codex? `merlin setup --portal` configures a non-Codex backend with Claude/Gemini/etc. in one step. See [Atlas Portal](../../integrations/atlas-portal.md).
+Not using OpenAI Codex? `merlin setup --portal` configures a non-Codex backend with Claude/Gemini/etc. in one step.
 :::
 
 ## Why

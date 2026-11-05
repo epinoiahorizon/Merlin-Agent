@@ -56,7 +56,7 @@ docker run -it --rm \
 This drops you into the setup wizard, which will prompt you for your API keys and write them to `~/.merlin/.env`. You only need to do this once. It is highly recommended to set up a chat system for the gateway to work with at this point.
 
 :::tip
-Inside the container, run `merlin setup --portal` once — the refresh token persists in the mounted `~/.merlin` volume. See [Atlas Portal](../integrations/atlas-portal.md).
+Inside the container, run `merlin setup --portal` once — the refresh token persists in the mounted `~/.merlin` volume.
 :::
 
 ## Running in gateway mode
