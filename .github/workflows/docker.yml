@@ -158,7 +158,11 @@ jobs:
             runner: ubuntu-latest-32-arm-core
             platform: linux/arm64
 
-    runs-on: ${{ matrix.runner }}
+    # Larger hosted runners are a paid SKU. Until they exist on this account the matrix
+    # falls back to ubuntu-latest (arm64 emulated via QEMU) instead of queueing forever.
+    # Set the repository variable MERLIN_LARGE_RUNNERS=true to restore the native 32-core
+    # runners; nothing else in the workflow changes when it is flipped.
+    runs-on: ${{ vars.MERLIN_LARGE_RUNNERS == 'true' && matrix.runner || 'ubuntu-latest' }}
     timeout-minutes: 45
     steps:
       - name: Checkout code
@@ -190,6 +194,13 @@ jobs:
             --distribution docker --update-mechanism external --source ci "${identity[@]}"
       - name: Reject profile exports in the build context
         run: python3 scripts/ci/check_profile_archive_boundary.py
+
+      # arm64 builds natively on the larger arm runner. When that runner is not provisioned
+      # (see the runs-on fallback above) the same matrix entry lands on ubuntu-latest and needs
+      # emulation instead.
+      - name: Set up QEMU (arm64 emulation on standard runners)
+        if: matrix.arch == 'arm64' && vars.MERLIN_LARGE_RUNNERS != 'true'
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
 
       # Retry once on transient Docker Hub / buildkit pull failures
       # (connection reset, auth token timeout, rate limiting). The action
@@ -341,7 +352,11 @@ jobs:
           - arch: arm64
             runner: ubuntu-latest-32-arm-core
             platform: linux/arm64
-    runs-on: ${{ matrix.runner }}
+    # Larger hosted runners are a paid SKU. Until they exist on this account the matrix
+    # falls back to ubuntu-latest (arm64 emulated via QEMU) instead of queueing forever.
+    # Set the repository variable MERLIN_LARGE_RUNNERS=true to restore the native 32-core
+    # runners; nothing else in the workflow changes when it is flipped.
+    runs-on: ${{ vars.MERLIN_LARGE_RUNNERS == 'true' && matrix.runner || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - name: Checkout trusted source
@@ -363,6 +378,10 @@ jobs:
             --distribution docker --update-mechanism external --source ci "${identity[@]}"
       - name: Reject profile exports in the build context
         run: python3 scripts/ci/check_profile_archive_boundary.py
+
+      - name: Set up QEMU (arm64 emulation on standard runners)
+        if: matrix.arch == 'arm64' && vars.MERLIN_LARGE_RUNNERS != 'true'
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
 
       # Retry once on transient Docker Hub / buildkit pull failures.
       # See build job for rationale; same pattern.
