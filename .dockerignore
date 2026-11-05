@@ -95,6 +95,10 @@ assets/
 assets/*
 !assets/atlas-girl-black.svg
 !assets/atlas-girl-white.svg
+# icon-mark-*.svg are composed into every icon target (mark_layer -> mark_bbox);
+# without them resvg gets an empty svg_path and the image build dies at "icons 3/3".
+!assets/icon-mark-black.svg
+!assets/icon-mark-white.svg
 !assets/backgrounds/
 !assets/backgrounds/**
 infographic/
