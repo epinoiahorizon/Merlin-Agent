@@ -403,7 +403,7 @@ THREAT_PATTERNS = [
      "hardcoded_secret", "critical", "credential_exposure", "possible hardcoded API key, token, or secret"),
     (r'-----BEGIN\s+(RSA\s+)?PRIVATE\s+KEY-----',
      "embedded_private_key", "critical", "credential_exposure", "embedded private key"),
-    (r'ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{80,}',
+    (r'ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{80,}|ghs_[A-Za-z0-9._-]{36,}',
      "github_token_leaked", "critical", "credential_exposure", "GitHub personal access token in skill content"),
     (r'sk-[A-Za-z0-9]{20,}', "openai_key_leaked", "critical", "credential_exposure", "possible OpenAI API key in skill content"),
     (r'sk-ant-[A-Za-z0-9_-]{90,}',
