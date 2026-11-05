@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/releases"><img src="https://img.shields.io/badge/Download-macOS%20%C2%B7%20Windows%20%C2%B7%20Linux-FFD700?style=for-the-badge" alt="Download"></a>
-  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentation"></a>
+  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-docs.withmerlin.online-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
 </p>
