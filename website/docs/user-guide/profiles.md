@@ -55,7 +55,7 @@ That's it. `coder` is now its own Merlin profile with its own config, memory, an
 ## Creating a profile
 
 :::tip
-Quickest setup: run `merlin setup --portal` inside the new profile to wire up models + tools at once. See [Atlas Portal](../integrations/atlas-portal.md).
+Quickest setup: run `merlin setup --portal` inside the new profile to wire up models + tools at once.
 :::
 
 ### Blank profile
