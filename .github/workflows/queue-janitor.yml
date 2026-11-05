@@ -106,3 +106,80 @@ jobs:
               )
           print(f"cancelled {len(victims)} superseded run(s)")
           PY
+
+      - name: Drop caches for closed PRs, and trim if over the cap
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+
+          repo = os.environ["REPO"]
+          CAP = 8 * 1000 ** 3          # trim to 8 GB, leaving headroom under GitHub's 10 GB
+          KEEP_ALWAYS = ("refs/heads/",)
+
+          def gh(path, method="GET"):
+              cmd = ["gh", "api", "--paginate", path] if method == "GET" else ["gh", "api", "-X", method, path]
+              out = subprocess.run(cmd, check=True, capture_output=True, text=True).stdout
+              if method != "GET":
+                  return []
+              dec = json.JSONDecoder()
+              items, i = [], 0
+              while i < len(out):
+                  obj, end = dec.raw_decode(out, i)
+                  if isinstance(obj, list):
+                      items.extend(obj)
+                  elif isinstance(obj, dict):
+                      rows = obj.get("actions_caches")
+                      items.extend(rows if isinstance(rows, list) else [obj])
+                  i = end
+                  while i < len(out) and out[i] in " \n\r\t":
+                      i += 1
+              return items
+
+          open_prs = {pr["number"] for pr in gh(f"/repos/{repo}/pulls?state=open&per_page=100")}
+          caches = gh(f"/repos/{repo}/actions/caches?per_page=100")
+
+          def pr_number(ref: str):
+              parts = (ref or "").split("/")
+              if len(parts) >= 4 and parts[1] == "pull":
+                  try:
+                      return int(parts[2])
+                  except ValueError:
+                      return None
+              return None
+
+          victims = []
+          for c in caches:
+              n = pr_number(c["ref"])
+              if n is not None and n not in open_prs:
+                  victims.append(c)
+
+          keep = [c for c in caches if c not in victims]
+          total = sum(c["size_in_bytes"] for c in keep)
+          if total > CAP:
+              # biggest first, never touch the default branch's own caches
+              for c in sorted((c for c in keep if not (c["ref"] or "").startswith(KEEP_ALWAYS)),
+                              key=lambda c: -c["size_in_bytes"]):
+                  if total <= CAP:
+                      break
+                  victims.append(c)
+                  total -= c["size_in_bytes"]
+
+          if not victims:
+              print(f"cache clean: {len(caches)} entries, {sum(c['size_in_bytes'] for c in caches)/1e9:.2f} GB")
+              raise SystemExit(0)
+
+          freed = 0
+          for c in victims:
+              print(f"purge {c['id']} {c['key'][:60]} [{c['ref']}] {c['size_in_bytes']/1e9:.2f} GB")
+              subprocess.run(["gh", "api", "-X", "DELETE", f"/repos/{repo}/actions/caches/{c['id']}"],
+                             check=False, capture_output=True)
+              freed += c["size_in_bytes"]
+          print(f"purged {len(victims)} cache(s), {freed/1e9:.2f} GB freed")
+          PY
+
