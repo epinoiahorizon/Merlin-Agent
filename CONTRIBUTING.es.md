@@ -139,7 +139,7 @@ merlin-agent/
 │   ├── main.py                   # Punto de entrada, análisis de argumentos, despacho de comandos
 │   ├── config.py                 # Gestión de configuración, migración, definiciones de variables de entorno
 │   ├── setup.py                  # Asistente de configuración interactivo
-│   ├── auth.py                   # Resolución de proveedor, OAuth, Atlas Portal
+│   ├── auth.py                   # Resolución de proveedor y OAuth
 │   ├── models.py                 # Listas de selección de modelos de OpenRouter
 │   ├── banner.py                 # Banner de bienvenida, arte ASCII
 │   ├── commands.py               # Registro central de comandos de barra (CommandDef), autocompletado, ayudantes del gateway
@@ -191,7 +191,7 @@ merlin-agent/
 |------|-----------|
 | `~/.merlin/config.yaml` | Configuración (modelo, terminal, toolsets, compresión, etc.) |
 | `~/.merlin/.env` | Claves API y secretos |
-| `~/.merlin/auth.json` | Credenciales OAuth (Atlas Portal) |
+| `~/.merlin/auth.json` | Credenciales OAuth |
 | `~/.merlin/skills/` | Todas las habilidades activas (incluidas + instaladas desde hub + creadas por el agente) |
 | `~/.merlin/memories/` | Memoria persistente (MEMORY.md, USER.md) |
 | `~/.merlin/state.db` | Base de datos de sesiones SQLite |

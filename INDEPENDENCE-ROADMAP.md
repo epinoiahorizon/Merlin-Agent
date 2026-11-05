@@ -26,8 +26,7 @@ Build the factual map of what is ours. Without it, independence is rhetoric.
 
 1. Take an upstream reference tree (the 2026-09-30 import) and diff module by
    module against `main`.
-2. Classify every top-level component: **Merlin-authored** (Atlas Portal,
-   policy seal, PM, `@merlin/ui`, installer/MSIX, desktop hardening),
+2. Classify every top-level component: **Merlin-authored** (policy seal, PM, `@merlin/ui`, installer/MSIX, desktop hardening),
    **heavily modified**, or **upstream-derived (unchanged/little-changed)**.
 3. Publish as `docs/PROVENANCE.md`: a table with LOC-changed percentages and
    who owns the tests. `NOTICE` stays the legal summary; this is the working
@@ -52,8 +51,7 @@ Build the factual map of what is ours. Without it, independence is rhetoric.
 Charter rule: every technical claim ships with a real measurement. So
 independence is proven by benchmarks Merlin owns:
 
-- Lead with what only Merlin has: no-terminal Windows install, Atlas Portal,
-  policy seal, PM quarantine policy, arcane skin system, MSIX update ownership.
+- Lead with what only Merlin has: no-terminal Windows install, policy seal, PM quarantine policy, arcane skin system, MSIX update ownership.
 - Grow `evals/` with Merlin-branded benchmarks (install success rate, cold
   start, compaction quality, skills-authoring success) and publish the numbers
   in docs and landing — being measurably good is the only durable way to stop

@@ -247,7 +247,7 @@ merlin-agent/
 │   ├── cli_*_mixin.py            # MerlinCLI mixins (slash commands, display, session, ...)
 │   ├── config.py                 # Config management, migration, env var definitions
 │   ├── setup.py                  # Interactive setup wizard
-│   ├── auth.py                   # Provider resolution, OAuth, Atlas Portal (facade + auth_*.py siblings)
+│   ├── auth.py                   # Provider resolution and OAuth (facade + auth_*.py siblings)
 │   ├── models.py                 # OpenRouter model selection lists
 │   ├── banner.py                 # Welcome banner, ASCII art
 │   ├── commands.py               # Central slash command registry (CommandDef), autocomplete, gateway helpers
@@ -304,7 +304,7 @@ merlin-agent/
 |------|---------|
 | `~/.merlin/config.yaml` | Settings (model, terminal, toolsets, compression, etc.) |
 | `~/.merlin/.env` | API keys and secrets |
-| `~/.merlin/auth.json` | OAuth credentials (Atlas Portal) |
+| `~/.merlin/auth.json` | OAuth credentials |
 | `~/.merlin/skills/` | All active skills (bundled + hub-installed + agent-created) |
 | `~/.merlin/memories/` | Persistent memory (MEMORY.md, USER.md) |
 | `~/.merlin/state.db` | SQLite session database |
@@ -339,7 +339,7 @@ User message → AIAgent._run_agent_loop()
 - **Toolset grouping**: Tools are grouped into toolsets (`web`, `terminal`, `file`, `browser`, etc.) that can be enabled/disabled per platform.
 - **Session persistence**: All conversations are stored in SQLite (`merlin_state.py`) with full-text search and unique session titles. Automatic per-session JSON snapshots have been removed. Existing files are left untouched; use `/save json` or `merlin sessions export` for an explicit export.
 - **Ephemeral injection**: System prompts and prefill messages are injected at API call time, never persisted to the database or logs.
-- **Provider abstraction**: The agent works with any OpenAI-compatible API. Provider resolution happens at init time (Atlas Portal OAuth, OpenRouter API key, or custom endpoint).
+- **Provider abstraction**: The agent works with any OpenAI-compatible API. Provider resolution happens at init time (OAuth provider sign-in, OpenRouter API key, or custom endpoint).
 - **Provider routing**: When using OpenRouter, `provider_routing` in config.yaml controls provider selection (sort by throughput/latency/price, allow/ignore specific providers, data retention policies). These are injected as `extra_body.provider` in API requests.
 
 ---

@@ -15,7 +15,7 @@ This guide is the practical companion to the [Voice Mode feature reference](../u
 If the feature page explains what voice mode can do, this guide shows how to actually use it well.
 
 :::tip
-[Atlas Portal](../integrations/atlas-portal.md) bundles both the LLM and TTS through one OAuth — voice mode works end-to-end with no extra credentials.
+Voice mode needs a chat model plus a TTS provider; [Tools](../user-guide/features/tools.md) covers the TTS side, and any OpenAI-compatible model works for the chat half.
 :::
 
 ## What voice mode is good for
