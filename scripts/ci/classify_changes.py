@@ -77,6 +77,9 @@ _NIX_FILES = {"flake.nix", "flake.lock"} # base nix files
 _SITE = ("website/", "skills/", "optional-skills/")  # docs site + skill pages
 # Prose/frontend trees that can't touch Python. skills/ is excluded on purpose.
 _PY_SKIP = ("docs/", "website/") + _FRONTEND
+# Trees that pytest asserts about but that never ship. product lanes read
+# python_prod, which excludes these (see _py_test_only).
+_SITE_TEST_ONLY = ("website/",)
 # Published artifacts that live under website/ but that Python asserts about.
 # The OAuth Client ID Metadata Document is cross-checked against the pinned
 # callback ports in tools/mcp_oauth.py, so editing it alone must still run the
@@ -182,8 +185,16 @@ def _py_test_only(p: str) -> bool:
     there. scripts/run_tests.sh and scripts/run_tests_parallel.py are deliberately
     NOT test-only: they are runner infrastructure, and a bad edit there can
     mask real failures, so they stay conservative (python_prod=true).
+
+    The published site tree is the same shape: ``website/`` is never copied into
+    the Docker image (see Dockerfile) and never bundled into the desktop app, so
+    a docs edit can move pytest results — tests/website/test_generate_llms_txt.py
+    pins every page into llms.txt — but cannot change what ships. Keeping it out
+    of ``python_prod`` is what stops a one-line docs fix from also rebuilding the
+    Docker image, running the desktop Playwright suite and evaluating the Nix
+    flake.
     """
-    return p.startswith("tests/")
+    return p.startswith("tests/") or p.startswith(_SITE_TEST_ONLY)
 
 
 def _is_scan(p: str) -> bool:
