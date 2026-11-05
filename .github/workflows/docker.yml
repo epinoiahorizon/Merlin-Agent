@@ -360,21 +360,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [amd64, arm64]
+        # Same arch list the build job used. A hardcoded arm64 entry here spawned a
+        # publish leg with no artifact behind it; it sat waiting and was cancelled,
+        # which marks the whole run "cancelled" even when every real job succeeded.
+        arch: ${{ fromJSON(needs.mode.outputs.archs) }}
         variant: [slim, desktop]
-        include:
-          - arch: amd64
-            runner: ubuntu-latest-32-core
-            platform: linux/amd64
-          # Native arm64 for the same reason as the build matrix above.
-          - arch: arm64
-            runner: ubuntu-latest-32-arm-core
-            platform: linux/arm64
     # Larger hosted runners are a paid SKU. Until they exist on this account the matrix
     # falls back to ubuntu-latest (arm64 emulated via QEMU) instead of queueing forever.
     # Set the repository variable MERLIN_LARGE_RUNNERS=true to restore the native 32-core
     # runners; nothing else in the workflow changes when it is flipped.
-    runs-on: ${{ vars.MERLIN_LARGE_RUNNERS == 'true' && matrix.runner || 'ubuntu-latest' }}
+    runs-on: ${{ vars.MERLIN_LARGE_RUNNERS == 'true' && (matrix.arch == 'arm64' && 'ubuntu-latest-32-arm-core' || 'ubuntu-latest-32-core') || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
       - name: Checkout trusted source
