@@ -186,10 +186,17 @@ from types import SimpleNamespace
 
 
 def _fake_response(status, url, body):
-    """A minimal stand-in for the httpx.Response the SDK feeds our bridge."""
+    """A minimal stand-in for the httpx.Response the SDK feeds our bridge.
+
+    ``method`` is part of the double because mcp's redirect guard compares
+    ``response.next_request.method`` against ``response.request.method``
+    (mcp/shared/_httpx_utils.py). Leaving it out raises
+    ``AttributeError: 'types.SimpleNamespace' object has no attribute 'method'``
+    on any SDK new enough to run that check.
+    """
     resp = MagicMock()
     resp.status_code = status
-    resp.request = SimpleNamespace(url=url)
+    resp.request = SimpleNamespace(url=url, method="POST")
 
     async def _aread():
         return body
