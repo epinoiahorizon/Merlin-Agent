@@ -293,6 +293,7 @@ COPY web/package.json web/
 COPY ui-tui/package.json ui-tui/
 COPY ui-tui/packages/merlin-ink/ ui-tui/packages/merlin-ink/
 COPY apps/shared/ apps/shared/
+COPY apps/vendor/merlin-ui/ apps/vendor/merlin-ui/
 COPY scripts/build/node-deps.mjs scripts/build/node-deps.mjs
 ENV npm_config_install_links=false
 RUN node scripts/build/node-deps.mjs --source /opt/merlin --workspace ui-tui --workspace web
