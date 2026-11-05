@@ -1,0 +1,108 @@
+name: Queue janitor
+
+# The runner queue on the free plan is shared by every workflow. Runs keep their
+# place in it long after the commit stopped mattering: after PRs #68/#69 merged,
+# their CI/Docker/E2E runs were still queued (10 of them, some three hours old),
+# and a run of main's previous tip still sat behind them. Nothing cancels those
+# automatically — concurrency groups only collapse runs on the SAME ref, and a
+# merged branch never pushes again to trigger that.
+#
+# This janitor cancels only runs that are still queued/pending (never
+# in_progress) when their commit can no longer be merged:
+#   * the branch has no open PR (closed/merged) and is not the default branch
+#   * the run's commit is not the current head of its branch or open PR
+#   * for the default branch: the run's commit is no longer the tip of it
+# Already-passing checks are therefore never re-run for nothing.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  pull-requests: read
+  contents: read
+
+concurrency:
+  group: queue-janitor
+  cancel-in-progress: true
+
+jobs:
+  cancel-superseded:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Cancel queued runs whose commit can no longer merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+
+          repo = os.environ["REPO"]
+
+          def gh(path: str):
+              out = subprocess.run(
+                  ["gh", "api", "--paginate", path],
+                  check=True, capture_output=True, text=True,
+              ).stdout
+              # --paginate concatenates JSON arrays; merge them
+              dec = json.JSONDecoder()
+              items, i = [], 0
+              while i < len(out):
+                  obj, end = dec.raw_decode(out, i)
+                  if isinstance(obj, list):
+                      items.extend(obj)
+                  elif isinstance(obj, dict):
+                      # list endpoints wrap their rows: {"total_count": n, "workflow_runs": [...]}
+                      rows = obj.get("workflow_runs")
+                      items.extend(rows if isinstance(rows, list) else [obj])
+                  i = end
+                  while i < len(out) and out[i] in " \n\r\t":
+                      i += 1
+              return items
+
+          default_branch = gh(f"/repos/{repo}")[0]["default_branch"]
+          main_sha = gh(f"/repos/{repo}/commits/{default_branch}")[0]["sha"]
+
+          # head sha of every open PR, keyed by its branch name
+          open_heads = {}
+          for pr in gh(f"/repos/{repo}/pulls?state=open&per_page=100"):
+              open_heads[pr["head"]["ref"]] = pr["head"]["sha"]
+
+          # tip of every branch we still care about
+          keep = {}
+          for branch in open_heads:
+              info = gh(f"/repos/{repo}/branches/{branch}")
+              if info:
+                  keep[branch] = info[0]["commit"]["sha"]
+
+          victims = []
+          for status in ("queued", "pending"):
+              for run in gh(f"/repos/{repo}/actions/runs?status={status}&per_page=100"):
+                  branch = run.get("head_branch") or ""
+                  sha = run["head_sha"]
+                  if branch == default_branch:
+                      stale = sha != main_sha
+                  else:
+                      stale = keep.get(branch) != sha
+                  if stale:
+                      victims.append((run["id"], run["name"], branch, sha[:8], run["created_at"]))
+
+          if not victims:
+              print("queue clean: nothing to cancel")
+              raise SystemExit(0)
+
+          for run_id, name, branch, sha, created in victims:
+              print(f"cancel {run_id} {name} [{branch}@{sha}] queued since {created}")
+              subprocess.run(
+                  ["gh", "api", "-X", "POST", f"/repos/{repo}/actions/runs/{run_id}/cancel"],
+                  check=False,
+              )
+          print(f"cancelled {len(victims)} superseded run(s)")
+          PY
