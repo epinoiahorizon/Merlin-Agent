@@ -88,10 +88,14 @@ jobs:
                   echo "phase=$PHASE"      >> "$GITHUB_OUTPUT"; echo "release=true"  >> "$GITHUB_OUTPUT" ;;
             *)    echo "::error::Invalid release-phase input: $PHASE"; exit 1 ;;
           esac
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo 'archs=["amd64"]' >> "$GITHUB_OUTPUT"
-          else
+          # arm64 is QEMU-emulated on this account (no native arm64 runner), which
+          # takes 40+ minutes per leg and gets cancelled or times out before the
+          # manifest is stitched. Only a release phase asks for it; PRs and plain
+          # main pushes build amd64 and publish a single-arch :main image.
+          if [ -n "$PHASE" ]; then
             echo 'archs=["amd64","arm64"]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'archs=["amd64"]' >> "$GITHUB_OUTPUT"
           fi
 
   # Classify the PR's changed files. ci.yml used to gate the docker call on
@@ -520,7 +524,12 @@ jobs:
           for digest_file in *; do
             args+=("${IMAGE_NAME}@sha256:${digest_file}")
           done
-          if [ "${#args[@]}" -ne 2 ]; then echo "::error::Expected two ${SUFFIX} digests"; exit 1; fi
+          # 1 arch on PR/standalone pushes, 2 on a release phase. Anything else is
+          # a real problem (a leg produced no artifact).
+          if [ "${#args[@]}" -lt 1 ] || [ "${#args[@]}" -gt 2 ]; then
+            echo "::error::Expected 1-2 ${SUFFIX} digests, found ${#args[@]}"; exit 1
+          fi
+          echo "stitching ${#args[@]} arch digest(s) into ${IMAGE_NAME}:main${SUFFIX}"
           tags=(-t "${IMAGE_NAME}:main${SUFFIX}")
           # Retry: Docker Hub API + just-pushed digest eventual consistency
           # can transiently fail the create; the operation is idempotent.
