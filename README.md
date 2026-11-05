@@ -36,7 +36,6 @@ Use any model you want — OpenRouter, OpenAI, your own endpoint, and [many othe
 
 Everything distinctive about the product ships from Epinoia Horizon:
 
-- **Atlas Portal** — a hosted model and tool gateway with its own transport and rate guard (`agent/atlas_wire.py`, `agent/atlas_rate_guard.py`).
 - **Policy seal** — an optional governance mode that keeps memory and skills dormant unless you invoke them explicitly (`agent/prompt_builder.py`).
 - **`@merlin/ui`** — our own vendored design system behind the desktop app and TUI skins (arcane default).
 - **Desktop runtime hardening** — backend discovery and exit recovery, host attach and spawn gating, pool limits and reclamation in the Electron app.
