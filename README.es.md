@@ -7,7 +7,7 @@
   <a href="https://withmerlin.online/">Merlin Agent</a> | <a href="https://withmerlin.online/">Merlin Desktop</a>
 </p>
 <p align="center">
-  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentación"></a>
+  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-docs.withmerlin.online-FFD700?style=for-the-badge" alt="Documentación"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/Licencia-MIT-green?style=for-the-badge" alt="Licencia: MIT"></a>
   <a href="https://epinoiahorizon.com"><img src="https://img.shields.io/badge/Creado%20por-Epinoia%20Horizon-blueviolet?style=for-the-badge" alt="Creado por Epinoia Horizon"></a>
@@ -37,7 +37,7 @@ Usa cualquier modelo que quieras — [OpenRouter](https://openrouter.ai) (más d
 ### Linux, macOS, WSL2
 
 ```bash
-curl -fsSL https://epinoiahorizon.com/install.sh | bash
+curl -fsSL https://withmerlin.online/install.sh | bash
 ```
 
 ### Windows (nativo, PowerShell)
@@ -47,7 +47,7 @@ curl -fsSL https://epinoiahorizon.com/install.sh | bash
 Ejecuta esto en PowerShell:
 
 ```powershell
-iex (irm https://epinoiahorizon.com/install.ps1)
+iex (irm https://withmerlin.online/install.ps1)
 ```
 
 El instalador de código fuente usa PM para Python 3.14, Node.js, npm,
