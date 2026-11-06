@@ -147,8 +147,8 @@
   }
 
   @font-face {
-    font-family: "Mondwest";
-    src: url("https://esm.sh/@merlin/ui@0.4.0/dist/fonts/Mondwest-Regular.woff2") format("woff2");
+    font-family: "Cormorant Garamond";
+    src: url("https://cdn.jsdelivr.net/npm/@fontsource/cormorant-garamond@5.2.5/files/cormorant-garamond-latin-400-normal.woff2") format("woff2");
     font-weight: 400; font-style: normal; font-display: block;
   }
   @font-face {
@@ -162,7 +162,7 @@
     font-weight: 400; font-style: normal; font-display: block;
   }
 
-  .font-primer { position: fixed; left: -9999px; top: -9999px; font: 400 26px "Mondwest", serif; }
+  .font-primer { position: fixed; left: -9999px; top: -9999px; font: 400 26px "Cormorant Garamond", serif; }
 </style>
 </head>
 <body>
@@ -171,7 +171,7 @@
 <div class="layer vignette"></div>
 <div class="layer fg-lens"></div>
 <div class="layer noise"><canvas id="noiseCanvas"></canvas></div>
-<div class="font-primer" aria-hidden="true">Aa Mondwest priming glyphs 0123456789</div>
+<div class="font-primer" aria-hidden="true">Aa priming glyphs 0123456789</div>
 
 <script type="module">
 import {
@@ -1448,8 +1448,8 @@ function draw(time) {
 }
 
 resize();
-const DS_CDN = "https://esm.sh/@merlin/ui@0.4.0/dist/fonts";
-const FACES = [new FontFace("Mondwest", `url(${DS_CDN}/Mondwest-Regular.woff2) format("woff2")`, { weight: "400", display: "block" })];
+const DS_CDN = "https://cdn.jsdelivr.net/npm/@fontsource/cormorant-garamond@5.2.5/files";
+const FACES = [new FontFace("Cormorant Garamond", `url(${DS_CDN}/cormorant-garamond-latin-400-normal.woff2) format("woff2")`, { weight: "400", display: "block" })];
 (async () => {
   try {
     const loaded = await Promise.all(FACES.map(f => f.load()));
