@@ -3,6 +3,7 @@
 import sys
 import time
 import os
+import subprocess
 from typing import List, Dict
 from rich.console import Console
 from rich.panel import Panel
@@ -110,7 +111,18 @@ class MerlinDualPaneTUI:
         console.print(Panel(full_stream, title="[bold white]CONVERSATION STREAM[/]", border_style="blue"))
 
     def redraw(self):
-        os.system('cls' if os.name == 'nt' else 'clear')
+        # stdin=DEVNULL: under `merlin tui` this module runs inside the gateway
+        # child, whose fd 0 carries the JSON-RPC stream — an inherited stdin
+        # kills that channel (scripts/check_subprocess_stdin.py).
+        try:
+            subprocess.run(
+                ["cls"] if os.name == "nt" else ["clear"],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                check=False,
+            )
+        except OSError:
+            pass
         self.render_hud()
         self.render_history()
 
