@@ -256,16 +256,54 @@ def _entry_verified(package: Package, fact: dict, store: Store, target: str) -> 
         return False
 
 
-def _restore_previous_entry(store: Store, entry, previous) -> None:
+def _rename_entry(source: Path, destination: Path, package: str) -> None:
+    """Rename one store entry, retrying the transient holds Windows takes.
+
+    An antivirus scan or a just-exited child can hold a directory for a few
+    hundred milliseconds; a permanent hold (a binary executing from the tree)
+    still surfaces, but as an ``InstallError`` naming the remedy rather than a
+    bare ``PermissionError`` that reads like a product bug.
+    """
+    import time
+
+    last: OSError | None = None
+    for attempt in range(5):
+        try:
+            source.rename(destination)
+            return
+        except PermissionError as error:
+            last = error
+            time.sleep(0.2 * (attempt + 1))
+    raise InstallError(
+        package,
+        f"cannot move {source.name} — a process is still running from it ({last})",
+        "close Merlin and any agent session, then run `merlin update` again",
+    ) from last
+
+
+def _drop_leftover(store: Store, name: str) -> None:
+    """Remove debris, tolerating files a running process holds.
+
+    Published entries are hardlinked into the live toolchain, so Windows refuses
+    to delete a leftover whose binary is executing. Debris costs disk; failing
+    an otherwise healthy update over it does not.
+    """
+    try:
+        _remove_entry(store, name)
+    except OSError as error:
+        LOG.warning("left %s in place (still in use): %s", name, error)
+
+
+def _restore_previous_entry(store: Store, entry, previous, package: str = "packages") -> None:
     """Keep both versions recoverable until the restore rename succeeds."""
     import uuid
 
     displaced = store.entry(f".displaced-{uuid.uuid4().hex}")
     had_entry = entry.exists() or entry.is_symlink()
     if had_entry:
-        entry.rename(displaced)
+        _rename_entry(entry, displaced, package)
     try:
-        previous.rename(entry)
+        _rename_entry(previous, entry, package)
     except BaseException:
         if had_entry:
             displaced.rename(entry)
@@ -287,7 +325,7 @@ def _publish_entry(package, store, staged, entry, previous_entry, target):
         yield
     except BaseException:
         if previous_entry.exists():
-            _restore_previous_entry(store, entry, previous_entry)
+            _restore_previous_entry(store, entry, previous_entry, package.name)
         raise
     if previous_entry.exists():
         _remove_entry(store, previous_entry.name)
@@ -301,9 +339,13 @@ def _settle_previous_entry(package, store, entry, previous_entry, previous, targ
     # an interrupted stage always restores its prior usable bytes.
     if (previous and previous.get("entry") == entry.name
             and _entry_verified(package, previous, store, target)):
-        _remove_entry(store, previous_entry.name)
-    else:
-        _restore_previous_entry(store, entry, previous_entry)
+        # Verified bytes are already in place: the restore point is debris from
+        # an aborted swap. Dropping it is all that is left to do, and a store
+        # that hardlinks entries may refuse the delete while the toolchain runs
+        # from those files — that must not fail an otherwise healthy update.
+        _drop_leftover(store, previous_entry.name)
+        return
+    _restore_previous_entry(store, entry, previous_entry, package.name)
 
 
 def _entry_current(package, lockfile, facts, store, entry, previous, version, pin, target) -> bool:
