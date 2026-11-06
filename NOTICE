@@ -38,6 +38,43 @@ developed and released independently by Epinoia Horizon on top of this
 MIT-licensed base; provenance of upstream-derived components is disclosed here
 in full regardless of future development direction.
 
+One artifact of that import predates this policy: the initial import commit
+(13860594, "Merlin Agent v0.1.0 — original platform by Arthov Labs") retains a
+commit message written before the rebrand took effect. It is left in place
+rather than rewritten so the public history stays append-only. This NOTICE and
+LICENSE are the authoritative statements of what is and is not original work;
+no claim of an "original platform" should be read into any older commit
+message, page copy, or marketing material.
+
+## Third-party code attribution
+
+Runtime dependencies bundled in a packaged build are permissively licensed
+(MIT, ISC, BSD-2-Clause, BSD-3-Clause, Apache-2.0). Two carry attribution
+obligations:
+
+  * caniuse-lite — data under CC-BY-4.0, (c) Ben Briggs and contributors.
+  * @vscode/codicons — icon set under CC-BY-4.0, (c) Microsoft Corporation.
+
+Build-time only, not shipped in a packaged release:
+
+  * rollup-plugin-dts — LGPL-3.0-only.
+  * axe-core, dompurify, lightningcss, @novnc/novnc — MPL-2.0 (file-level
+    copyleft; those individual files remain MPL-2.0 if redistributed in
+    source form).
+
+## Fonts
+
+Fonts shipped with the desktop application — JetBrains Mono, Cinzel, and
+Cormorant Garamond — are licensed under the SIL Open Font License 1.1, with
+notices and the licence summary reproduced in
+apps/desktop/src/fonts/OFL-NOTICE.md.
+
+Retail typefaces from commercial foundries are not distributed with this
+repository. Woff2 files under apps/vendor/merlin-ui/dist/fonts were removed on
+2026-11-07; that package now declares system-stack fallbacks only. If a
+commercial face is reintroduced, the foundry licence must be purchased and its
+licence text must ship beside the font file.
+
 This notice does not imply endorsement by Nous Research, and no claim of
 authorship is made over the upstream portions of the software.
 
