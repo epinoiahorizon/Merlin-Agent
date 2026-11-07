@@ -121,6 +121,31 @@ trajectories (~/.merlin/trajectories/, session logs):
 - Skill sprawl (one skill per incident) — extend the closest existing skill instead.
 - Trusting unverified lessons — a hunch in a skill poisons future sessions; mark confidence honestly.
 - Capturing after session end — memory decays; capture mid-work.
+- **Windows-native binaries from `WSL`: never pass mixed paths.**
+  `git.exe`, `node.EXE`, `npm`, `curl.exe` mangle WSL args and choke on
+  Windows paths pasted from bash. Write a small `.bat` to the Windows Temp
+  with the paths baked in, run `cmd.exe /c ..\x.bat %*` from a cwd under
+  `/mnt/c/...`, and let that cwd carry over as a real Windows cwd.
+- **Red CI is a live outage signal, never noise.** The first red gets a
+  same-day root-cause comment on its tracker; if the tracker is red for an
+  unrelated dead-mechanism reason, fix the mechanism first — a red-but-wrong
+  alarm is worse than no alarm.
+- **Fresh installs are invisible to dev machines and reuse-based CI.** Before
+  shipping an installer that clones main: run it once on a clean temp HOME,
+  keep a stdlib-only "every lockfile pin resolves" guard on dependency pushes
+  and daily, and keep release tags alive — tag-picking E2E silently runs
+  nothing when the repo carries only canary tags.
+- **Probe with the heaviest realistic input.** Lightweight pings pass while
+  real questions starve: reasoning models spend the budget on `reasoning`
+  first, so a small `max_tokens` returns HTTP 200 with empty `content`.
+- **Probe the tool before building on it.** A three-second check beats a
+  harness that fails for the wrong reason: confirm the runtime does what the
+  docs imply (jsdom never executes `type="module"`), and read the real
+  identifier out of the artifact instead of inventing one (Supabase session
+  keys are `sb-<project-ref>-auth-token`).
+- **Never `pkill -f <pattern>` when the pattern matches your own command
+  line.** The wrapper that runs the command contains it, so the signal lands
+  on yourself. `pgrep -f` first, then kill by PID.
 
 ## Verification
 
