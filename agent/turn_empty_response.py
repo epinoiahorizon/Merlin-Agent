@@ -24,6 +24,45 @@ logger = logging.getLogger("agent.conversation_loop")
 
 _INLINE_THINK_RE = re.compile(r'<think>|<thinking>|<reasoning>', re.IGNORECASE)
 
+# A ``length`` stop means the output budget ran out before a single visible character —
+# reasoning models can spend the whole allowance thinking and then return empty content.
+# Retrying at the same ceiling walks into the same wall, so the empty-response retry raises
+# the ceiling for the remainder of this turn and restores it when the next turn starts.
+_LENGTH_RETRY_CAP = 32768
+_LENGTH_RETRY_FLOOR = 4096
+
+
+def _raise_max_tokens_for_length_retry(agent: Any) -> None:
+    """Double ``agent.max_tokens`` (capped) once per turn after a ``finish_reason=length`` empty.
+
+    Idempotent: ``agent._length_retry_bumped`` marks the bump (the remembered ceiling may
+    legitimately be ``None``, so it cannot be the flag itself) and repeated empty retries in
+    the same turn cannot compound the ceiling.
+    """
+    if getattr(agent, "_length_retry_bumped", False):
+        return
+    base = getattr(agent, "max_tokens", None)
+    base = base if isinstance(base, int) and base > 0 else _LENGTH_RETRY_FLOOR
+    bumped = min(base * 2, _LENGTH_RETRY_CAP)
+    if bumped <= base:
+        return
+    agent._max_tokens_before_length_retry = getattr(agent, "max_tokens", None)
+    agent._length_retry_bumped = True
+    agent.max_tokens = bumped
+    logger.warning(
+        "Empty response stopped at finish_reason=length — raising max_tokens %d -> %d for the retry (model=%s)",
+        base, bumped, getattr(agent, "model", "?"),
+    )
+
+
+def restore_turn_max_tokens(agent: Any) -> None:
+    """Undo a length-retry ceiling bump so a later turn starts from the configured budget."""
+    if not getattr(agent, "_length_retry_bumped", False):
+        return
+    agent.max_tokens = getattr(agent, "_max_tokens_before_length_retry", None)
+    agent._max_tokens_before_length_retry = None
+    agent._length_retry_bumped = False
+
 
 @dataclass
 class EmptyResponseVerdict:
@@ -65,6 +104,8 @@ def _retry_empty(
     deterministic = empty_candidate and _empty_guard.deterministic_empty(agent)
     if not (empty_candidate and agent._empty_content_retries < budget and not deterministic):
         return None, None, deterministic
+    if finish_reason == "length":
+        _raise_max_tokens_for_length_retry(agent)
     agent._empty_content_retries += 1
     n = agent._empty_content_retries
     wait_time = jittered_backoff(n, base_delay=5.0, max_delay=60.0)
