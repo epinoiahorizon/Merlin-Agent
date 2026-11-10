@@ -209,7 +209,7 @@ jobs:
       # emulation instead.
       - name: Set up QEMU (arm64 emulation on standard runners)
         if: matrix.arch == 'arm64' && vars.MERLIN_LARGE_RUNNERS != 'true'
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
 
       # Retry once on transient Docker Hub / buildkit pull failures
       # (connection reset, auth token timeout, rate limiting). The action
@@ -394,7 +394,7 @@ jobs:
 
       - name: Set up QEMU (arm64 emulation on standard runners)
         if: matrix.arch == 'arm64' && vars.MERLIN_LARGE_RUNNERS != 'true'
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
 
       # Retry once on transient Docker Hub / buildkit pull failures.
       # See build job for rationale; same pattern.
