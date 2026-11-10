@@ -50,8 +50,8 @@ def _raise_max_tokens_for_length_retry(agent: Any) -> None:
     agent._length_retry_bumped = True
     agent.max_tokens = bumped
     logger.warning(
-        "Empty response stopped at finish_reason=length — raising max_tokens %d -> %d for the retry (model=%s)",
-        base, bumped, getattr(agent, "model", "?"),
+        "Empty response stopped at finish_reason=length — raising max_tokens %d -> %d for the retry",
+        base, bumped,
     )
 
 
