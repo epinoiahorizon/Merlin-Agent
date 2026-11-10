@@ -1555,6 +1555,8 @@ def _run_conversation_turn(
     model-facing message; an empty string suppresses titling for this turn).
     ``persist_user_display_*``:
     display-only event rendering; the model still receives the message unchanged."""
+    from agent.turn_empty_response import restore_turn_max_tokens
+    restore_turn_max_tokens(agent)  # a previous turn's length-retry ceiling must not leak
     if moa_config is None:
         user_message, moa_config, persist_user_message = _decode_inline_moa_turn(
             user_message, persist_user_message
