@@ -106,6 +106,10 @@ async def test_two_invoices_for_the_same_base_amount_differ(tmp_path) -> None:
 
 
 async def test_qr_png_is_served_for_a_pending_invoice(tmp_path) -> None:
+    # The dashboard renders PNG QR codes with the optional `segno` package; without it the route
+    # degrades to 503 by design (see handle_qr in merlin_cli/proxy/dashboard.py). CI installs the
+    # core + test groups and no extras, so skip instead of failing when the renderer is absent.
+    pytest.importorskip("segno", reason="QR PNG rendering needs the optional 'segno' package")
     h = await _harness(tmp_path)
     try:
         tenant = h.ledger.create_tenant("acme")
