@@ -25,7 +25,12 @@ concurrency:
 jobs:
   install-update:
     name: Windows install.ps1 + merlin update E2E
-    runs-on: windows-latest-32-core
+    # windows-latest: the 32-core hosted runner is a paid-plan SKU. On this
+    # account (free) that label never schedules, so the job — and with it the
+    # whole CI run, which waits for every job — stayed "queued" forever
+    # (every PR check stuck at pending). The suite fits the standard runner's
+    # 50-minute budget; drop the paid SKU unless the plan changes.
+    runs-on: windows-latest
     # A typical run is ~17 min; one slow runner took 28 min for the same work (run 36295230146).
     timeout-minutes: 50
     steps:

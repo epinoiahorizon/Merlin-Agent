@@ -77,7 +77,7 @@ Charts (pure string builders — color the result with theme tones):
 - `sdk.sparkline(series, width?)` → `▂▃▅▇█▆` one-row trend
 - `sdk.sparkRows(series, width, rows)` → multi-row column chart (top line
   first) — the mission-control panel look; taller cells gain resolution
-- `sdk.gauge(ratio, width)` → `█████░░░` fill bar for a 0..1 value
+- `sdk.gauge(ratio, width)` → `▰▰▰▰▰▱▱▱` fill bar for a 0..1 value
 - `sdk.hbars(values, width)` → horizontal bar chart, one bar per value,
   eighth-block tips, scaled to the max
 

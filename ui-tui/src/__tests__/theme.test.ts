@@ -393,20 +393,23 @@ describe('derived tone ladder', () => {
     const dark = await importThemeWithCleanEnv()
     const light = await importThemeWithEnv({ MERLIN_TUI_BACKGROUND: '#ffffff' })
 
+    // Canon: the Solarized Dark re-base (see DARK_SEEDS/LIGHT_SEEDS) replaced
+    // the original hand-tuned navy/gold literals; the ladder knobs did not
+    // change, so the derived tones are pinned to the Solarized values now.
     const cases: Array<[string, string, string]> = [
-      [dark.DARK_THEME.color.muted, '#CC9B1F', 'dark muted'],
-      [dark.DARK_THEME.color.label, '#DAA520', 'dark label'],
-      [dark.DARK_THEME.color.statusFg, '#C0C0C0', 'dark statusFg'],
-      [dark.DARK_THEME.color.completionBg, '#1a1a2e', 'dark surface'],
-      [dark.DARK_THEME.color.completionCurrentBg, '#333355', 'dark chip'],
-      [dark.DARK_THEME.color.selectionBg, '#3a3a55', 'dark selection'],
+      [dark.DARK_THEME.color.muted, '#8e771b', 'dark muted'],
+      [dark.DARK_THEME.color.label, '#987d1a', 'dark label'],
+      [dark.DARK_THEME.color.statusFg, '#c3c3c3', 'dark statusFg'],
+      [dark.DARK_THEME.color.completionBg, '#073642', 'dark surface'],
+      [dark.DARK_THEME.color.completionCurrentBg, '#0d4250', 'dark chip'],
+      [dark.DARK_THEME.color.selectionBg, '#0d4250', 'dark selection'],
       // Light canon = liftForContrast(dark literal, white, 4.5): the exact
       // colors xterm's minimumContrastRatio rendered on light hosts.
-      [light.LIGHT_THEME.color.muted, '#946C08', 'light muted'],
-      [light.LIGHT_THEME.color.statusFg, '#6F6F6F', 'light statusFg'],
-      [light.LIGHT_THEME.color.completionBg, '#F5F5F5', 'light surface'],
-      [light.LIGHT_THEME.color.completionCurrentBg, '#e0d1bf', 'light chip'],
-      [light.LIGHT_THEME.color.selectionBg, '#D4E4F7', 'light selection']
+      [light.LIGHT_THEME.color.muted, '#936e06', 'light muted'],
+      [light.LIGHT_THEME.color.statusFg, '#6e6e6e', 'light statusFg'],
+      [light.LIGHT_THEME.color.completionBg, '#faf8f4', 'light surface'],
+      [light.LIGHT_THEME.color.completionCurrentBg, '#e1d6b7', 'light chip'],
+      [light.LIGHT_THEME.color.selectionBg, '#d7e5f0', 'light selection']
     ]
 
     for (const [got, original, label] of cases) {
@@ -505,7 +508,16 @@ describe('background-aware adaptation (OSC-11 light terminals)', () => {
   it('base palettes are fixed points of the adaptation', async () => {
     const dark = await importThemeWithCleanEnv()
 
-    expect(dark.fromSkin({}, {}).color).toEqual(dark.DARK_THEME.color)
+    // The skinless path derives against the ASSUMED terminal canvas
+    // (referenceBackground → #101014), while the exported base derives its
+    // tones against the Solarized canvas it paints (#002b36). Same seeds, two
+    // canvases: the contract is that the difference stays imperceptible, not
+    // that the two byte-match.
+    const darkSkinless = dark.fromSkin({}, {}).color
+
+    for (const key of Object.keys(dark.DARK_THEME.color) as Array<keyof typeof darkSkinless>) {
+      expect(channelDelta(darkSkinless[key], dark.DARK_THEME.color[key]), `dark ${String(key)}`).toBeLessThanOrEqual(8)
+    }
 
     const light = await importThemeWithEnv({ MERLIN_TUI_BACKGROUND: '#ffffff' })
 
