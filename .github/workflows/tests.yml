@@ -355,3 +355,27 @@ jobs:
           OPENROUTER_API_KEY: ""
           OPENAI_API_KEY: ""
           ATLAS_API_KEY: ""
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # The branch ruleset requires the context "Python tests / Run tests". No job
+  # ever emitted it: the slices are named "Run tests (I/8)", so the required
+  # context stayed permanently "expected" and every merge needed an admin
+  # bypass. This job carries the plain name and fails when any slice failed,
+  # so the rule protects what it was written to protect.
+  # ─────────────────────────────────────────────────────────────────────────
+  run-tests:
+    name: Run tests
+    needs: [test]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Aggregate slice results
+        run: |
+          set -euo pipefail
+          result='${{ needs.test.result }}'
+          echo "python test slices: ${result}"
+          if [ "$result" != 'success' ]; then
+            echo "::error::python test slices finished as '${result}' - see the Run tests (I/8) jobs"
+            exit 1
+          fi
