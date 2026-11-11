@@ -32,9 +32,28 @@ def setup_route(raft=False):
     return runner, adapter, source, build_session_key(source)
 
 
-async def drain(adapter):
+async def drain(adapter, timeout: float = 60.0):
+    """Wait for the adapter's background work, but never for the file budget.
+
+    An unbounded wait here is indistinguishable from a crash from the outside:
+    shard 7 burned its whole 900s file budget twice on this file and CI could
+    only report a SIGKILL. Bound the wait and name the tasks that are still
+    running, so the failure says what is stuck instead of hanging.
+    """
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + timeout
     while adapter._background_tasks:
-        await asyncio.gather(*list(adapter._background_tasks))
+        remaining = deadline - loop.time()
+        if remaining <= 0:
+            stuck = [repr(t) for t in adapter._background_tasks][:5]
+            raise AssertionError(
+                f"{len(adapter._background_tasks)} background task(s) never settled in "
+                f"{timeout:.0f}s: " + "; ".join(stuck)
+            )
+        await asyncio.wait_for(
+            asyncio.gather(*list(adapter._background_tasks), return_exceptions=True),
+            timeout=remaining,
+        )
 
 
 @pytest.mark.asyncio
