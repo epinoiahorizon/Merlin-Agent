@@ -95,12 +95,17 @@ def test_payload_without_currency_is_refused() -> None:
 
 
 # -- rendering & loading -------------------------------------------------------------------
+# Both renderers go through the optional `segno` package and raise QrisError when it is absent,
+# by design. CI installs the core + test groups and no extras, so these two cases skip there
+# instead of failing; the rest of this module is stdlib-only and stays covered.
 def test_render_png_returns_a_png() -> None:
+    pytest.importorskip("segno", reason="PNG rendering needs the optional 'segno' package")
     png = qris.render_png(qris.with_amount(_static(), 5_000))
     assert png.startswith(b"\x89PNG")
 
 
 def test_render_svg_returns_svg_markup() -> None:
+    pytest.importorskip("segno", reason="SVG rendering needs the optional 'segno' package")
     svg = qris.render_svg(qris.with_amount(_static(), 5_000))
     assert "<svg" in svg.lower()
 
