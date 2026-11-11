@@ -11,7 +11,22 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 import merlin_cli.local_runtime.load_progress as lp
+
+
+@pytest.fixture(autouse=True)
+def _no_live_watcher(monkeypatch):
+    """Keep the reader pure: `get_loading_progress()` also starts the SSE watcher.
+
+    The watcher clears the whole snapshot whenever its connection ends, and with
+    no router running that happens immediately - on a loaded runner it lands
+    between `_apply_event()` and the read, so these mapping tests raced a
+    background thread that exists only to serve a real router. Shard 5 went red
+    with `assert 'm1' in {}` twice for exactly that reason.
+    """
+    monkeypatch.setattr(lp, "_ensure_watcher", lambda: None)
 
 
 def setup_function(_fn):

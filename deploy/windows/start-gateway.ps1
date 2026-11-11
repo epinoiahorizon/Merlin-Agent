@@ -99,6 +99,36 @@ function Q([string]$value) { return '"' + $value + '"' }
 
 $ledgerPath = Join-Path $DataDir 'ledger.db'
 
+# Idempotensi: tugas ini dijalankan Windows saat logon DAN bisa dipicu ulang dengan tangan. Tanpa penjaga ini
+# setiap pemicuan menambah satu set proses lagi — dua gateway di port yang sama gagal, dan beberapa tunnel ke
+# host yang sama membuat Cloudflare membagi lalu lintas ke koneksi yang akan mati.
+function Test-PortOpen {
+    param([int]$Port)
+    $client = [System.Net.Sockets.TcpClient]::new()
+    try {
+        $client.Connect('127.0.0.1', $Port)
+        return $client.Connected
+    } catch {
+        return $false
+    } finally {
+        $client.Dispose()
+    }
+}
+
+$tunnelConfig = Join-Path $DataDir 'cloudflared-config.yml'
+$cloudflared = 'C:\Program Files (x86)\cloudflared\cloudflared.exe'
+
+$gatewayRunning = Test-PortOpen -Port $GatewayPort
+$dashboardRunning = Test-PortOpen -Port $DashboardPort
+$tunnelRunning = @(Get-CimInstance Win32_Process -Filter "Name='cloudflared.exe'" -ErrorAction SilentlyContinue |
+    Where-Object { $_.CommandLine -like "*$tunnelConfig*" }).Count -gt 0
+
+if ($gatewayRunning -and $dashboardRunning -and $tunnelRunning) {
+    Write-Host "Gateway, dashboard, dan tunnel sudah berjalan — tidak ada yang dimulai ulang."
+    exit 0
+}
+
+
 $logDir = Join-Path $DataDir 'logs'
 if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
 
@@ -110,23 +140,33 @@ function Start-LocalService {
     return $proc
 }
 
-$gateway = Start-LocalService -Name 'gateway' -Log (Join-Path $logDir 'gateway.log') -Arguments @(
-    (Q $launcher), 'serve', '--provider', 'generic', '--host', '127.0.0.1', '--port', "$GatewayPort",
-    '--upstreams', (Q $configPath), '--ledger', (Q $ledgerPath), '--env-file', (Q $envFile)
-)
-$dashboard = Start-LocalService -Name 'dashboard' -Log (Join-Path $logDir 'dashboard.log') -Arguments @(
-    (Q $launcher), 'dashboard', '--host', '127.0.0.1', '--port', "$DashboardPort",
-    '--qris', (Q $qrisPath), '--ledger', (Q $ledgerPath), '--probes', (Q $ledgerPath),
-    '--env-file', (Q $envFile)
-)
+$gateway = $null
+if ($gatewayRunning) {
+    Write-Host 'gateway: sudah berjalan'
+} else {
+    $gateway = Start-LocalService -Name 'gateway' -Log (Join-Path $logDir 'gateway.log') -Arguments @(
+        (Q $launcher), 'serve', '--provider', 'generic', '--host', '127.0.0.1', '--port', "$GatewayPort",
+        '--upstreams', (Q $configPath), '--ledger', (Q $ledgerPath), '--env-file', (Q $envFile)
+    )
+}
+$dashboard = $null
+if ($dashboardRunning) {
+    Write-Host 'dashboard: sudah berjalan'
+} else {
+    $dashboard = Start-LocalService -Name 'dashboard' -Log (Join-Path $logDir 'dashboard.log') -Arguments @(
+        (Q $launcher), 'dashboard', '--host', '127.0.0.1', '--port', "$DashboardPort",
+        '--qris', (Q $qrisPath), '--ledger', (Q $ledgerPath), '--probes', (Q $ledgerPath),
+        '--env-file', (Q $envFile)
+    )
+}
 
 # Tunnel dijalankan sebagai proses biasa, bukan Windows service. cloudflared 2025.8.1 memasang
 # service tanpa --config (ImagePath hanya cloudflared.exe) dan service LocalSystem membaca config
 # dari profil SYSTEM, yang membuatnya "Running" tapi tidak tersambung (530). Satu mekanisme untuk
 # ketiga proses jauh lebih mudah diprediksi.
-$tunnelConfig = Join-Path $DataDir 'cloudflared-config.yml'
-$cloudflared = 'C:\Program Files (x86)\cloudflared\cloudflared.exe'
-if ((Test-Path $tunnelConfig) -and (Test-Path $cloudflared)) {
+if ($tunnelRunning) {
+    Write-Host 'tunnel: sudah berjalan'
+} elseif ((Test-Path $tunnelConfig) -and (Test-Path $cloudflared)) {
     $tunnel = Start-Process -FilePath $cloudflared `
         -ArgumentList @('--config', (Q $tunnelConfig), 'tunnel', 'run') -PassThru -WindowStyle Hidden `
         -RedirectStandardOutput (Join-Path $logDir 'tunnel.log') `
