@@ -11,6 +11,8 @@
     "i18n:keys:check": "tsx scripts/i18n-keys.ts --check",
     "build:ink": "npm run build --prefix packages/merlin-ink",
     "visual": "node scripts/visual/run.mjs",
+    "demo": "node scripts/console-demo.mjs",
+    "demo:build": "esbuild src/components/console-demo/demo.tsx --bundle --platform=node --format=cjs --outfile=dist/console-demo.cjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint src/ packages/",
     "lint:fix": "eslint src/ packages/ --fix",

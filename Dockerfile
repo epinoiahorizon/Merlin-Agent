@@ -112,7 +112,7 @@ sys.exit(f'linked SQLite {sqlite3.sqlite_version} still has the WAL-reset bug') 
 db = sqlite3.connect(':memory:'); \
 db.execute(\"CREATE VIRTUAL TABLE docs USING fts5(content, tokenize='trigram')\"); \
 db.execute(\"INSERT INTO docs VALUES ('merlin')\"); \
-sys.exit('SQLite FTS5 trigram self-test failed') if db.execute(\"SELECT count(*) FROM docs WHERE docs MATCH 'erm'\").fetchone()[0] != 1 else None; \
+sys.exit('SQLite FTS5 trigram self-test failed') if db.execute(\"SELECT count(*) FROM docs WHERE docs MATCH 'erl'\").fetchone()[0] != 1 else None; \
 db.close()"
 
 # ---------- s6-overlay install ----------
@@ -293,6 +293,7 @@ COPY web/package.json web/
 COPY ui-tui/package.json ui-tui/
 COPY ui-tui/packages/merlin-ink/ ui-tui/packages/merlin-ink/
 COPY apps/shared/ apps/shared/
+COPY apps/vendor/merlin-ui/ apps/vendor/merlin-ui/
 COPY scripts/build/node-deps.mjs scripts/build/node-deps.mjs
 ENV npm_config_install_links=false
 RUN node scripts/build/node-deps.mjs --source /opt/merlin --workspace ui-tui --workspace web

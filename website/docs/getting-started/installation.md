@@ -61,7 +61,7 @@ curl -fsSL https://withmerlin.online/install.sh | bash
 
 Run in powershell:
 ```powershell
-iex (irm https://withmerlin.online/install.ps1) 
+iex (irm https://withmerlin.online/install.ps1)
 ```
 
 If you want to install & run Merlin Desktop after a command-line only install, simply run

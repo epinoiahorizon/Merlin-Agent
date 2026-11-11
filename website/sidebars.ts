@@ -739,7 +739,6 @@ const sidebars: SidebarsConfig = {
       collapsed: true,
       items: [
         'integrations/index',
-        'integrations/atlas-portal',
         'integrations/providers',
         'integrations/buzz',
         'user-guide/features/mcp',
@@ -754,15 +753,12 @@ const sidebars: SidebarsConfig = {
       label: 'Guides & Tutorials',
       collapsed: true,
       items: [
-        'guides/run-nemotron-3-ultra-free',
-        'guides/run-merlin-with-atlas-portal',
         'guides/tips',
         'guides/local-llm-on-mac',
         'guides/daily-briefing-bot',
         'guides/team-telegram-assistant',
         'guides/python-library',
         'guides/use-mcp-with-merlin',
-        'guides/manage-merlin-cloud-with-mcp',
         'guides/use-soul-with-merlin',
         'guides/use-voice-mode-with-merlin',
         'guides/automate-with-cron',

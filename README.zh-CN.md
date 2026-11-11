@@ -5,7 +5,7 @@
 # Merlin Agent ☤
 
 <p align="center">
-  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentation"></a>
+  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-docs.withmerlin.online-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
   <a href="https://epinoiahorizon.com"><img src="https://img.shields.io/badge/Built%20by-Epinoia%20Horizon-blueviolet?style=for-the-badge" alt="Built by Epinoia Horizon"></a>
@@ -13,13 +13,11 @@
   <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
 </p>
 
-> **来源说明，放在最前。** Merlin Agent 是 [Hermes Agent](https://github.com/NousResearch/hermes-agent)（MIT，© 2025 Nous Research）的更名发行版。代理核心、工具、网关、技能引擎、调度器、桌面外壳与 TUI 均来自上游代码——并非我们所写，我们也不主张著作权。改动清单见 [NOTICE](NOTICE)，许可条款见 [LICENSE](LICENSE)。Nous Research 未对本分支背书。若想使用原项目，请前往上游：它的进度领先于我们。
->
-> 本仓库的 git 历史自 2026-09-30 的 fork 导入开始，不含上游历史。
+**Merlin Agent 是由 [Epinoia Horizon](https://epinoiahorizon.com) 打造并支持的自改进 AI 智能体** —— 不是聊天包装器。它从经验中创建技能，在使用中改进技能，检索自己过去的对话，并在会话之间持续加深对你的了解。一个安装器，一个应用窗口，无需终端 —— 支持原生 Windows，支持路径由我们直达。
 
-**Merlin Agent 是该开源代理的桌面打包版本，由 [Epinoia Horizon](https://epinoiahorizon.com) 制作与支持。** 从经验中创建技能、在使用中改进、检索过往对话——这些都是上游核心，已在上方注明。Merlin 是其外围的发行版：无需终端的安装程序与应用窗口、为不想收集五个 API 密钥的人准备的 [Atlas Portal](https://portal.epinoiahorizon.com)、由我们负责的 Windows 支持路径，以及我们自己的修复。
+**Merlin Agent 是该开源代理的桌面打包版本，由 [Epinoia Horizon](https://epinoiahorizon.com) 制作与支持。** 从经验中创建技能、在使用中改进、检索过往对话——这些都是上游核心，已在上方注明。Merlin 是其外围的发行版：无需终端的安装程序与应用窗口、由我们负责的 Windows 支持路径，以及我们自己的修复。
 
-支持任意模型——[Atlas Portal](https://portal.epinoiahorizon.com)、[OpenRouter](https://openrouter.ai)（200+ 模型）、[NVIDIA NIM](https://build.nvidia.com)（Nemotron）、[小米 MiMo](https://platform.xiaomimimo.com)、[z.ai/GLM](https://z.ai)、[Kimi/Moonshot](https://platform.moonshot.ai)、[MiniMax](https://www.minimax.io)、[Hugging Face](https://huggingface.co)、OpenAI，或自定义端点。使用 `merlin model` 即可切换——无需改代码，无锁定。
+支持任意模型——[OpenRouter](https://openrouter.ai)（200+ 模型）、[NVIDIA NIM](https://build.nvidia.com)（Nemotron）、[小米 MiMo](https://platform.xiaomimimo.com)、[z.ai/GLM](https://z.ai)、[Kimi/Moonshot](https://platform.moonshot.ai)、[MiniMax](https://www.minimax.io)、[Hugging Face](https://huggingface.co)、OpenAI，或自定义端点。使用 `merlin model` 即可切换——无需改代码，无锁定。
 
 <table>
 <tr><td><b>真正的终端界面</b></td><td>完整的 TUI，支持多行编辑、斜杠命令自动补全、对话历史、中断重定向和流式工具输出。</td></tr>
@@ -73,25 +71,6 @@ merlin doctor       # 诊断问题
 ```
 
 📖 **[完整文档 →](https://docs.withmerlin.online/docs/)**
-
----
-
-## 省去到处收集 API Key — Atlas Portal
-
-Merlin 始终允许你使用任意服务商，这点不会改变。但如果你不想为模型、网页搜索、图像生成、TTS、云浏览器分别去申请五个不同的 API Key，**[Atlas Portal](https://portal.epinoiahorizon.com)** 用一个订阅就能覆盖全部：
-
-- **300+ 模型** — 用 `/model <name>` 随时切换
-- **Tool Gateway** — 网页搜索、图像生成（FAL）、文本转语音（OpenAI）、云浏览器（Browser Use），全部通过订阅托管。无需额外注册任何账户。
-
-全新安装时一条命令即可：
-
-```bash
-merlin setup --portal
-```
-
-它会通过 OAuth 登录、把 Atlas 设为推理服务商，并启用 Tool Gateway。随时用 `merlin portal info` 查看路由状态。完整说明见 [Tool Gateway 文档](https://docs.withmerlin.online/docs/user-guide/features/tool-gateway)。
-
-你随时可以按工具单独切回自己的 API Key — Gateway 是按工具粒度生效的，不是一刀切。
 
 ---
 
@@ -192,6 +171,6 @@ PM 引导、Python 3.14 测试环境和规范验证命令见
 
 MIT — 详见 [LICENSE](LICENSE)。
 
-Merlin Agent 是 Nous Research 的 [hermes-agent](https://github.com/NousResearch/hermes-agent) 的修改版分支，依据 MIT 许可证使用。原始版权声明保留在 [LICENSE](LICENSE) 中，修改清单见 [NOTICE](NOTICE)。Nous Research 未对本分支背书。
+Merlin Agent 由 Epinoia Horizon 作为独立产品维护和发布。智能体核心源自 Nous Research 的 [hermes-agent](https://github.com/NousResearch/hermes-agent)，依据 MIT 许可证使用：原始版权声明保留在 [LICENSE](LICENSE) 中，完整的来源记录见 [NOTICE](NOTICE)。本仓库的 git 历史始于 2026-09-30 的导入。未声称亦未暗示获得 Nous Research 的背书。
 
 由 Epinoia Horizon 构建。

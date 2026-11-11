@@ -7,7 +7,7 @@
 # ہرمیس ایجنٹ ☤ (Merlin Agent)
 
 <p align="center">
-  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentation"></a>
+  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-docs.withmerlin.online-FFD700?style=for-the-badge" alt="Documentation"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License: MIT"></a>
   <a href="https://epinoiahorizon.com"><img src="https://img.shields.io/badge/Built%20by-Epinoia%20Horizon-blueviolet?style=for-the-badge" alt="Built by Epinoia Horizon"></a>
@@ -15,13 +15,9 @@
   <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-中文-red?style=for-the-badge" alt="中文"></a>
 </p>
 
-> **اصل و نسب، سب سے پہلے۔** Merlin Agent، [Hermes Agent](https://github.com/NousResearch/hermes-agent) (MIT، © 2025 Nous Research) کی نئی برانڈنگ کے ساتھ تقسیم ہے۔ ایجنٹ کور، ٹولز، گیٹ وے، اسکلز انجن، شیڈولر، ڈیسک ٹاپ شیل اور TUI اپ اسٹریم کوڈ ہیں — یہ ہم نے نہیں لکھے اور نہ ان پر دعویٰ کرتے ہیں۔ تبدیلیوں کی فہرست [NOTICE](NOTICE) میں اور لائسنس [LICENSE](LICENSE) میں ہے۔ Nous Research اس فورک کی توثیق نہیں کرتا۔ اصل پروجیکٹ کے لیے وہاں جائیں: وہ ہم سے آگے ہے۔
->
-> اس ریپوزٹری کی git ہسٹری 2026-09-30 کو فورک امپورٹ سے شروع ہوتی ہے؛ اپ اسٹریم کی ہسٹری یہاں شامل نہیں۔
+**Merlin Agent وہ خود بہتر بننے والا AI ایجنٹ ہے جو [Epinoia Horizon](https://epinoiahorizon.com) بناتا اور سپورٹ کرتا ہے** — یہ صرف چیٹ ریپر نہیں۔ تجربے سے مہارتیں بناتا ہے، استعمال کے دوران بہتر کرتا ہے، اپنی پرانی گفتگو تلاش کرتا ہے اور سیشنوں کے درمیان آپ کے بارے میں مسلسل گہرا فہم بناتا ہے۔ ایک انسٹالر، ایک ایپ ونڈو، ٹرمینل کی ضرورت نہیں — مکمل نیٹو Windows سپورٹ، اور سپورٹ کا راستہ ہماری طرف ختم ہوتا ہے۔
 
-**Merlin Agent اس اوپن سورس ایجنٹ کی ڈیسک ٹاپ پیکج شدہ تقسیم ہے، جسے [Epinoia Horizon](https://epinoiahorizon.com) بناتا اور سپورٹ کرتا ہے۔** تجربے سے مہارتیں بنانا، استعمال میں بہتر کرنا اور پرانی گفتگو تلاش کرنا — یہ سب اپ اسٹریم کور ہے، جس کا ذکر اوپر ہے۔ Merlin اس کے گرد تقسیم ہے: بغیر ٹرمینل کے انسٹالر اور ایپ ونڈو، پانچ API کیز جمع نہ کرنے والوں کے لیے [Atlas Portal](https://portal.epinoiahorizon.com)، ہماری Windows سپورٹ، اور ہماری اپنی اصلاحات۔
-
-آپ اپنی مرضی کا کوئی بھی ماڈل استعمال کر سکتے ہیں — [Atlas Portal](https://portal.epinoiahorizon.com)، [OpenRouter](https://openrouter.ai) (200 سے زائد ماڈلز)، [NovitaAI](https://novita.ai) (ماڈل API، ایجنٹ سینڈ باکس، اور GPU کلاؤڈ کے لیے اے آئی مقامی کلاؤڈ)، [NVIDIA NIM](https://build.nvidia.com) (Nemotron)، [Xiaomi MiMo](https://platform.xiaomimimo.com)، [z.ai/GLM](https://z.ai)، [Kimi/Moonshot](https://platform.moonshot.ai)، [MiniMax](https://www.minimax.io)، [Hugging Face](https://huggingface.co)، OpenAI، یا اپنا حسب ضرورت اینڈ پوائنٹ (endpoint) استعمال کریں۔ ماڈل تبدیل کرنے کے لیے صرف `merlin model` استعمال کریں — کسی کوڈ کو تبدیل کرنے کی ضرورت نہیں، کوئی پابندی نہیں۔
+آپ اپنی مرضی کا کوئی بھی ماڈل استعمال کر سکتے ہیں — [OpenRouter](https://openrouter.ai) (200 سے زائد ماڈلز)، [NovitaAI](https://novita.ai) (ماڈل API، ایجنٹ سینڈ باکس، اور GPU کلاؤڈ کے لیے اے آئی مقامی کلاؤڈ)، [NVIDIA NIM](https://build.nvidia.com) (Nemotron)، [Xiaomi MiMo](https://platform.xiaomimimo.com)، [z.ai/GLM](https://z.ai)، [Kimi/Moonshot](https://platform.moonshot.ai)، [MiniMax](https://www.minimax.io)، [Hugging Face](https://huggingface.co)، OpenAI، یا اپنا حسب ضرورت اینڈ پوائنٹ (endpoint) استعمال کریں۔ ماڈل تبدیل کرنے کے لیے صرف `merlin model` استعمال کریں — کسی کوڈ کو تبدیل کرنے کی ضرورت نہیں، کوئی پابندی نہیں۔
 
 <table>
 <tr><td><b>حقیقی ٹرمینل انٹرفیس</b></td><td>مکمل TUI جس میں ملٹی لائن ایڈیٹنگ، سلیش-کمانڈ آٹو کمپلیٹ، بات چیت کی ہسٹری، انٹرپٹ اور ری ڈائریکٹ، اور سٹریمنگ ٹول آؤٹ پٹ شامل ہے۔</td></tr>
@@ -102,29 +98,6 @@ merlin doctor       # کسی بھی مسئلے کی تشخیص کریں
 </div>
 
 📖 **[مکمل دستاویزات →](https://docs.withmerlin.online/docs/)**
-
----
-
-## API-کیز اکٹھی کرنے سے بچیں — Atlas Portal
-
-ہرمیس آپ کے پسندیدہ پرووائیڈر کے ساتھ کام کرتا ہے — یہ چیز تبدیل نہیں ہو رہی۔ لیکن اگر آپ ماڈل، ویب سرچ، امیج جنریشن، TTS، اور کلاؤڈ براؤزر کے لیے پانچ الگ الگ API کیز جمع نہیں کرنا چاہتے، تو **[Atlas Portal](https://portal.epinoiahorizon.com)** ان سب کو ایک ہی سبسکرپشن کے تحت کور کرتا ہے:
-
-- **300+ ماڈلز** — ان میں سے کوئی بھی ماڈل `/model <name>` کے ذریعے منتخب کریں
-- **ٹول گیٹ وے (Tool Gateway)** — ویب سرچ، امیج جنریشن (FAL)، ٹیکسٹ ٹو سپیچ (OpenAI)، کلاؤڈ براؤزر (Browser Use)، یہ سب آپ کی سبسکرپشن کے ذریعے چلتے ہیں۔ کسی اضافی اکاؤنٹ کی ضرورت نہیں۔
-
-نئی انسٹالیشن کے بعد بس ایک کمانڈ کی ضرورت ہے:
-
-<div dir="ltr">
-
-```bash
-merlin setup --portal
-```
-
-</div>
-
-یہ آپ کو OAuth کے ذریعے لاگ ان کرواتا ہے، Atlas کو آپ کا پرووائیڈر مقرر کرتا ہے، اور ٹول گیٹ وے کو آن کر دیتا ہے۔ `merlin portal info` کمانڈ استعمال کر کے آپ کسی بھی وقت چیک کر سکتے ہیں کہ کون کون سی سروسز منسلک ہیں۔ مکمل تفصیلات [Tool Gateway دستاویزات کے صفحے](https://docs.withmerlin.online/docs/user-guide/features/tool-gateway) پر موجود ہیں۔
-
-آپ اب بھی کسی بھی ٹول کے لیے اپنی مرضی کی API کیز استعمال کر سکتے ہیں — گیٹ وے ہر سروس کے لیے الگ الگ کام کرتا ہے، ایسا نہیں کہ یا تو سب کچھ استعمال کریں یا کچھ بھی نہیں۔
 
 ---
 
@@ -238,7 +211,7 @@ PM اور Python 3.14 کے ٹیسٹ ماحول اور تصدیقی کمانڈز 
 
 MIT — تفصیلات کے لیے [LICENSE](LICENSE) دیکھیں۔
 
-Merlin Agent، Nous Research کے [hermes-agent](https://github.com/NousResearch/hermes-agent) کا ترمیم شدہ فورک ہے، جو MIT لائسنس کے تحت استعمال ہوتا ہے۔ اصل کاپی رائٹ اطلاع [LICENSE](LICENSE) میں محفوظ ہے اور تبدیلیوں کی فہرست [NOTICE](NOTICE) میں ہے۔ Nous Research اس فورک کی توثیق نہیں کرتا۔
+Merlin Agent کو Epinoia Horizon ایک آزاد پروڈکٹ کے طور پر برقرار رکھتا اور جاری کرتا ہے۔ ایجنٹ کور اصل میں Nous Research کے [hermes-agent](https://github.com/NousResearch/hermes-agent) سے ماخوذ ہے، جو MIT لائسنس کے تحت استعمال ہوتا ہے: اصل کاپی رائٹ اطلاع [LICENSE](LICENSE) میں محفوظ ہے اور مکمل وابستگی کا ریکارڈ [NOTICE](NOTICE) میں ہے۔ Nous Research کی توثیق کا کوئی دعویٰ یا اشارہ نہیں کیا جاتا۔
 
 [نوس ریسرچ (Epinoia Horizon)](https://epinoiahorizon.com) کی جانب سے تیار کردہ۔
 

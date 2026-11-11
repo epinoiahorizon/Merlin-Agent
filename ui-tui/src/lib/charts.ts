@@ -57,7 +57,7 @@ export function sparkRows(series: number[], width: number, rows: number): string
   })
 }
 
-/** Horizontal fill gauge: `█████░░░` for a 0..1 ratio. */
+/** Horizontal fill gauge: `▰▰▰▰▰▱▱▱` for a 0..1 ratio. */
 export function gauge(ratio: number, width: number): string {
   const filled = Math.round(Math.min(1, Math.max(0, ratio)) * width)
 

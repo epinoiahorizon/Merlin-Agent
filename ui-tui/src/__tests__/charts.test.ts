@@ -31,9 +31,10 @@ describe('chart primitives', () => {
   })
 
   it('gauge clamps and fills proportionally', () => {
-    expect(gauge(0.5, 8)).toBe('████░░░░')
-    expect(gauge(-1, 4)).toBe('░░░░')
-    expect(gauge(9, 4)).toBe('████')
+    // Rune-style mana gauge (▰ filled / ▱ rail) — see lib/charts.ts gauge().
+    expect(gauge(0.5, 8)).toBe('▰▰▰▰▱▱▱▱')
+    expect(gauge(-1, 4)).toBe('▱▱▱▱')
+    expect(gauge(9, 4)).toBe('▰▰▰▰')
   })
 
   it('hbars scales to the max with eighth-block tips', () => {

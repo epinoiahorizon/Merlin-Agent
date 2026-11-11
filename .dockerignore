@@ -82,6 +82,14 @@ runtime/
 apps/
 !apps/shared/
 !apps/shared/**
+# web/package.json also depends on "@merlin/ui": "file:../apps/vendor/merlin-ui",
+# so the vendor package must be in the context or npm links nothing and the
+# frontend build dies with TS2307 "Cannot find module '@merlin/ui/...'" for every
+# component. Its own node_modules/dist stay out.
+!apps/vendor/
+!apps/vendor/merlin-ui/
+!apps/vendor/merlin-ui/**
+apps/vendor/merlin-ui/node_modules
 
 # Test suite — not shipped in production images
 tests/
@@ -95,6 +103,10 @@ assets/
 assets/*
 !assets/atlas-girl-black.svg
 !assets/atlas-girl-white.svg
+# icon-mark-*.svg are composed into every icon target (mark_layer -> mark_bbox);
+# without them resvg gets an empty svg_path and the image build dies at "icons 3/3".
+!assets/icon-mark-black.svg
+!assets/icon-mark-white.svg
 !assets/backgrounds/
 !assets/backgrounds/**
 infographic/

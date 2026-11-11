@@ -42,7 +42,7 @@ jobs:
           # reachable on origin/main, else bootstrap would 404 exactly like the bug.
           echo "COMMIT=$COMMIT" >> "$GITHUB_ENV"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.commit }}
           fetch-depth: 0

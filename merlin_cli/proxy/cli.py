@@ -303,7 +303,7 @@ def cmd_proxy_payments(args: Any) -> int:
                 _err(f"file tidak ditemukan: {path}")
                 return 2
             rows = statement.parse(
-                path.read_text(encoding="utf-8", errors="replace"), getattr(args, "format", "auto") or "auto"
+                path.read_text(encoding="utf-8-sig", errors="replace"), getattr(args, "format", "auto") or "auto"
             )
             if not rows:
                 _err("tidak ada baris transaksi yang terbaca — cek format/kolom nominal")

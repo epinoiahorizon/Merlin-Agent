@@ -1613,3 +1613,26 @@ class TestRedactForEgress:
         from agent import redact as R
         monkeypatch.setattr(R, "redact_sensitive_text", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
         assert R.redact_for_egress("sk-live-0123456789abcdef") == R.REDACTION_UNAVAILABLE
+
+
+class TestGithubInstallationTokenFormats:
+    """GitHub App installation tokens move to a stateless JWT (``ghs_`` + base64url
+    with two dots, ~520 chars) during the 2026 rollout. The redactor must mask the
+    whole token, not just the segment before the first dot — a truncated match
+    leaves the signature readable in logs."""
+
+    STATELESS = "ghs_" + "A" * 140 + "." + "B" * 140 + "." + "C" * 120
+    OPAQUE = "ghs_" + "a" * 36
+
+    def test_stateless_jwt_form_is_fully_masked(self):
+        out = redact_sensitive_text(f"export TOKEN={self.STATELESS}")
+        assert "B" * 20 not in out, f"signature segment survived redaction: {out[:80]!r}"
+        assert "C" * 20 not in out, f"signature segment survived redaction: {out[:80]!r}"
+
+    def test_opaque_form_still_masked(self):
+        out = redact_sensitive_text(f"token={self.OPAQUE}")
+        assert "a" * 36 not in out
+
+    def test_short_prefixed_identifier_is_not_a_token(self):
+        benign = "the ghs_ prefix means server-to-server"
+        assert redact_sensitive_text(benign) == benign

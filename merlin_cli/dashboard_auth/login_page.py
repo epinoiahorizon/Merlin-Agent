@@ -25,35 +25,8 @@ _LOGIN_HTML_TEMPLATE = """\
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sign in — Merlin Agent</title>
 <style>
-  /* Brand fonts shipped by @merlin/ui — same files the SPA loads. */
-  @font-face {{
-    font-family: 'Collapse';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('/fonts/Collapse-Regular.woff2') format('woff2');
-  }}
-  @font-face {{
-    font-family: 'Collapse';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url('/fonts/Collapse-Bold.woff2') format('woff2');
-  }}
-  @font-face {{
-    font-family: 'Rules Compressed';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('/fonts/RulesCompressed-Regular.woff2') format('woff2');
-  }}
-  @font-face {{
-    font-family: 'Rules Compressed';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url('/fonts/RulesCompressed-Medium.woff2') format('woff2');
-  }}
+  /* Type: system stacks. Commercial brand faces are no longer bundled —
+     see NOTICE ("Fonts") for the licensing rule. */
 
   :root {{
     --background-base: #170d02;
@@ -72,7 +45,7 @@ _LOGIN_HTML_TEMPLATE = """\
     min-height: 100%;
     background: var(--background-base);
     color: var(--foreground);
-    font-family: 'Collapse', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     font-size: 16px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -123,7 +96,7 @@ _LOGIN_HTML_TEMPLATE = """\
   .brand {{
     text-align: center;
     margin-bottom: 1.75rem;
-    font-family: 'Rules Compressed', 'Collapse', sans-serif;
+    font-family: 'Arial Narrow', system-ui, sans-serif;
     font-weight: 600;
     font-size: 1.05rem;
     letter-spacing: 0.32em;
@@ -155,7 +128,7 @@ _LOGIN_HTML_TEMPLATE = """\
 
   h1 {{
     margin: 0 0 0.4rem;
-    font-family: 'Rules Compressed', 'Collapse', sans-serif;
+    font-family: 'Arial Narrow', system-ui, sans-serif;
     font-weight: 600;
     font-size: 1.85rem;
     letter-spacing: 0.05em;
@@ -184,7 +157,7 @@ _LOGIN_HTML_TEMPLATE = """\
     text-align: center;
     background: var(--midground);
     color: var(--background-base);
-    font-family: 'Collapse', sans-serif;
+    font-family: system-ui, sans-serif;
     font-weight: 700;
     font-size: 0.78rem;
     letter-spacing: 0.2em;
@@ -218,7 +191,7 @@ _LOGIN_HTML_TEMPLATE = """\
     text-align: left;
   }}
   .form-title {{
-    font-family: 'Rules Compressed', 'Collapse', sans-serif;
+    font-family: 'Arial Narrow', system-ui, sans-serif;
     font-weight: 600;
     font-size: 0.72rem;
     letter-spacing: 0.18em;
@@ -243,7 +216,7 @@ _LOGIN_HTML_TEMPLATE = """\
     color: var(--foreground);
     border: 1px solid var(--hairline-strong);
     border-radius: 0;
-    font-family: 'Collapse', sans-serif;
+    font-family: system-ui, sans-serif;
     font-size: 0.95rem;
   }}
   .field-input:focus-visible {{
@@ -312,20 +285,7 @@ _EMPTY_HTML = """\
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sign-in unavailable — Merlin Agent</title>
 <style>
-  @font-face {
-    font-family: 'Collapse';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('/fonts/Collapse-Regular.woff2') format('woff2');
-  }
-  @font-face {
-    font-family: 'Rules Compressed';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url('/fonts/RulesCompressed-Medium.woff2') format('woff2');
-  }
+  /* Type: system stacks (see NOTICE, "Fonts"). */
   :root {
     --background-base: #170d02;
     --midground: #ffac02;
@@ -337,7 +297,7 @@ _EMPTY_HTML = """\
     margin: 0; padding: 0; min-height: 100%;
     background: var(--background-base);
     color: var(--foreground);
-    font-family: 'Collapse', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     font-size: 16px; line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
@@ -357,7 +317,7 @@ _EMPTY_HTML = """\
   }
   h1 {
     margin: 0 0 1rem;
-    font-family: 'Rules Compressed', 'Collapse', sans-serif;
+    font-family: 'Arial Narrow', system-ui, sans-serif;
     font-weight: 600; font-size: 1.5rem;
     letter-spacing: 0.05em; text-transform: uppercase;
     color: var(--midground);

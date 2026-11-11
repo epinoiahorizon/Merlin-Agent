@@ -1656,6 +1656,10 @@ def _agents_md_candidates(cwd_path: Path) -> list[tuple[str, Path, str]]:
                 continue
             content = _read_context_file(candidate)
             label = name if directory == cwd_resolved else os.path.relpath(candidate, cwd_resolved)
+            # Prompt sections must read identically on every OS: backslash
+            # separators in the provenance label would make Windows-headed
+            # conversations byte-different from POSIX ones (#121114).
+            label = label.replace(os.sep, "/")
             found.append((label, candidate, content))
             if content:
                 break  # first name match wins per directory

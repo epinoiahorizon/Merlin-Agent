@@ -7,7 +7,7 @@
   <a href="https://withmerlin.online/">Merlin Agent</a> | <a href="https://withmerlin.online/">Merlin Desktop</a>
 </p>
 <p align="center">
-  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-merlin--agent.epinoiahorizon.com-FFD700?style=for-the-badge" alt="Documentación"></a>
+  <a href="https://docs.withmerlin.online/docs/"><img src="https://img.shields.io/badge/Docs-docs.withmerlin.online-FFD700?style=for-the-badge" alt="Documentación"></a>
   <a href="https://discord.gg/merlin-agent"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/epinoiahorizon/Merlin-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/Licencia-MIT-green?style=for-the-badge" alt="Licencia: MIT"></a>
   <a href="https://epinoiahorizon.com"><img src="https://img.shields.io/badge/Creado%20por-Epinoia%20Horizon-blueviolet?style=for-the-badge" alt="Creado por Epinoia Horizon"></a>
@@ -16,13 +16,9 @@
   <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
 </p>
 
-> **Procedencia, por delante.** Merlin Agent es una distribución con nueva marca de [Hermes Agent](https://github.com/NousResearch/hermes-agent) (MIT, © 2025 Nous Research). El núcleo del agente, las herramientas, el gateway, el motor de skills, el planificador, el shell de escritorio y la TUI son código upstream — no los escribimos nosotros y no lo reclamamos. Los cambios están en [NOTICE](NOTICE) y la licencia en [LICENSE](LICENSE). Nous Research no respalda este fork. Si quieres el proyecto original, ve allí: está más adelantado que nosotros.
->
-> El historial de git de este repositorio comienza en la importación del fork (2026-09-30); no replica el historial upstream.
+**Merlin Agent es el agente de IA auto-mejorable creado y soportado por [Epinoia Horizon](https://epinoiahorizon.com)** — no es un envoltorio de chat. Crea habilidades a partir de la experiencia, las mejora durante el uso, busca en sus propias conversaciones pasadas y mantiene un modelo cada vez más profundo de quién eres entre sesiones. Un instalador, una ventana de aplicación, sin terminal obligatorio — con una ruta de soporte nativa para Windows que termina en nosotros.
 
-**Merlin Agent es una compilación de escritorio empaquetada de ese agente de código abierto, hecha y soportada por [Epinoia Horizon](https://epinoiahorizon.com).** Crea habilidades a partir de la experiencia, las mejora durante el uso y busca en sus conversaciones pasadas — todo eso es el núcleo upstream, acreditado arriba. Merlin es la distribución alrededor: instalador y ventana de aplicación sin terminal, [Atlas Portal](https://portal.epinoiahorizon.com) para quien prefiere no reunir cinco claves de API, soporte con foco en Windows que termina en nosotros, y nuestras propias correcciones encima.
-
-Usa cualquier modelo que quieras — [Atlas Portal](https://portal.epinoiahorizon.com), [OpenRouter](https://openrouter.ai) (más de 200 modelos), [NovitaAI](https://novita.ai), [NVIDIA NIM](https://build.nvidia.com) (Nemotron), [Xiaomi MiMo](https://platform.xiaomimimo.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, o tu propio endpoint. Cambia con `merlin model` — sin cambios de código, sin dependencias.
+Usa cualquier modelo que quieras — [OpenRouter](https://openrouter.ai) (más de 200 modelos), [NovitaAI](https://novita.ai), [NVIDIA NIM](https://build.nvidia.com) (Nemotron), [Xiaomi MiMo](https://platform.xiaomimimo.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, o tu propio endpoint. Cambia con `merlin model` — sin cambios de código, sin dependencias.
 
 <table>
 <tr><td><b>Una interfaz de terminal real</b></td><td>TUI completa con edición multilínea, autocompletado de comandos, historial de conversaciones, interrupción y redirección, y salida de herramientas en streaming.</td></tr>
@@ -87,25 +83,6 @@ merlin doctor       # Diagnostica cualquier problema
 ```
 
 📖 **[Documentación completa →](https://docs.withmerlin.online/docs/)**
-
----
-
-## Evita la colección de claves API — Atlas Portal
-
-Merlin funciona con cualquier proveedor que quieras — eso no cambiará. Pero si prefieres no recopilar cinco claves API separadas para el modelo, búsqueda web, generación de imágenes, TTS y un navegador en la nube, **[Atlas Portal](https://portal.epinoiahorizon.com)** las cubre todas bajo una sola suscripción:
-
-- **Más de 300 modelos** — elige cualquiera con `/model <nombre>`
-- **Tool Gateway** — búsqueda web, generación de imágenes (FAL), texto a voz (OpenAI), navegador en la nube (Browser Use), todo enrutado a través de tu suscripción. Sin cuentas adicionales.
-
-Un comando desde una instalación nueva:
-
-```bash
-merlin setup --portal
-```
-
-Esto te autentica vía OAuth, establece Atlas como tu proveedor y activa el Tool Gateway. Comprueba qué está conectado en cualquier momento con `merlin portal info`. Detalles completos en la [página de documentación del Tool Gateway](https://docs.withmerlin.online/docs/user-guide/features/tool-gateway).
-
-Puedes seguir usando tus propias claves por herramienta cuando quieras — el gateway es por backend, no todo o nada.
 
 ---
 
@@ -207,6 +184,11 @@ de verificación están en [Development Setup](CONTRIBUTING.md#development-setup
 
 MIT — ver [LICENSE](LICENSE).
 
-Merlin Agent es un fork modificado de [hermes-agent](https://github.com/NousResearch/hermes-agent) de Nous Research, usado bajo la licencia MIT. El aviso de copyright original se conserva en [LICENSE](LICENSE) y la lista de cambios está en [NOTICE](NOTICE). Nous Research no respalda este fork.
+Merlin Agent es mantenido y publicado por Epinoia Horizon como un producto
+independiente. El núcleo del agente se derivó originalmente de
+[hermes-agent](https://github.com/NousResearch/hermes-agent) de Nous Research,
+usado bajo la licencia MIT: el aviso de copyright original se conserva en
+[LICENSE](LICENSE) y el registro factual de procedencia está en [NOTICE](NOTICE).
+No se reclama ni implica respaldo por parte de Nous Research.
 
 Creado por Epinoia Horizon.

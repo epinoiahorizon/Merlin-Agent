@@ -9,7 +9,10 @@ For every entrypoint the same invariants must hold on the FIRST turn after a col
 start — any red cell is a wiring-parity bug of the "works in the CLI, missing in
 Desktop/gateway/ACP/cron" class:
 
-* the request carries the context file, the skill index and the memory entry;
+* the request carries the skill index and the memory entry, and (MERLIN_OS SEAL
+  Vector #6) does NOT carry the workspace context file: the seal disabled
+  context-file auto-loading in the main prompt, so a canary that shows up there
+  would mean the seal leaked;
 * both hooks fired AND their injected context reached the model;
 * the MCP tool was offered and a REAL call returned the fixture's canary (the
   inverted ``_stdio_children_dead`` burst failed exactly here on every surface);
@@ -100,7 +103,14 @@ def _run_row(entrypoint: str, root: Path) -> Row:
         result = DRIVERS[entrypoint](ph, srv, PROMPT)
         row.toolset, row.cwd_channel = result.toolset, result.cwd_channel
         obs = collect_observation(entrypoint, ph, srv, result.final_text)
-        cells = check_invariants(obs, ph, toolset=result.toolset)
+        cells = check_invariants(obs, ph, toolset=result.toolset, context_file=False)
+        # MERLIN_OS SEAL (Vector #6): context files are NOT auto-loaded into the
+        # main prompt (agent/prompt_builder.build_context_files_prompt), so the
+        # parity canary must be ABSENT here on every surface. Asserting the seal
+        # instead of the old "context_file" cell keeps the matrix honest: a
+        # canary that leaks back in means the seal broke, not that a surface
+        # forgot to wire the feature.
+        cells["seal_no_context_file"] = ph.canaries["context"] not in obs.system
         cells["answer_delivered"] = FINAL_ANSWER in (result.final_text or "")
         cells["graceful_exit"] = result.graceful_exit
         pids = mcp_pids(ph)

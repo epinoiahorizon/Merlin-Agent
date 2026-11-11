@@ -112,7 +112,7 @@ _IMAGE_API_MODELS: Dict[str, Dict[str, Any]] = {
     "microsoft/mai-image-2.5-pro": _image_api_model(
         "Microsoft MAI-Image-2.5 Pro", "Reach for it when gpt-image-2 misses the brief",
         aspect_ratios=_MAI_RATIOS, max_n=1, max_refs=1),
-    "x-ai/grok-imagine-image-quality": _image_api_model(
+    "x-ai/grok-imagine-image-2.0": _image_api_model(
         "Grok Imagine (Image Quality)",
         "Photoreal; widest exotic-ratio set (9:19.5, 20:9, 2:1 …); 1K/2K",
         aspect_ratios=(

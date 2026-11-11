@@ -8,6 +8,10 @@ import react, { reactCompilerPreset } from "@vitejs/plugin-react";
  *  module — which made the babel pass parse the whole codebase. */
 function compilerPreset() {
   const preset = reactCompilerPreset();
+  // `rolldown.filter` is optional in RolldownBabelPreset; ensure the object
+  // exists so the narrower code filter is installed (the default filter
+  // matches nearly every module and makes the babel pass crawl the codebase).
+  preset.rolldown.filter ??= {};
   preset.rolldown.filter.code = /\/>|<\/|from\s*['"][^'"]*react/;
   return preset;
 }
