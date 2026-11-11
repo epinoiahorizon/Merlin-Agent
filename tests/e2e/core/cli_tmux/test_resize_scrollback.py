@@ -63,9 +63,16 @@ def test_resizes_keep_each_transcript_line_once_in_tmux_scrollback(tmp_path: Pat
             out += [f"--- {name} (tail) ---", *tail]
         pid = tmux("display-message", "-p", "-t", "p", "#{pane_pid}").strip()
         if pid.isdigit():
-            os.kill(int(pid), signal.SIGABRT)
-            time.sleep(2.0)
-            out += ["--- CLI thread dump ---", transcript()[-6000:]]
+            # Diagnostics must never replace the failure they are explaining: the live-system
+            # guard refuses signals aimed outside the test subtree, and swallowing that here
+            # keeps the real "needle never appeared" message in the report.
+            try:
+                os.kill(int(pid), signal.SIGABRT)
+            except RuntimeError as exc:
+                out += [f"--- CLI thread dump skipped: {exc} ---"]
+            else:
+                time.sleep(2.0)
+                out += ["--- CLI thread dump ---", transcript()[-6000:]]
         return "\n".join(out)
 
     def wait_for(needle: str, timeout: float = 60.0) -> None:
@@ -97,7 +104,9 @@ def test_resizes_keep_each_transcript_line_once_in_tmux_scrollback(tmp_path: Pat
         time.sleep(2.0)
 
     with llm:
-        write_merlin_home(home / ".merlin", llm.base_url)
+        # Pin the skin: the welcome line is branding-owned, and the default skin greets with
+        # "The Grimoire opens." — this test asserts on transcript rows, not on branding.
+        write_merlin_home(home / ".merlin", llm.base_url, extra_config="display:\n  skin: slate\n")
         env = {k: v for k, v in os.environ.items() if not k.startswith(("MERLIN_", "TMUX"))}
         env.update(HOME=str(home), MERLIN_HOME=str(home / ".merlin"), PYTHONPATH=str(REPO_ROOT),
                    TERM="xterm-256color", PYTHONFAULTHANDLER="1")
@@ -112,7 +121,9 @@ def test_resizes_keep_each_transcript_line_once_in_tmux_scrollback(tmp_path: Pat
             # still-cooked tty: the kernel echoes them (a plain transcript row) and hands the app
             # text + Enter in one read, which it takes for a pasted newline — the question sits
             # unsent in a two-line draft. The status bar is painted by the running app, in raw mode.
-            wait_for("\u2624 fake-model \u2502", timeout=120)
+            # The status bar that used to print "☤ <model> │" was retired; the live model now
+            # shows on the SPELLBOOK line, which is painted in raw mode like the old one was.
+            wait_for("Incantation: fake-model", timeout=120)
             time.sleep(2.0)
 
             ask(1)
