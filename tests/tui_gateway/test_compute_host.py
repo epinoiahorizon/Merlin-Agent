@@ -20,11 +20,18 @@ def _stdout_queue(proc: subprocess.Popen) -> queue.Queue[dict]:
     return out
 
 
-def _read_json_line(out: queue.Queue[dict], timeout: float = 2.0) -> dict:
+def _read_json_line(out: queue.Queue[dict], timeout: float, what: str) -> dict:
     try:
         return out.get(timeout=timeout)
     except queue.Empty as exc:
-        raise AssertionError("timed out waiting for compute host JSON") from exc
+        raise AssertionError(f"timed out waiting for compute host JSON: {what}") from exc
+
+
+# The first frame includes interpreter boot plus the host's imports, so it gets a
+# cold-start budget measured on a loaded runner (two shards share one box) rather
+# than the in-session budget used once the host is up.
+_HELLO_TIMEOUT = 30.0
+_FRAME_TIMEOUT = 5.0
 
 
 @pytest.mark.platforms("linux")
@@ -45,20 +52,20 @@ def test_compute_host_line_json_hello_and_shutdown():
     assert proc.stdin is not None
     out = _stdout_queue(proc)
     try:
-        hello = _read_json_line(out)
+        hello = _read_json_line(out, _HELLO_TIMEOUT, "hello frame")
         assert hello["type"] == "hello"
         assert hello["host_pid"] == proc.pid
 
         proc.stdin.write(json.dumps({"type": "bogus", "request_id": "b"}) + "\n")
         proc.stdin.flush()
-        error = _read_json_line(out)
+        error = _read_json_line(out, _FRAME_TIMEOUT, "error frame for a bogus type")
         assert error["type"] == "error"
         assert error["message"] == "unknown frame type: bogus"
 
         proc.stdin.write(json.dumps({"type": "shutdown", "request_id": "stop"}) + "\n")
         proc.stdin.flush()
-        assert _read_json_line(out)["type"] == "shutdown.ack"
-        proc.wait(timeout=2)
+        assert _read_json_line(out, _FRAME_TIMEOUT, "shutdown.ack frame")["type"] == "shutdown.ack"
+        proc.wait(timeout=_FRAME_TIMEOUT)
     finally:
         if proc.poll() is None:
             proc.kill()
