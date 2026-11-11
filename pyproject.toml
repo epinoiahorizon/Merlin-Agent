@@ -247,22 +247,28 @@ edge-tts = ["edge-tts==7.2.7"]
 # setup requests report unavailable rather than succeeding with an empty set.
 neutts = ["neutts[all]==1.4.1; python_version < '3.14'"]
 kittentts = [
-  "kittentts @ https://github.com/KittenML/KittenTTS/releases/download/0.8.1/kittentts-0.8.1-py3-none-any.whl ; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin')",
+  "kittentts @ https://github.com/KittenML/KittenTTS/releases/download/0.8.1/kittentts-0.8.1-py3-none-any.whl ; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin') and sys_platform != 'android'",
   # KittenTTS requires misaki[en]>=0.9.4, and PyPI's misaki 0.9.4 caps Python
   # below 3.13. The GitHub source at the pinned commit declares <3.15, so pin
   # the VCS URL to get a 3.14-compatible resolver result. Drop this line when
   # upstream misaki publishes a release that allows 3.14.
-  "misaki[en] @ git+https://github.com/hexgrad/misaki.git@f03fd2be7346952a83d3d4845c217fc7667f322d ; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin')",
-  "soundfile==0.14.0; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin')",
+  "misaki[en] @ git+https://github.com/hexgrad/misaki.git@f03fd2be7346952a83d3d4845c217fc7667f322d ; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin') and sys_platform != 'android'",
+  "soundfile==0.14.0; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin') and sys_platform != 'android'",
 ]
 # onnxruntime has no Intel macOS wheel. Piper has no Windows ARM64 wheel.
 piper = [
-  "piper-tts==1.8.0; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin')",
+  "piper-tts==1.8.0; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin') and sys_platform != 'android'",
 ]
 modal = ["modal==1.5.5"]
 daytona = ["daytona==0.155.0"]
 vercel = ["vercel==0.7.2"]
-google-meet = ["playwright==1.62.0", "websockets==15.0.1"]
+# Playwright ships no Android wheels at all (Termux has no Chromium bundle for
+# it), so the extra is Android-impossible by construction. Without the platform
+# marker uv still resolves this requirement inside the android+3.14 split and
+# the whole lock becomes unresolvable ("playwright==1.62.0 has no
+# python_full_version >= '3.14'-compatible wheels"), which froze `uv lock` for
+# every package, not just this one.
+google-meet = ["playwright==1.62.0; sys_platform != 'android'", "websockets==15.0.1"]
 messaging = [
   "python-telegram-bot[webhooks]==22.8",
   "discord.py[voice]==2.7.1",
@@ -302,7 +308,7 @@ voice = [
   # targets: ctranslate2 has no win_arm64 wheel/sdist (win32-arm64), and
   # onnxruntime has no darwin-x64 wheel/sdist (darwin-x64). Gate the local
   # STT path off both; sounddevice/numpy still ship.
-  "faster-whisper==1.2.1; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or platform_system != 'Darwin')",
+  "faster-whisper==1.2.1; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or platform_system != 'Darwin') and sys_platform != 'android'",
   "sounddevice==0.5.5",
   "numpy==2.4.3",
 ]
@@ -312,13 +318,13 @@ wake = [
   # pyopen-wakeword includes the TFLite library and shared feature models.
   # Its universal2 wheel contains an ARM64-only library, so Intel Macs cannot
   # load it. There is no native Windows ARM64 wheel either.
-  "pyopen-wakeword==1.1.0; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin')",
-  "sherpa-onnx==1.13.8",
+  "pyopen-wakeword==1.1.0; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin') and sys_platform != 'android'",
+  "sherpa-onnx==1.13.8; sys_platform != 'android'",
   # uv reads sherpa-onnx metadata from its cp311-linux_armv7l wheel, which
   # omits this pin. Every wheel the bundles install requires it. Without the
   # pin a frozen sync installs sherpa-onnx alone, and desktop dependency
   # preparation fails on `uv pip check`.
-  "sherpa-onnx-core==1.13.8",
+  "sherpa-onnx-core==1.13.8; sys_platform != 'android'",
   # text2token imports both tokenizers even for English phrases.
   "sentencepiece==0.2.2",
   "pypinyin==0.55.0",
@@ -336,7 +342,7 @@ telegram = ["python-telegram-bot[webhooks]==22.8"]
 discord = ["discord.py[voice]==2.7.1"]
 # stt-whisper + audio-io compose [voice] (faster-whisper / sounddevice / numpy).
 stt-whisper = [
-  "faster-whisper==1.2.1; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or platform_system != 'Darwin')",
+  "faster-whisper==1.2.1; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or platform_system != 'Darwin') and sys_platform != 'android'",
 ]
 audio-io = ["sounddevice==0.5.5", "numpy==2.4.3"]
 # WeChat voice decode (tools/transcription_tools.py self-heal path).
@@ -344,12 +350,12 @@ silk = ["pilk==0.2.4"]
 # Wake-engine sub-extras — lazy per-engine installs so a user who only wants
 # sherpa-onnx doesn't pull the whole [wake] bundle. Pins match [wake].
 wake-openwakeword = [
-  "pyopen-wakeword==1.1.0; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin')",
+  "pyopen-wakeword==1.1.0; (platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin') and sys_platform != 'android'",
 ]
 wake-sherpa = [
-  "sherpa-onnx==1.13.8",
+  "sherpa-onnx==1.13.8; sys_platform != 'android'",
   # Required by the sherpa-onnx wheel. See [wake] for why it is explicit.
-  "sherpa-onnx-core==1.13.8",
+  "sherpa-onnx-core==1.13.8; sys_platform != 'android'",
   "sentencepiece==0.2.2",
   "pypinyin==0.55.0",
 ]
@@ -597,19 +603,24 @@ google-chat = "platform_machine != 'ARM64' or sys_platform != 'win32'"
 # qdrant-client → grpcio (via mem0ai) has no win_arm64 wheel.
 mem0 = "platform_machine != 'ARM64' or sys_platform != 'win32'"
 # Match the engine dependency markers so PM refuses an unsupported install.
-wake-openwakeword = "(platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin')"
+wake-openwakeword = "(platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin') and sys_platform != 'android'"
 # faster-whisper's closure is prebuilt-only: ctranslate2 has no win_arm64 wheel and onnxruntime
 # none for darwin-x64. Its ANCHOR is faster_whisper, so an unsupported machine could install the
 # extra, rebuild the whole dependency environment and still fail the anchor on every retry.
 # Gate the extra that carries only faster-whisper; [voice] also has ungated deps (sounddevice,
 # numpy) and stays installable, see test_declared_extra_gates_match_dependency_selection.
-stt-whisper = "(platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or platform_system != 'Darwin')"
+stt-whisper = "(platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or platform_system != 'Darwin') and sys_platform != 'android'"
 # NeuTTS excludes Python 3.14.
 neutts = "python_version < '3.14'"
 # KittenTTS: onnxruntime has no Intel macOS wheel; misaki[en]'s torch has no
 # Windows ARM64 wheel.
-kittentts = "(platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin')"
-piper = "(platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin')"
+kittentts = "(platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin') and sys_platform != 'android'"
+piper = "(platform_machine != 'ARM64' or sys_platform != 'win32') and (platform_machine != 'x86_64' or sys_platform != 'darwin') and sys_platform != 'android'"
+# sherpa-onnx / sherpa-onnx-core publish no cp314 Android wheels, so [wake] and its
+# sherpa engine sub-extra cannot resolve there: uv fails the android+3.14 split and
+# the ENTIRE lock becomes unresolvable, not just this extra.
+wake = "sys_platform != 'android'"
+wake-sherpa = "sys_platform != 'android'"
 
 [tool.uv]
 # uv otherwise enables the dev group by default, including in payload builds.
