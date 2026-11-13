@@ -1,0 +1,25 @@
+name: Self-hosted smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Prove the runner is really local
+        run: |
+          set -euo pipefail
+          echo "host=$(uname -a)"
+          echo "user=$(id -un)"
+          python3 -c 'import sys; print("python", sys.version.split()[0])'
+          git --version
+          node --version
+          test -d "$HOME/actions-runner"
+          test -d "$HOME/.config/systemd/user"
