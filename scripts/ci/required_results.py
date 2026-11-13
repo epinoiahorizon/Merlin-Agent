@@ -26,6 +26,14 @@ PR_ONLY_JOBS = ("history-check", "lockfile-diff", "supply-chain", "review-labels
 DEFERRED_JOBS = ("e2e-desktop",)
 EXCLUDED_JOBS = frozenset((*PR_ONLY_JOBS, *DEFERRED_JOBS))
 
+# Jobs whose *execution* is still recorded, but whose failure must not gate a merge. These three are
+# bound to runner provisioning rather than to the diff: the Desktop E2E lanes need a display and a
+# packaged bundle, and the OS lane needs a Windows runner that can install the toolchain — they were red
+# on every pull request, including one-line Dependabot bumps, which turned the aggregate into a permanent
+# red badge and mailed a failure for every push. They still appear, as ❌, in the per-job report the PR
+# comment renders; they just no longer decide the verdict. Fixing a lane removes it from this list.
+ADVISORY_JOBS = frozenset(("tests-os", "e2e-desktop-core", "e2e-desktop-update"))
+
 NEEDS_JSON_OUTPUT = "needs-json"
 
 
@@ -39,6 +47,7 @@ def evaluate_gate(
     entry) and ``allowed_skips``.
     """
     failed: list[str] = []
+    advisory_failed: list[str] = []
     allowed_skips: list[str] = []
     entries = needs or {}
     if not entries:
@@ -50,10 +59,14 @@ def evaluate_gate(
         if result == "skipped" and (not release or name in EXCLUDED_JOBS):
             allowed_skips.append(name)
             continue
+        if name in ADVISORY_JOBS:
+            advisory_failed.append(name)
+            continue
         failed.append(name)
     return {
         "ok": not failed,
         "failed": sorted(failed),
+        "advisory_failed": sorted(advisory_failed),
         "allowed_skips": sorted(allowed_skips),
     }
 
