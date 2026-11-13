@@ -30,6 +30,11 @@ _EMAIL_ADDRESS_RE = re.compile(
     r"(?![A-Za-z0-9._%+-])")
 _PASTE_RS_URL = "https://paste.rs/"  # primary; dpaste.com is the fallback
 _DPASTE_COM_URL = "https://dpaste.com/api/"
+# Second fallback: 2026-11 the two services above both stopped working from ordinary
+# machines — paste.rs answered every POST with 400 and dpaste.com presented a chain
+# this host's CA store rejects — so `merlin debug share` could not produce a link at
+# all. paste.c-net.org takes a plain POST and echoes the URL.
+_PASTE_C_NET_URL = "https://paste.c-net.org/"
 _USER_AGENT = "merlin-agent/debug-share"
 _MAX_LOG_BYTES = 512_000  # per log file for upload (paste.rs caps at ~1 MB)
 _AUTO_DELETE_SECONDS = 21600  # 6 hours
@@ -114,7 +119,9 @@ after 6 hours, but may be archived by third parties in the meantime.
 
 If paste.rs is unreachable, uploads fall back to dpaste.com: those pastes
 stay public for the --expire window (default: 1 day) and CANNOT be deleted
-with `merlin debug delete`.
+with `merlin debug delete`. If both refuse, the last resort is
+paste.c-net.org, which keeps the paste for a fixed period and also cannot be
+deleted from here.
 
 Use --local to view the report without uploading.
 """
@@ -194,8 +201,14 @@ def _upload_dpaste_com(content: str, expiry_days: int = 1) -> str:
                        f"multipart/form-data; boundary={boundary}")
 
 
+def _upload_paste_c_net(content: str) -> str:
+    """paste.c-net.org: plain POST, URL echoed back, kept for a fixed period."""
+    return _post_paste("paste.c-net.org", _PASTE_C_NET_URL, content.encode("utf-8"),
+                       "text/plain; charset=utf-8")
+
+
 def upload_to_pastebin(content: str, expiry_days: int = 1) -> str:
-    """Upload *content* to a paste service, trying paste.rs then dpaste.com.
+    """Upload *content* to a paste service, trying paste.rs, dpaste.com, then paste.c-net.org.
 
     ``expiry_days`` applies only to the dpaste.com fallback (paste.rs pastes are
     swept after 6h); dpaste.com's minimum is 1 day and anonymous pastes cannot
@@ -204,7 +217,8 @@ def upload_to_pastebin(content: str, expiry_days: int = 1) -> str:
     errors: list[str] = []
     for service, upload in (
         ("paste.rs", lambda: _upload_paste_rs(content)),
-        ("dpaste.com", lambda: _upload_dpaste_com(content, expiry_days=expiry_days))):
+        ("dpaste.com", lambda: _upload_dpaste_com(content, expiry_days=expiry_days)),
+        ("paste.c-net.org", lambda: _upload_paste_c_net(content))):
         try:
             return upload()
         except Exception as exc:
@@ -547,17 +561,23 @@ def run_debug_share(args):
     if result.failures:
         print(f"\n  (failed to upload: {', '.join(result.failures)})")
     dpaste_urls = [u for u in result.urls.values() if _is_dpaste_url(u)]
+    deletable = [u for u in result.urls.values() if _extract_paste_id(u)]
+    other_urls = [u for u in result.urls.values()
+                  if u not in dpaste_urls and u not in deletable]
+    if deletable:
+        print(f"\n⏱  {len(deletable)} paste(s) will auto-delete in "
+              f"{result.auto_delete_seconds // 3600} hours.\n"
+              "To delete now:  merlin debug delete <url>")
     if dpaste_urls:
-        print(f"\n⏱  paste.rs pastes will auto-delete in "
-              f"{result.auto_delete_seconds // 3600} hours.")
-        print(f"⚠️  {len(dpaste_urls)} of {len(result.urls)} upload(s) fell back to "
+        print(f"\n⚠️  {len(dpaste_urls)} of {len(result.urls)} upload(s) fell back to "
               f"dpaste.com: those pastes stay public for {expiry} day(s) and CANNOT be "
-              "deleted with `merlin debug delete`.\n"
-              "\nShare these links with the Merlin team for support.")
-    else:
-        print(f"\n⏱  Pastes will auto-delete in {result.auto_delete_seconds // 3600} hours.\n"
-              "To delete now:  merlin debug delete <url>\n"
-              "\nShare these links with the Merlin team for support.")
+              "deleted with `merlin debug delete`.")
+    if other_urls:
+        # paste.c-net.org has no delete API: never imply this link can be removed from here.
+        print(f"\n⚠️  {len(other_urls)} of {len(result.urls)} upload(s) landed on "
+              "paste.c-net.org (last-resort fallback): they cannot be deleted with "
+              "`merlin debug delete` and expire on the service's own schedule.")
+    print("\nShare these links with the Merlin team for support.")
 
 
 _ATLAS_PRIVACY_NOTICE = """\

@@ -51,6 +51,21 @@ def merlin_home(tmp_path, monkeypatch):
 class TestUploadToPastebin:
     """Test the combined upload with fallback."""
 
+    def test_never_promises_deletion_for_a_service_that_cannot_delete(self, capsys, monkeypatch):
+        """paste.c-net.org has no delete API; the summary must not echo "To delete now"."""
+        import argparse
+        from merlin_cli import debug as d
+
+        monkeypatch.setattr(d, "build_debug_share", lambda **kw: d.DebugShareResult(
+            urls={"Report": "https://paste.c-net.org/Alpha"},
+            failures=[], redacted=True, auto_delete_seconds=d._AUTO_DELETE_SECONDS))
+        monkeypatch.setattr(d, "_confirm_upload", lambda args: True)
+
+        d.run_debug_share(argparse.Namespace(lines=200, expire=1, no_redact=False, yes=True))
+        out = capsys.readouterr().out
+        assert "To delete now" not in out
+        assert "cannot be deleted" in out
+
 
     def test_falls_back_to_dpaste_com(self):
         from merlin_cli.debug import upload_to_pastebin
@@ -70,9 +85,26 @@ class TestUploadToPastebin:
         with patch("merlin_cli.debug._upload_paste_rs",
                     side_effect=Exception("err1")), \
              patch("merlin_cli.debug._upload_dpaste_com",
-                    side_effect=Exception("err2")):
+                    side_effect=Exception("err2")), \
+             patch("merlin_cli.debug._upload_paste_c_net",
+                    side_effect=Exception("err3")):
             with pytest.raises(RuntimeError, match="Failed to upload"):
                 upload_to_pastebin("content")
+
+    def test_falls_back_to_paste_c_net_when_dpaste_refuses(self):
+        """Both older services can refuse at once; the share must still produce a link."""
+        from merlin_cli.debug import upload_to_pastebin
+
+        with patch("merlin_cli.debug._upload_paste_rs",
+                    side_effect=Exception("HTTP Error 400")), \
+             patch("merlin_cli.debug._upload_dpaste_com",
+                    side_effect=Exception("SSL: CERTIFICATE_VERIFY_FAILED")), \
+             patch("merlin_cli.debug._upload_paste_c_net",
+                    return_value="https://paste.c-net.org/TEST") as cn:
+            url = upload_to_pastebin("content")
+
+        assert url == "https://paste.c-net.org/TEST"
+        cn.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
