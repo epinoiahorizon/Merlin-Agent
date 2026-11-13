@@ -32,6 +32,7 @@ def test_status_policy(job, result, ordinary, excluded, release):
         expected = True
     verdict = evaluate_gate({job: {} if result is None else {"result": result}}, release=release)
     assert verdict == {"ok": expected, "failed": [] if expected else [job],
+                       "advisory_failed": [],
                        "allowed_skips": [job] if expected and result == "skipped" else []}
 
 
@@ -45,7 +46,7 @@ def test_release_exclusion_policy():
 @pytest.mark.parametrize("release", [False, True])
 def test_empty_needs_fails_closed(needs, release):
     assert evaluate_gate(needs, release=release) == {
-        "ok": False, "failed": ["<no-needs>"], "allowed_skips": [],
+        "ok": False, "failed": ["<no-needs>"], "advisory_failed": [], "allowed_skips": [],
     }
     assert required_results.compact_results(needs) == {}
 
@@ -73,3 +74,25 @@ def test_cli_stdin_exit_codes_and_output(tmp_path, release, results, code, repor
     assert f"{key}={value}" in child.stdout
     for name, result in results.items():
         assert f"{name}: {result}" in child.stdout
+
+
+@pytest.mark.parametrize("job", sorted(required_results.ADVISORY_JOBS))
+@pytest.mark.parametrize("result", ["failure", "cancelled", "timed_out"])
+def test_advisory_failures_are_reported_without_gating(job, result):
+    """Provisioning-bound lanes stay visible but no longer decide the verdict.
+
+    They were red on every pull request — including one-line Dependabot bumps — so the aggregate was a
+    permanent red badge and every push mailed a failure. The report still renders them: only the verdict
+    ignores them, and fixing a lane removes it from ADVISORY_JOBS.
+    """
+    verdict = evaluate_gate({job: {"result": result}})
+
+    assert verdict["ok"] is True
+    assert verdict["failed"] == []
+    assert verdict["advisory_failed"] == [job]
+
+
+@pytest.mark.parametrize("job", ["tests", "lint", "js-tests", "e2e-desktop", "supply-chain"])
+def test_advisory_set_never_absorbs_a_real_gate(job):
+    assert job not in required_results.ADVISORY_JOBS
+    assert evaluate_gate({job: {"result": "failure"}})["ok"] is False
