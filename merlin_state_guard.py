@@ -23,16 +23,34 @@ except ImportError:  # pragma: no cover - stripped/scaffold installs only
 _STATE_DB_GUARD_BYPASS_ENV = "MERLIN_STATE_DB_GUARD_BYPASS"
 
 
+def _developer_home() -> Optional[Path]:
+    """The account's home from the passwd database — never ``$HOME``.
+
+    A hermetic test points HOME at its tmp dir, and ``expanduser("~")`` honours
+    HOME, so the "real" root collapsed onto the test's own throwaway
+    ``<tmp>/home/.merlin``. The guard then classified that temp state.db as
+    production and refused to open it, which broke every e2e that runs a real
+    CLI with an isolated home. The passwd entry cannot be redirected by env.
+    """
+    try:
+        import pwd
+
+        return Path(pwd.getpwuid(os.getuid()).pw_dir)
+    except Exception:
+        return None
+
+
 def _real_platform_state_root() -> Optional[Path]:
     """The REAL platform-default Merlin root. Avoids ``Path.home()`` /
-    ``merlin_constants`` (tests monkeypatch Path.home to a tempdir); ``expanduser``
-    reads HOME/passwd, which the conftest never rewrites."""
+    ``merlin_constants`` (tests monkeypatch Path.home to a tempdir); the passwd
+    entry on POSIX and the OS API on Windows are not rewritable from the env."""
     try:
-        home = Path(os.path.expanduser("~"))
         if sys.platform == "win32":
+            home = Path(os.path.expanduser("~"))
             base = os.environ.get("LOCALAPPDATA", "").strip()
             root = Path(base) / "merlin" if base else home / "AppData" / "Local" / "merlin"
         else:
+            home = _developer_home() or Path(os.path.expanduser("~"))
             root = home / ".merlin"
         return root.resolve()
     except Exception:
