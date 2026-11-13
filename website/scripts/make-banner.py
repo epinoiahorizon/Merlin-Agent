@@ -4,7 +4,7 @@ Why a script rather than a hand-edited PNG: the OG image is the first thing anyo
 docs link is shared, and the previous one still said HERMES-AGENT. A generator keeps the style
 reproducible and makes the next product rename a one-line change instead of an art task.
 
-  python website/scripts/make-banner.py --out website/static/img/merlin-agent-banner.png
+  python website/scripts/make-banner.py --out website/static/img/merlin-agent-card.png
 """
 from __future__ import annotations
 
@@ -92,6 +92,6 @@ def render(out: Path, font_path: Path | None = None) -> None:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default="website/static/img/merlin-agent-banner.png")
+    ap.add_argument("--out", default="website/static/img/merlin-agent-card.png")
     ap.add_argument("--font", default=None)
     render(Path(ap.parse_args().out), ap.parse_args().font)
