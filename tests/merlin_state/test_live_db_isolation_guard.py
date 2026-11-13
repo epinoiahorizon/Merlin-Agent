@@ -195,3 +195,25 @@ class TestSubprocessChildCovered:
         )
         assert proc.returncode == 0, proc.stderr
         assert "OK" in proc.stdout
+
+
+class TestRealRootIgnoresRedirectedHome:
+    @pytest.mark.skipif(sys.platform == "win32", reason="passwd-based home is POSIX-only")
+    def test_a_redirected_home_is_not_the_real_root(self, tmp_path, monkeypatch):
+        """HOME points at a tmp dir during a hermetic test, and expanduser("~") follows it.
+
+        That made the "real" platform root collapse onto the test's own
+        ``<tmp>/.merlin``, so the guard classified the throwaway state.db as
+        production and refused to open it — the real CLI in an isolated home then
+        greeted the user with "session store unavailable" and every e2e that boots
+        a CLI died on a missing welcome line.
+        """
+        from merlin_state_guard import _is_production_state_db, _real_platform_state_root
+
+        monkeypatch.setenv("HOME", str(tmp_path))
+        root = _real_platform_state_root()
+        assert root is not None
+        assert root != (tmp_path / ".merlin").resolve()
+        assert not _is_production_state_db(
+            (tmp_path / ".merlin" / "state.db").resolve(), root
+        )
