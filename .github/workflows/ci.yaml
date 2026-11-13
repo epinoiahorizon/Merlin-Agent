@@ -61,7 +61,10 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────
   detect:
     name: Detect affected areas
-    runs-on: ubuntu-latest
+    # The hosted runner never reaches this job when the private repo's billing fails. The classifier is
+    # small and read-only, so it runs on the repo-scoped WSL runner; every lane it feeds stays hosted
+    # unless its own workflow is explicitly rerouted.
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 1
     outputs:
       python: ${{ steps.gate-lanes.outputs.python }}
