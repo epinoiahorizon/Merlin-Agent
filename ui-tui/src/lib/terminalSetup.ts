@@ -224,7 +224,12 @@ export function getVSCodeStyleConfigDir(
   }
 
   if (platform === 'win32') {
-    return env['APPDATA'] ? targetJoin(env['APPDATA'], appName, 'User') : null
+    // %APPDATA% is the canonical root, but it is not guaranteed to be in the env a caller hands us
+    // (tests, a child process built from a scrubbed environment, an embedder). Returning null there
+    // silently disabled the VS Code keybinding hint on Windows; the profile's Roaming folder is the
+    // same location APPDATA points at, so fall back to it instead of giving up.
+    const appData = (env['APPDATA'] ?? '').trim()
+    return targetJoin(appData || targetJoin(homeDir, 'AppData', 'Roaming'), appName, 'User')
   }
 
   return targetJoin(homeDir, '.config', appName, 'User')
