@@ -80,16 +80,26 @@ def test_custom_home_tmpdir_is_relocated_before_pytest_uses_it(tmp_path):
     assert not result.stdout.strip().startswith(str(home))
 
 
-def test_default_home_unmarked_tmpdir_is_relocated_before_pytest_uses_it(tmp_path):
-    # Model the operator's default root with a disposable HOME, not ~/.merlin.
+def test_repointing_home_cannot_move_the_guarded_root(tmp_path):
+    """The guarded root comes from the OS account, not from $HOME.
+
+    The previous version of this test assumed a disposable $HOME would *become* the guarded root, and
+    that conftest would then strip a TMPDIR inside it. That stopped being true when
+    ``_real_platform_state_root()`` was hardened to ignore the environment — a root an environment
+    variable can move is exactly the isolation escape it exists to prevent — so the test asserted a
+    design the code had deliberately abandoned, and it failed on every machine with a real install.
+    Assert the invariant instead: repointing HOME must not move the root.
+    """
     operator_home = tmp_path / "operator"
-    scratch = operator_home / ".merlin" / "cache" / "scratch"
-    scratch.mkdir(parents=True)
-    env = dict(os.environ, HOME=str(operator_home), TMPDIR=str(scratch))
+    (operator_home / ".merlin" / "cache" / "scratch").mkdir(parents=True)
+    env = dict(os.environ, HOME=str(operator_home), USERPROFILE=str(operator_home))
     env.pop("MERLIN_HOME", None)
     env.pop("MERLIN_SCRATCH_DIR", None)
     result = subprocess.run(
-        [sys.executable, "-c", "import tempfile, tests.conftest; print(tempfile.gettempdir())"],
+        [sys.executable, "-c",
+         "from merlin_state_guard import _real_platform_state_root as r; print(r())"],
         env=env, capture_output=True, text=True, check=True,
     )
-    assert not result.stdout.strip().startswith(str(operator_home / ".merlin"))
+    root = result.stdout.strip()
+    assert root, "guarded root resolved to nothing"
+    assert not root.startswith(str(operator_home)), f"guarded root followed $HOME: {root}"
