@@ -531,7 +531,12 @@ export function ContribWiring({ children }: { children: ReactNode }) {
     refreshMerlinConfig,
     refreshSessions,
     sessionStateByRuntimeIdRef,
-    updateSessionState
+    updateSessionState,
+    // Raw requester so the gateway.ready handler can seed the FULL skin
+    // catalog (`config.get skins`): every installed skin reaches the theme
+    // registry on connect, and the picker lists user skins without each
+    // having been the active one first.
+    requestGateway
   })
 
   // Agent-driven preview routing (agent opens a URL/file -> the preview rail

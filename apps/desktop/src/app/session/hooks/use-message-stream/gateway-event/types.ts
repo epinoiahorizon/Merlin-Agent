@@ -56,6 +56,11 @@ export interface GatewayEventDeps {
     sourceEventType?: string,
     occurredAt?: number
   ) => void
+  /** Optional raw gateway requester — the skin-catalog seeder (`config.get skins`)
+   *  on `gateway.ready` so skins that were never the ACTIVE skin still reach the
+   *  theme registry. Optional so existing dep constructions (tests, non-chat
+   *  mounts) stay valid; absent = no catalog seeding. */
+  requestGateway?: (method: string, params?: Record<string, unknown>, timeoutMs?: number) => Promise<unknown>
 }
 
 /** Everything a per-family handler needs about the event being dispatched —

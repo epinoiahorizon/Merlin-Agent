@@ -60,6 +60,9 @@ interface MessageStreamOptions {
     updater: (state: ClientSessionState) => ClientSessionState,
     storedSessionId?: string | null
   ) => ClientSessionState
+  /** Raw gateway requester, forwarded to the event dispatcher so `gateway.ready`
+   *  can seed the full skin catalog (`config.get skins`). Optional. */
+  requestGateway?: (method: string, params?: Record<string, unknown>, timeoutMs?: number) => Promise<unknown>
 }
 
 interface QueuedStreamDelta {
@@ -138,7 +141,8 @@ export function useMessageStream({
   refreshMerlinConfig,
   refreshSessions,
   sessionStateByRuntimeIdRef,
-  updateSessionState
+  updateSessionState,
+  requestGateway
 }: MessageStreamOptions) {
   const sessionInterrupted = useCallback(
     (sessionId: string) => sessionStateByRuntimeIdRef.current.get(sessionId)?.interrupted ?? false,
@@ -1186,7 +1190,8 @@ export function useMessageStream({
     sessionInterrupted,
     sessionStateByRuntimeIdRef,
     updateSessionState,
-    upsertToolCall
+    upsertToolCall,
+    requestGateway
   })
 
   // Server→client requests (clarify, approval, sudo, …) from every socket the

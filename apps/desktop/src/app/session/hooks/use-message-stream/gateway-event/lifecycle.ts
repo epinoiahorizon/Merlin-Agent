@@ -18,7 +18,7 @@ import { markRuntimeGone } from '@/store/runtime-gone'
 import { dropSessionState, unbindTileRuntime } from '@/store/session-states'
 // Leaf import (not the `@/themes` barrel) to avoid pulling the ThemeProvider
 // module graph into the gateway event hot path.
-import { ingestBackendSkin } from '@/themes/backend-sync'
+import { ingestBackendSkin, requestBackendSkinCatalog } from '@/themes/backend-sync'
 
 import type { GatewayEventContext } from './types'
 
@@ -31,6 +31,16 @@ export function handleLifecycleEvent(ctx: GatewayEventContext): boolean {
     // Seed the active skin into the desktop theme registry without applying,
     // so a fresh connect never overrides the user's persisted desktop theme.
     ingestBackendSkin(ready?.skin, { apply: false })
+    // Skins the backend never broadcast (user-installed while we were offline,
+    // or skins that were simply never the active one) stay invisible in the
+    // theme picker forever - the registry only learns what it is handed. The
+    // gateway exposes the full catalog (`config.get skins`); seed it in the
+    // background so every installed skin shows up without a manual cycling
+    // dance. Fire-and-forget: a slow/broken catalog fetch must never hold the
+    // ready path, and the registry caches results in localStorage.
+    if (deps.requestGateway) {
+      void requestBackendSkinCatalog(deps.requestGateway as never).catch(() => {})
+    }
     // Backends with the change watcher broadcast pet/cron/sessions change
     // events; consumers demote their legacy polls to slow backstops.
     setChangeEventsAvailable(Boolean(ready?.change_events))

@@ -150,6 +150,53 @@ export function ingestBackendSkin(skin: MerlinSkin | undefined | null, { apply }
 // This is a boot fallback, not a remote activation. ThemeProvider uses the
 // name only when the desktop has no saved appearance of its own, while this
 // registers the custom palette early enough for that first paint to resolve.
+// Boot fallback: the Electron main process reads the active local `display.skin`
+// before the renderer exists, giving the registry an early copy. The FULL catalog
+// is seeded right after connect (`requestBackendSkinCatalog` below).
 if (localSkin) {
   ingestBackendSkin(localSkin, { apply: false })
+}
+
+/**
+ * Seed every installed skin from the gateway's `config.get skins` catalog.
+ *
+ * The event stream only ever carries the ACTIVE skin (`gateway.ready` /
+ * `skin.changed`), so a user-installed skin stayed invisible in the theme
+ * picker until each had been active while connected. Calling this after
+ * `gateway.ready` registers the whole catalog at once; `$backendThemes`
+ * persists to localStorage, so the cost is one request per connect and the
+ * picker is complete on every later boot. Built-in names keep the desktop's
+ * hand-tuned palettes (see ingestBackendSkin), their payloads are simply
+ * ignored here — no shadowing.
+ */
+export async function requestBackendSkinCatalog(fetcher: {
+  requestGateway: (method: string, params?: Record<string, unknown>, timeoutMs?: number) => Promise<{
+    skins?: Array<Record<string, unknown>>
+  }>
+}): Promise<number> {
+  try {
+    const result = await fetcher.requestGateway('config.get', { key: 'skins' }, 10000)
+    const skins = Array.isArray(result?.skins) ? result.skins : []
+    let seeded = 0
+    for (const skin of skins) {
+      const payload = skin as MerlinSkin
+      if (!payload || typeof payload !== 'object' || !String(payload.name ?? '').trim()) {
+        continue
+      }
+      // apply:false — the user's persisted desktop theme must not be stomped
+      // by whatever the backend currently has active; this registers only.
+      ingestBackendSkin(payload, { apply: false })
+      seeded += 1
+    }
+    if (seeded > 0) {
+      // eslint-disable-next-line no-console -- one-line diagnostic, not a logger dep
+      console.info(`[themes] seeded ${seeded} skins from the backend catalog`)
+    }
+    return seeded
+  } catch {
+    // A pre-1.0 backend without `config.get skins` (or a dropped socket):
+    // the active-skin seed from gateway.ready is already in place, so this is
+    // a graceful degradation, not an error surface.
+    return 0
+  }
 }
