@@ -220,6 +220,54 @@ _CLOUD_PROVIDER_SPECS = {
                   "STT provider 'deepinfra' configured but DEEPINFRA_API_KEY not set (or openai package missing)",
                   "No local STT available, using DeepInfra Whisper API")}
 
+# Auto-detect chain order (mirrors ``_CLOUD_PROVIDER_SPECS`` insertion order) for the
+# auth-failure fall-through in :func:`_transcribe_prepared_audio`.
+CLOUD_ORDER: tuple = tuple(_CLOUD_PROVIDER_SPECS)
+
+# Markers of a provider whose CONFIG is fine but CREDENTIALS were rejected at call time
+# (or were missing when the handler needed them). Only these authorize fall-through —
+# network hiccups, invalid audio, and backend bugs must fail loudly, not skip providers.
+# Matching runs on a normalized form (lowercased, ``_`` folded to a space) so
+# ``ELEVENLABS_API_KEY not set`` (handler prose) and ``invalid_api_key`` (SDK constant)
+# collapse onto the same space-spelled markers below.
+_AUTH_ERROR_MARKERS = (
+    "http status code: 401", "status: 401", "status code 401", "http 401",
+    "http status code: 403", "status: 403", "status code 403", "http 403",
+    "401 unauthorized", "403 forbidden",
+    "incorrect api key", "invalid api key",
+    "unauthorized", "forbidden", "not authenticated", "authentication",
+    "api key not valid", "api key provided", "missing api key",
+    "api key not set", "no api key", "api key is invalid", "bad credentials",
+    "api key required", "check your api key", "unregistered",
+)
+
+
+def _normalize_auth_text(text: str) -> str:
+    """Lowercase and fold ``_`` to spaces so KEY spellings match across providers/SDKs."""
+    return text.lower().replace("_", " ")
+
+# The provider that just rejected credentials is removed from the chain before the next
+# attempt so a broken probe returning truthy can't loop; the rest keep their order.
+_CHAIN = CLOUD_ORDER
+
+
+def _stt_auth_error(result: Any) -> Optional[str]:
+    """Return the error text when *result* is an auth/credential failure envelope, else None.
+
+    ``_error_result`` (transcription_common) shape: ``{success: False, error: str, ...}``.
+    ``None`` for success envelopes AND for non-auth errors (network, audio validity, bugs) —
+    those must fail loudly instead of silently burning a provider from the chain. Consulted
+    only by the auto-detect path in ``_transcribe_prepared_audio``."""
+    if not isinstance(result, dict) or result.get("success") is not False:
+        return None
+    text = _normalize_auth_text(
+        str(result.get("error") or result.get("message") or result.get("detail") or ""))
+    if not text:
+        return None
+    if any(_normalize_auth_text(marker) in text for marker in _AUTH_ERROR_MARKERS):
+        return text
+    return None
+
 # Explicit selections whose resolution is more than a probe + warning.
 _EXPLICIT_RESOLVERS = {
     "local": _resolve_explicit_local,
@@ -402,6 +450,34 @@ def _read_block_error(file_path: str) -> Optional[Dict[str, Any]]:
     return _error_result(blocked) if blocked else None
 
 
+def _prepare_audio_for_provider(
+    file_path: str, provider: str, stt_config: Dict[str, Any], cleanup: ExitStack):
+    """Shared per-provider prep: CAF conversion + remote-size cap + silence trim.
+
+    Returns the prepared path on success, or an error envelope that must be surfaced
+    directly (size cap exceeded / CAF could not convert). Trims silence only for cloud
+    providers — local providers always upload as-is."""
+    if not _is_local_stt_provider(provider, stt_config):
+        error = _validate_audio_file_size(Path(file_path))
+        if error:
+            return error
+        # Never overwrite a neighboring WAV or leave converted voice notes behind.
+        if Path(file_path).suffix.lower() == ".caf":
+            work_dir = cleanup.enter_context(
+                TemporaryDirectory(prefix="merlin-caf-", ignore_cleanup_errors=True)
+            )
+            file_path = _convert_caf_to_wav(file_path, work_dir)
+            if not file_path:
+                return _error_result("CAF audio could not be converted to WAV.")
+    # Best-effort pre-upload silence trim for built-in cloud providers.
+    if provider in CLOUD_STT_PROVIDERS:
+        trimmed = _trim_silence_for_cloud_stt(file_path, stt_config)
+        if trimmed:
+            file_path = trimmed
+            cleanup.callback(shutil.rmtree, os.path.dirname(trimmed), ignore_errors=True)
+    return file_path
+
+
 def _transcribe_prepared_audio(
     file_path: str, model: Optional[str] = None, source: Optional[str] = None) -> Dict[str, Any]:
     """Transcribe a validated audio file with the configured STT provider. ``model`` overrides the
@@ -415,27 +491,47 @@ def _transcribe_prepared_audio(
     stt_config = _load_stt_config()
     if not is_stt_enabled(stt_config):
         return _error_result("STT is disabled in config.yaml (stt.enabled: false).")
+    explicit_provider = "provider" in stt_config
     provider = _get_provider(stt_config)
-    with ExitStack() as cleanup:
-        if not _is_local_stt_provider(provider, stt_config):
-            error = _validate_audio_file_size(Path(file_path))
-            if error:
-                return error
-            # Never overwrite a neighboring WAV or leave converted voice notes behind.
-            if Path(file_path).suffix.lower() == ".caf":
-                work_dir = cleanup.enter_context(
-                    TemporaryDirectory(prefix="merlin-caf-", ignore_cleanup_errors=True)
-                )
-                file_path = _convert_caf_to_wav(file_path, work_dir)
-                if not file_path:
-                    return _error_result("CAF audio could not be converted to WAV.")
-        # Best-effort pre-upload silence trim for built-in cloud providers.
-        if provider in CLOUD_STT_PROVIDERS:
-            trimmed = _trim_silence_for_cloud_stt(file_path, stt_config)
-            if trimmed:
-                file_path = trimmed
-                cleanup.callback(shutil.rmtree, os.path.dirname(trimmed), ignore_errors=True)
-        return _dispatch_stt_provider(file_path, provider, stt_config, model, source)
+    # Auth-failure fall-through (auto-detect treats "key present" as "provider works":
+    # a provider sitting earlier in the chain with an INVALID key hard-failed every turn
+    # even though a later member had a valid one). AUTO-DETECTED cloud providers get ONE
+    # retry pass down the remaining chain when their backend rejects credentials
+    # (401/403/missing key at call time). Non-auth errors (network, audio, bugs) and
+    # explicit provider selections still fail loudly — the user asked for THAT provider.
+    if explicit_provider or provider not in CLOUD_ORDER:
+        chain = [provider]
+    else:
+        # Local backends are never retried remotely; fall-through skips local and tries
+        # every cloud member AFTER the one that just failed, in existing priority order.
+        if _is_local_stt_provider(provider, stt_config) or provider == "none":
+            chain = [provider]
+        else:
+            chain = [provider] + [
+                name for name in CLOUD_ORDER[CLOUD_ORDER.index(provider) + 1:]]
+    last_result: Optional[Dict[str, Any]] = None
+    for attempt, current in enumerate(chain):
+        with ExitStack() as cleanup:
+            prepared = _prepare_audio_for_provider(file_path, current, stt_config, cleanup)
+            if isinstance(prepared, dict):
+                # Size-cap / CAF errors are provider-independent: never retry them.
+                return prepared
+            send_path = prepared if isinstance(prepared, str) else file_path
+            last_result = _dispatch_stt_provider(
+                send_path, current, stt_config, model, source)
+            auth_error = _stt_auth_error(last_result)
+            if not auth_error:
+                return last_result
+            if attempt == 0:
+                logger.warning(
+                    "Auto-detected STT provider '%s' rejected its credentials (%s); "
+                    "falling through to later chain members", current, auth_error)
+            else:
+                logger.warning(
+                    "Fallback STT provider '%s' also rejected credentials; continuing "
+                    "down the chain", current)
+    return last_result if last_result is not None else _error_result(
+        "No STT provider accepted the transcription request.")
 
 
 # Built-in provider -> (stt section, config key, default, treat-empty-as-missing). "local_command"

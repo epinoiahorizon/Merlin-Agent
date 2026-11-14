@@ -3226,6 +3226,15 @@ _PLATFORM_CONTAINER_KEYS = frozenset({"platforms"})
 # Top-level keys whose sub-keys are accepted without deep checking.
 _OPEN_SUBKEY_TOP_LEVEL_KEYS = _OPEN_DICT_TOP_LEVEL_KEYS | _DYNAMIC_TOP_LEVEL_KEYS | _SCHEMA_DEFINED_DICT_KEYS
 
+# Leaf config paths the runtime READS but DEFAULT_CONFIG deliberately does not seed, so the
+# dict-walk in _validate_config_key would flag them as typos. Mirrors _EXTRA_KNOWN_ROOT_KEYS,
+# one level deeper: DEFAULT_CONFIG omits ``stt.provider`` so an UNSET value means the
+# auto-detect ladder (``stt_config.get("provider", DEFAULT_PROVIDER)`` in
+# tools/transcription_tools.py), while a stored value is a valid explicit pick.
+_EXTRA_KNOWN_LEAF_PATHS: frozenset[str] = frozenset({
+    "stt.provider",  # unset = auto-detect ladder; set = explicit provider pick
+})
+
 
 def _known_top_level_keys() -> set[str]:
     """Return the union of known top-level config keys for validation.
@@ -3256,6 +3265,12 @@ def _validate_config_key(key: str) -> tuple[bool, Optional[str]]:
 
     segments = _split_key_path(key)
     top = segments[0]
+
+    # Runtime-read leaf paths that DEFAULT_CONFIG deliberately omits (mirror of
+    # _EXTRA_KNOWN_ROOT_KEYS, one level deeper): ``stt.provider`` unset means the
+    # auto-detect ladder, but a stored value is a valid explicit pick.
+    if key in _EXTRA_KNOWN_LEAF_PATHS:
+        return True, None
 
     # A leading underscore on the FIRST segment marks an intentionally non-schema internal key
     # (test harnesses/tooling); only the first segment is exempt so ``agent._max_turns`` is caught.
