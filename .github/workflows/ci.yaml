@@ -5,6 +5,10 @@ name: CI
 # ``all-checks-pass`` gate job aggregates results so branch protection only
 # needs to require a single check.
 #
+# HISTORY + UV LOCK: these two run on the repo's self-hosted WSL runner. They are small, read-only,
+# and GitHub-hosted billing currently refuses to start runners on this private repo. All other lanes
+# remain GitHub-hosted; expanding the self-hosted set requires a deliberate change to this file.
+#
 # Sub-workflows are triggered via ``workflow_call`` and keep their own job
 # definitions, matrices, and concurrency settings. They no longer have
 # ``push:`` / ``pull_request:`` triggers of their own — everything flows
