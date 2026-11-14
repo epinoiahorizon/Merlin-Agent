@@ -14,6 +14,11 @@ name: CI
 # ``push:`` / ``pull_request:`` triggers of their own — everything flows
 # through this file.
 #
+# SELF-HOSTED PR RUNNERS: every ``workflow_call`` lane runs on the repo-scoped WSL runner while the
+# private repo's hosted billing gate refuses to start runners. This is temporary and owned here: restore
+# the hosted ``runs-on`` values when billing is restored. Release workflows that merely call these files
+# must be reviewed before using the same lane on a release candidate.
+#
 # SECURITY: this workflow runs PR-controlled actions, workflows, and code.
 # Do not add ``secrets: inherit`` or GitHub App credentials here. Trusted
 # main-only automation uses protected environments in its own workflows.

@@ -28,7 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         slice_index: [1, 2, 3, 4, 5, 6, 7, 8]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 120
     steps:
       - name: Checkout code
@@ -118,7 +118,7 @@ jobs:
     # Free tier: ubuntu-latest (4 vCPU) replaces the paid 32-core runner; the
     # same worker bound (3) the 32-core era converged to still fits 4 vCPU,
     # with a 90-minute timeout for the slower wall clock.
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 90
     steps:
       - name: Checkout code
@@ -203,7 +203,7 @@ jobs:
     # test_*.py (pm, git, handoff, network, hosts, ...). A new suite
     # directory gets its own shard without editing this file, and no shard
     # carries the whole tree's wall time against the 60-minute timeout.
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 5
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
@@ -239,7 +239,7 @@ jobs:
     # Free tier: ubuntu-latest (4 vCPU). Worker bound halved (6 -> 3): each
     # file drives real installs/updaters (process trees + uv + git I/O) that
     # starve their deadlines when oversubscribed on 4 vCPU.
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 120
     strategy:
       fail-fast: false
@@ -367,7 +367,7 @@ jobs:
     name: Run tests
     needs: [test]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 5
     steps:
       - name: Aggregate slice results

@@ -26,7 +26,7 @@ concurrency:
 jobs:
   update:
     name: Desktop install/update E2E (Linux, ${{ matrix.cell }})
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 90
     # Advisory until stable on CI (see ci.yaml): a red shard does not fail the caller.
     continue-on-error: true
