@@ -210,8 +210,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: tests/e2e/core/upgrade
+        # Sparse checkout leaves `core.sparseCheckout=true` with only tests/e2e/core/upgrade materialized
+        # on the shared runner checkout; every job after this one then loses `.github/actions`. On a hosted
+        # runner each job gets a fresh VM, so this was invisible until the lanes moved to a persistent
+        # self-hosted workspace. actions/checkout cannot unset it post-hoc, so the cleanup step does.
+        sparse-checkout: tests/e2e/core/upgrade
+
+      - name: Undo the sparse checkout this shard's plan job left behind
+        run: git sparse-checkout disable
+
       - name: List suite directories
         id: plan
         run: |
