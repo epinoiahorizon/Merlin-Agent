@@ -254,6 +254,25 @@ def _cfg_get_mtime(params):
     return {"mtime": mtime, "mcp_rev": _compute_mcp_rev()}
 
 
+def _cfg_get_skins(params):
+    """Every installed skin as a full payload (name + palette + customCSS), not just the active one.
+
+    The connect-time seed used to carry the ACTIVE skin only, so user-installed skins never
+    reached the desktop's theme registry until each had been activated while connected
+    (the desktop caches what it receives in localStorage). This getter lets one seed
+    register the entire catalog; heavy work stays in the skin engine."""
+    from merlin_cli.skin_engine import get_skin_payloads
+    try:
+        return {"skins": get_skin_payloads()}
+    except Exception as e:
+        # A broken skin must not blind the whole list: fall back to names+descriptions.
+        from merlin_cli.skin_engine import list_skins
+        logger.warning("full skin payload enumeration failed (%s); returning metadata only", e)
+        return {"skins": [{"name": s["name"], "source": s["source"],
+                           "description": s.get("description", "")}
+                          for s in list_skins()]}
+
+
 # key -> getter(params); bind_module rebinds the table's functions onto server.py's globals.
 _CONFIG_GETTERS = {
     "provider": _cfg_get_provider,
@@ -279,6 +298,7 @@ _CONFIG_GETTERS = {
     "focus": lambda params: {"value": "on" if bool(_display_cfg().get("focus_view", False)) else "off",
                              "tool_progress": _load_tool_progress_mode()},
     "mouse": lambda params: {"value": _display_mouse_tracking(_load_cfg().get("display"))},
+    "skins": _cfg_get_skins,
     "mtime": _cfg_get_mtime}
 # Getters whose failure is a JSON-RPC error of this code (others propagate to dispatch).
 _CONFIG_GET_ERR = {"provider": 5013, "approval_mode": 5001, "approvals.mode": 5001}

@@ -682,6 +682,43 @@ def list_skins() -> List[Dict[str, str]]:
     return result
 
 
+def get_skin_payloads() -> List[Dict[str, Any]]:
+    """Every known skin as a full broadcast payload (the shape ``resolve_skin`` returns).
+
+    Feeds the desktop's connect-time seed so ONE round trip registers the entire catalog
+    (user skins previously stayed invisible until each had been the ACTIVE skin while
+    connected). Built-ins are included: the desktop keeps its own hand-tuned palette for
+    a built-in name but still needs the entry to apply/list them consistently. A skin
+    whose payload fails to build is skipped, not fatal — one broken file must not blind
+    the rest of the picker."""
+    payloads: List[Dict[str, Any]] = []
+    for entry in list_skins():
+        name = entry.get("name", "")
+        if not name:
+            continue
+        try:
+            payload = _skin_payload(name)
+        except Exception as e:
+            logger.warning("skin payload for '%s' failed (%s); skipping from catalog", name, e)
+            continue
+        if payload:
+            payload["source"] = entry.get("source", "user")
+            payloads.append(payload)
+    return payloads
+
+
+def _skin_payload(name: str) -> Dict[str, Any]:
+    """One skin as the broadcast payload (mirrors tui_gateway.change_watcher.resolve_skin)."""
+    skin = load_skin(name)
+    return {
+        "name": skin.name, "colors": skin.colors,
+        "light_colors": skin.light_colors, "dark_colors": skin.dark_colors,
+        "branding": skin.branding, "banner_logo": skin.banner_logo,
+        "banner_hero": skin.banner_hero, "tool_prefix": skin.tool_prefix,
+        "help_header": (skin.branding or {}).get("help_header", ""),
+        "customCSS": skin.custom_css}
+
+
 def load_skin(name: str) -> SkinConfig:
     """Load a skin by name: user skins first, then built-in, then default."""
     user_file = _skins_dir() / f"{name}.yaml"
