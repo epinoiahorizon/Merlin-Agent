@@ -52,6 +52,11 @@ jobs:
     outputs:
       nix: ${{ steps.classify.outputs.nix }}
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # github.sha is the exact candidate commit on a stable tag-dispatched
@@ -77,6 +82,11 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 120
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

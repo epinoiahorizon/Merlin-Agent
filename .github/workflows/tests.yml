@@ -31,6 +31,11 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 120
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -119,6 +124,11 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 90
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -206,10 +216,13 @@ jobs:
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: tests/e2e/core/upgrade
       - name: List suite directories
         id: plan
         run: |
@@ -244,6 +257,11 @@ jobs:
       matrix:
         shard: ${{ fromJSON(needs.e2e-upgrade-plan.outputs.shards) }}
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

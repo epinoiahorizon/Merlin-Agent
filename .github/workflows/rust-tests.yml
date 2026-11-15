@@ -36,6 +36,12 @@ jobs:
       run:
         working-directory: apps/bootstrap-installer/src-tauri
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        working-directory: .
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Rust toolchain
