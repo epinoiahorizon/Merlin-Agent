@@ -31,6 +31,11 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 120
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -88,11 +93,9 @@ jobs:
         run: |
           scripts/run_tests.sh --slice ${{ matrix.slice_index }}/8
         env:
-          # 4 vCPU: 2 worker-files per core matches the measured shallow
-          # curve from the 96-core era (48 workers @ 0.5x = 138s vs 96 @ 1x
-          # = 126s — halving workers cost 10%; contention beyond 2x/core
-          # only loses more).
-          MERLIN_TEST_WORKERS: 8
+          # Self-hosted WSL runners share one host across slices; cap per-slice
+          # workers at 4 so concurrent slices do not OOM/starve the runner.
+          MERLIN_TEST_WORKERS: 4
           # A healthy 44-test compression file takes ~197s alone; under
           # 8-worker load on 4 vCPU it can run 3-4x longer before its
           # duration is cached. Keep the generous first-run cap.
@@ -121,6 +124,11 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 90
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -208,10 +216,13 @@ jobs:
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: tests/e2e/core/upgrade
       - name: List suite directories
         id: plan
         run: |
@@ -246,6 +257,11 @@ jobs:
       matrix:
         shard: ${{ fromJSON(needs.e2e-upgrade-plan.outputs.shards) }}
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

@@ -40,7 +40,7 @@ jobs:
   track:
     name: Update the install-e2e-red tracker
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.event == 'schedule'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 5
     permissions:
       contents: read
@@ -48,9 +48,6 @@ jobs:
       issues: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: tests/install/e2e-assets/red-tracker.mjs
-          sparse-checkout-cone-mode: false
       - name: Open, update or close the tracker
         env:
           GH_TOKEN: ${{ github.token }}

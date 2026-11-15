@@ -173,18 +173,14 @@ jobs:
     outputs:
       tags: ${{ steps.pick.outputs.tags }}
     steps:
-      # This job only reads tag names and trees, so take the cheap
-      # checkout: no blobs (filter), no other files (sparse), but DO fetch
-      # tags -- they are the whole input, and the default shallow checkout
-      # has none.
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          filter: blob:none
           fetch-tags: true
-          sparse-checkout: |
-            scripts/sandbox/pick-release-tags.sh
-            scripts/releases/pick_tags.py
-          sparse-checkout-cone-mode: false
       - id: pick
         env:
           # Inputs never touch shell syntax directly: TAG_COUNT arrives via
@@ -208,7 +204,7 @@ jobs:
             [[ "$INSTALL_REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || { echo 'install-ref must be an exact release tag' >&2; exit 1; }
             [ "$INSTALL_REF" != "$EXCLUDE_REF" ] || { echo "Candidate cannot be its own baseline" >&2; exit 1; }
             git rev-parse --verify "refs/tags/$INSTALL_REF^{commit}" >/dev/null
-            tags="$(jq -cn --arg ref "$INSTALL_REF" '[$ref]')"
+            tags="$(python3 -c 'import json, sys; print(json.dumps([sys.argv[1]]))' "$INSTALL_REF")"
           elif [ "$RELEASE_MODE" = true ]; then
             tags="$(python3 -m scripts.releases.pick_tags --count "$TAG_COUNT" --exclude-ref "$EXCLUDE_REF")"
           else
@@ -220,10 +216,15 @@ jobs:
           # not have. Today: does the release ship the desktop app
           # (apps/desktop, #20059)? Cheaper here -- the tags are already
           # fetched -- than a probe job per leg.
-          enriched="$(for t in $(echo "$tags" | jq -r '.[]'); do
-            if git ls-tree -d "$t" apps/desktop | grep -q .; then d=true; else d=false; fi
-            echo "{\"ref\":\"$t\",\"desktop\":$d}"
-          done | jq -sc .)"
+          enriched="$(TAGS="$tags" python3 - <<'PY'
+          import json, os, subprocess
+          out = []
+          for t in json.loads(os.environ["TAGS"]):
+              res = subprocess.run(["git", "ls-tree", "-d", t, "apps/desktop"], capture_output=True, text=True, check=False)
+              out.append({"ref": t, "desktop": bool(res.stdout.strip())})
+          print(json.dumps(out))
+          PY
+          )"
           echo "Annotated: $enriched"
           echo "tags=$enriched" >> "$GITHUB_OUTPUT"
 
@@ -243,9 +244,6 @@ jobs:
       macos-legs: ${{ steps.gen.outputs.macos-legs }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: scripts/sandbox/generate-e2e-matrix.mjs
-          sparse-checkout-cone-mode: false
       - id: gen
         env:
           # Free text on dispatch, so it reaches the script as data, never as script.
@@ -387,9 +385,6 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: tests/install/e2e-assets/playback.html
-          sparse-checkout-cone-mode: false
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: install-e2e-player
@@ -456,11 +451,6 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          sparse-checkout: |
-            scripts/sandbox/generate-e2e-matrix.mjs
-            tests/install/e2e-assets/known-failures.json
-          sparse-checkout-cone-mode: false
       - env:
           GH_TOKEN: ${{ github.token }}
         run: |
