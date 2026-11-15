@@ -17,6 +17,11 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 90
     steps:
+      - name: Repair poisoned sparse/partial checkout if present
+        run: |
+          if [ -d .git ] && { git config --get remote.origin.promisor >/dev/null 2>&1 || [ -f .git/info/sparse-checkout ] || [ ! -f .github/actions/detect-changes/action.yml ]; }; then
+            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up the locked JS build toolchain
         id: node
@@ -32,7 +37,8 @@ jobs:
       - name: Install zsh and a virtual display for Electron
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get install -y zsh xvfb \
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential zsh xvfb \
             libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 \
             xdg-utils libatspi2.0-0 libdrm2 libgbm1 libasound2t64
 

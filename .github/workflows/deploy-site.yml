@@ -43,7 +43,7 @@ jobs:
   # kill a *running* deploy); the deploy jobs instead refuse to run when their
   # commit is no longer the tip of main.
   stale-guard:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     outputs:
       fresh: ${{ steps.check.outputs.fresh }}
     steps:
@@ -72,7 +72,7 @@ jobs:
   deploy-vercel:
     needs: stale-guard
     if: needs.stale-guard.outputs.fresh == 'true' && (github.event_name == 'release' || github.event_name == 'workflow_dispatch')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 30
     steps:
       - name: Trigger Vercel Deploy
@@ -91,7 +91,7 @@ jobs:
   deploy-docs:
     needs: stale-guard
     if: github.repository == 'epinoiahorizon/Merlin-Agent' && needs.stale-guard.outputs.fresh == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 30
     environment:
       name: github-pages
