@@ -60,6 +60,15 @@ function Start-Tunnel {
 $localUp = (Test-PortOpen $GatewayPort) -and (Test-PortOpen $DashboardPort)
 $publicUp = Test-Public
 
+# Failover, not first-strike. The gateway now runs on the VPS; this machine is the standby. A single failed probe
+# can be a DNS hiccup or a tunnel reconnecting, so a failure is confirmed once more before anything is started —
+# otherwise the standby wakes on every blip and Cloudflare ends up with two connectors splitting live traffic.
+if (-not $publicUp) {
+    Start-Sleep -Seconds 30
+    $publicUp = Test-Public
+    if (-not $publicUp) { Write-Log 'confirmed  public endpoint still down after 30s; treating as failover' }
+}
+
 if ($localUp -and $publicUp) {
     Write-Log 'ok  gateway local + public healthy'
     exit 0
