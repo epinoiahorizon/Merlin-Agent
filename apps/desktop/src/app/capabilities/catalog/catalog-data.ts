@@ -43,7 +43,13 @@ export interface CatalogEntry {
 const DOCS_ORIGIN = 'https://withmerlin.online'
 // The public domain redirects here without CORS headers on the redirect.
 // Use the docs' actual static host, not GitHub's API or repository endpoints.
-const CATALOG_BASE = 'https://epinoiahorizon.github.io/merlin-agent/docs/api'
+// Tried in order; the first host that answers wins. This was a single
+// hardcoded host, which blanked the whole Capabilities catalog the moment the
+// old domain went away. Keep it a list and put new hosts first.
+const CATALOG_BASES = [
+  'https://withmerlin.online/docs/api',
+  'https://www.withmerlin.online/docs/api'
+]
 const text = (value: unknown): string => (typeof value === 'string' ? value : '')
 const strings = (value: unknown): string[] => (Array.isArray(value) ? value.filter(v => typeof v === 'string') : [])
 
@@ -175,6 +181,27 @@ export function parseCatalog(kind: CatalogKind, data: unknown): CatalogEntry[] {
 }
 
 export async function fetchCatalog(kind: CatalogKind): Promise<CatalogEntry[]> {
+  let lastError: unknown
+
+  for (const base of CATALOG_BASES) {
+    try {
+      return await fetchCatalogFrom(base, kind)
+    } catch (error) {
+      lastError = error
+
+      // A 60s stall is a network problem, not a host problem: trying the next
+      // host would just spend another minute. Only fall through when a host
+      // actually answered and failed.
+      if (error instanceof Error && /timed out/.test(error.message)) {
+        throw error
+      }
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('Catalog unavailable')
+}
+
+async function fetchCatalogFrom(base: string, kind: CatalogKind): Promise<CatalogEntry[]> {
   // Bound inactivity, not total transfer time: a large skills snapshot can
   // take minutes on a healthy slow connection. Headers and each body chunk
   // get the same deadline; an actually stalled download still terminates.
@@ -190,7 +217,7 @@ export async function fetchCatalog(kind: CatalogKind): Promise<CatalogEntry[]> {
 
   try {
     // Same published snapshots as the docs galleries; no per-entry fan-out.
-    const response = await fetch(`${CATALOG_BASE}/${kind}.json`, {
+    const response = await fetch(`${base}/${kind}.json`, {
       credentials: 'omit',
       signal: controller.signal
     })
