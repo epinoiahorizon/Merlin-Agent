@@ -119,9 +119,34 @@ describe('public catalog data', () => {
 
     expect(await fetchCatalog(kind)).toEqual(parseCatalog(kind, rows))
     expect(fetch).toHaveBeenCalledExactlyOnceWith(
-      `https://epinoiahorizon.github.io/merlin-agent/docs/api/${kind}.json`,
+      `https://withmerlin.online/docs/api/${kind}.json`,
       expect.objectContaining({ credentials: 'omit', signal: expect.any(AbortSignal) })
     )
+  })
+
+  it('falls back to the next host when the first one is gone', async () => {
+    const rows = [
+      {
+        name: 'weather',
+        identifier: 'official/weather',
+        source: 'official',
+        tier: 'official',
+        repo: 'https://github.com/example/weather',
+        sourceUrl: 'https://github.com/example/weather/blob/main/SKILL.md'
+      }
+    ]
+
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 404 })
+      .mockResolvedValueOnce({ ok: true, json: async () => rows })
+
+    vi.stubGlobal('fetch', fetch)
+
+    expect(await fetchCatalog('skills')).toEqual(parseCatalog('skills', rows))
+    expect(fetch).toHaveBeenCalledTimes(2)
+    expect(fetch.mock.calls[0][0]).toBe('https://withmerlin.online/docs/api/skills.json')
+    expect(fetch.mock.calls[1][0]).toBe('https://www.withmerlin.online/docs/api/skills.json')
   })
 
   it('only renders plugin images hosted on GitHub so the browser never fans out to third-party hosts', () => {
