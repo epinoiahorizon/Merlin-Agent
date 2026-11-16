@@ -40,10 +40,54 @@ const pluginsOutputFile = join(websiteDir, "static", "api", "plugins.json");
 const pluginsMetaOutputFile = join(websiteDir, "static", "api", "plugins-meta.json");
 const unifiedIndexFile = join(websiteDir, "static", "api", "skills-index.json");
 const UNIFIED_INDEX_URL =
-  "https://docs.withmerlin.online/docs/api/skills-index.json";
+  "https://withmerlin.online/docs/api/skills-index.json";
 const UNIFIED_INDEX_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24h
 
+// The Windows install ships `python` with no `python3` alias, so spawning
+// "python3" directly made every local docs build emit an empty catalog while
+// the build itself stayed green. Resolve once, prefer explicit configuration,
+// and let the caller decide whether absence is fatal.
+function resolvePython() {
+  const candidates = [process.env.MERLIN_PYTHON, "python3", "python", "py"].filter(Boolean);
+  const usable = [];
+
+  for (const cmd of candidates) {
+    const probe = spawnSync(cmd, ["-c", "import sys; sys.exit(0)"], { stdio: "ignore" });
+    if (!probe.error && probe.status === 0) usable.push(cmd);
+  }
+
+  // An interpreter that runs is not enough: the extractors need ruamel.yaml, and
+  // a bare python silently produces empty catalogs. Prefer one that can import
+  // it, and only fall back to a bare interpreter when none can.
+  for (const cmd of usable) {
+    const deps = spawnSync(cmd, ["-c", "import ruamel.yaml"], { stdio: "ignore" });
+    if (!deps.error && deps.status === 0) return cmd;
+  }
+
+  return usable[0] ?? null;
+}
+
+const PYTHON = resolvePython();
+
+// Locally, degrading keeps contributors without Python unblocked. In CI a
+// missing generator means the published catalog is wrong, so fail loudly there
+// instead of shipping an empty snapshot to every installed app.
+const STRICT_CATALOG =
+  process.env.CI === "true" || process.env.MERLIN_CATALOG_STRICT === "1";
+
+function skipOrFail(label, reason) {
+  const message = `[prebuild] ${label} skipped (${reason})`;
+  if (STRICT_CATALOG) throw new Error(message);
+  console.warn(message);
+}
+
 function writeEmptyFallback(reason) {
+  if (STRICT_CATALOG) {
+    throw new Error(
+      `[prebuild] extract-skills.py skipped (${reason}); refusing to publish an empty ` +
+        `skills.json in CI. Install python3 + ruamel.yaml in the build image.`,
+    );
+  }
   mkdirSync(dirname(outputFile), { recursive: true });
   writeFileSync(outputFile, "[]\n");
   console.warn(
@@ -57,9 +101,13 @@ function runPython(script, label) {
     console.warn(`[prebuild] ${label} skipped (script missing)`);
     return false;
   }
-  const r = spawnSync("python3", [script], { stdio: "inherit", cwd: websiteDir });
+  if (!PYTHON) {
+    skipOrFail(label, "no python interpreter found");
+    return false;
+  }
+  const r = spawnSync(PYTHON, [script], { stdio: "inherit", cwd: websiteDir });
   if (r.error && r.error.code === "ENOENT") {
-    console.warn(`[prebuild] ${label} skipped (python3 not found)`);
+    skipOrFail(label, `${PYTHON} not found`);
     return false;
   }
   if (r.status !== 0) {
@@ -131,14 +179,18 @@ await ensureUnifiedIndex();
 if (!existsSync(extractScript)) {
   writeEmptyFallback("extract script missing");
 } else {
-  const r = spawnSync("python3", [extractScript], {
-    stdio: "inherit",
-    cwd: websiteDir,
-  });
-  if (r.error && r.error.code === "ENOENT") {
-    writeEmptyFallback("python3 not found");
-  } else if (r.status !== 0) {
-    writeEmptyFallback(`extract-skills.py exited with status ${r.status}`);
+  if (!PYTHON) {
+    writeEmptyFallback("no python interpreter found");
+  } else {
+    const r = spawnSync(PYTHON, [extractScript], {
+      stdio: "inherit",
+      cwd: websiteDir,
+    });
+    if (r.error && r.error.code === "ENOENT") {
+      writeEmptyFallback(`${PYTHON} not found`);
+    } else if (r.status !== 0) {
+      writeEmptyFallback(`extract-skills.py exited with status ${r.status}`);
+    }
   }
 }
 
