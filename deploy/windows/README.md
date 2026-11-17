@@ -101,3 +101,16 @@ di Cloudflare sedang menahan (matikan "Rocket Loader"/buffering di zone itu).
 - Cloudflare di zona ini menolak User-Agent `Python-urllib/*` dengan **403**. `python-requests`,
   SDK OpenAI (`OpenAI/Python x.y`), curl, dan browser lolos. Klien yang memakai urllib mentah harus
   mengirim UA sendiri.
+
+## Where the public gateway runs
+
+Primary host is the VPS (`srv1711558`): systemd units `merlin-gateway`, `merlin-dashboard` and
+`cloudflared-merlin`, with `/etc/merlin-gateway` holding the ledger, the upstream config, the env file and the
+tunnel credentials. A nightly cron copies the ledger with sqlite3's backup API.
+
+This Windows machine is the standby. `MerlinGatewayWatchdog` probes the public URL every five minutes and, only
+after a second failed probe thirty seconds later, starts the local stack and its tunnel. That confirmation matters:
+without it the standby wakes on every tunnel blip, and Cloudflare ends up with two connectors splitting traffic.
+
+Switching roles by hand: stop `cloudflared-merlin` on the VPS, then run `start-gateway.ps1` here. Two tunnels must
+never run at once.
