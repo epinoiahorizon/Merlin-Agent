@@ -45,8 +45,13 @@ const DOCS_ORIGIN = 'https://withmerlin.online'
 // Use the docs' actual static host, not GitHub's API or repository endpoints.
 // Tried in order; the first host that answers wins. This was a single
 // hardcoded host, which blanked the whole Capabilities catalog the moment the
-// old domain went away. Keep it a list and put new hosts first.
+// old domain went away. Keep it a list and put the working host first.
+//
+// The raw.githubusercontent entry is what actually serves today: the snapshots
+// are committed under catalog-data/ because the docs deploy never published
+// them. The site URLs stay behind it for when /docs/api/ is restored.
 const CATALOG_BASES = [
+  'https://raw.githubusercontent.com/epinoiahorizon/Merlin-Agent/main/catalog-data',
   'https://withmerlin.online/docs/api',
   'https://www.withmerlin.online/docs/api'
 ]
