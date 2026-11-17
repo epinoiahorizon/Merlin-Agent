@@ -119,7 +119,7 @@ describe('public catalog data', () => {
 
     expect(await fetchCatalog(kind)).toEqual(parseCatalog(kind, rows))
     expect(fetch).toHaveBeenCalledExactlyOnceWith(
-      `https://withmerlin.online/docs/api/${kind}.json`,
+      `https://raw.githubusercontent.com/epinoiahorizon/Merlin-Agent/main/catalog-data/${kind}.json`,
       expect.objectContaining({ credentials: 'omit', signal: expect.any(AbortSignal) })
     )
   })
@@ -145,8 +145,8 @@ describe('public catalog data', () => {
 
     expect(await fetchCatalog('skills')).toEqual(parseCatalog('skills', rows))
     expect(fetch).toHaveBeenCalledTimes(2)
-    expect(fetch.mock.calls[0][0]).toBe('https://withmerlin.online/docs/api/skills.json')
-    expect(fetch.mock.calls[1][0]).toBe('https://www.withmerlin.online/docs/api/skills.json')
+    expect(fetch.mock.calls[0][0]).toBe('https://raw.githubusercontent.com/epinoiahorizon/Merlin-Agent/main/catalog-data/skills.json')
+    expect(fetch.mock.calls[1][0]).toBe('https://withmerlin.online/docs/api/skills.json')
   })
 
   it('only renders plugin images hosted on GitHub so the browser never fans out to third-party hosts', () => {
