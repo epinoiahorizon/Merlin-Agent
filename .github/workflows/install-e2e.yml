@@ -453,6 +453,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - env:
           GH_TOKEN: ${{ github.token }}
+        # The job ceiling above did not stop this step: on a self-hosted runner the agent must still be answering
+        # for the timer to fire, and a wedged `gh api` call kept the queue blocked for ten hours. A step ceiling is
+        # enforced locally, and each fetch is wrapped in `timeout` so a stalled connection cannot hold the runner.
+        timeout-minutes: 8
         run: |
           set -euo pipefail
           # The repo's GITHUB_TOKEN shares one hourly API budget with every
@@ -462,7 +466,7 @@ jobs:
           fetch() {
             local out=$1; shift
             for wait in 30 60 90 0; do
-              gh api "$@" > "$out" && return 0
+              timeout 90 gh api "$@" > "$out" && return 0
               [ "$wait" -eq 0 ] || sleep "$wait"
             done
             return 1
