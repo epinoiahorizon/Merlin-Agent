@@ -19,6 +19,14 @@ on:
   schedule:
     - cron: '36 14 * * 2'
 
+# Serialise per ref. CodeQL's swift leg runs on a macOS builder, the most
+# expensive runner this repo touches, and a superseded PR run would otherwise
+# keep burning one while it finishes work nobody will read. Push-to-main and the
+# weekly schedule are never cancelled — those results are the baseline.
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
