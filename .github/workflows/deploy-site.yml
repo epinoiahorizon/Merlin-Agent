@@ -174,14 +174,18 @@ jobs:
           if [ -n "$SKILLS_INDEX_RUN_ID" ]; then
             tmpdir="$(mktemp -d)"
             echo "Downloading skills-index artifact from run $SKILLS_INDEX_RUN_ID"
-            if gh run download "$SKILLS_INDEX_RUN_ID" --name skills-index --dir "$tmpdir"; then
-              candidate="$(find "$tmpdir" -name skills-index.json -type f | head -n 1 || true)"
-              stars="$(find "$tmpdir" -name plugin-stars.json -type f | head -n 1 || true)"
-              [ -n "$stars" ] && cp "$stars" website/static/api/plugin-stars.json
-              if [ -n "$candidate" ]; then
-                cp "$candidate" "$INDEX_PATH"
-                if validate_index; then
-                  exit 0
+            if artifact_url="$(python3 scripts/ci/gh_rest.py artifact-url "$SKILLS_INDEX_RUN_ID" skills-index)"; then
+              if curl -fsSL -H "Authorization: Bearer $GH_TOKEN" \
+                   -o "$tmpdir/skills-index.zip" "$artifact_url" \
+                 && python3 -m zipfile -e "$tmpdir/skills-index.zip" "$tmpdir"; then
+                candidate="$(find "$tmpdir" -name skills-index.json -type f | head -n 1 || true)"
+                stars="$(find "$tmpdir" -name plugin-stars.json -type f | head -n 1 || true)"
+                [ -n "$stars" ] && cp "$stars" website/static/api/plugin-stars.json
+                if [ -n "$candidate" ]; then
+                  cp "$candidate" "$INDEX_PATH"
+                  if validate_index; then
+                    exit 0
+                  fi
                 fi
               fi
             fi
