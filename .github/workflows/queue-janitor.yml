@@ -166,7 +166,16 @@ jobs:
 
           newest = {a["id"] for a in sorted(artifacts, key=created, reverse=True)[:200]}
           cutoff = datetime.now(timezone.utc) - timedelta(days=2)
-          stale = [a for a in artifacts if a["id"] not in newest and created(a) < cutoff]
+          stale = sorted(
+              (a for a in artifacts if a["id"] not in newest and created(a) < cutoff),
+              key=created,
+          )
+          # One DELETE costs about a second and the job times out at ten
+          # minutes; the backlog from a full quota takes a few runs, and the
+          # next tick picks up where this one stopped.
+          BATCH = 250
+          remaining = max(0, len(stale) - BATCH)
+          stale = stale[:BATCH]
           artifact_bytes = 0
           for a in stale:
               print(f"drop artifact {a['id']} {a['name'][:60]} {a['size_in_bytes']/1e6:.1f} MB")
@@ -176,6 +185,7 @@ jobs:
               except GitHubError as exc:
                   print(f"  could not drop: {exc}")
           print(f"artifacts: {len(artifacts)} listed, {len(stale)} dropped, "
-                f"{artifact_bytes/1e9:.2f} GB freed")
+                f"{artifact_bytes/1e9:.2f} GB freed"
+                + (f"; {remaining} older ones wait for the next run" if remaining else ""))
           PY
 
