@@ -539,7 +539,6 @@ class TestBrowserRetrievalHints:
 def test_tool_defs_cache_key_sees_config_replacement_with_pinned_mtime(tmp_path):
     """#111105: a same-size config.yaml swapped in with the old mtime must change the memo key."""
     import os
-    import shutil
 
     from model_tools import _tool_defs_cache_key
 
@@ -550,6 +549,11 @@ def test_tool_defs_cache_key_sees_config_replacement_with_pinned_mtime(tmp_path)
         st = cfg.stat()
         other = tmp_path / "other.yaml"
         other.write_text("mcp_servers:\n  bb: {command: b}\n", encoding="utf-8")
-        shutil.copy2(other, cfg)
+        # A real config save is an atomic replace: the inode changes even when
+        # the new file has the same size and the old mtime is restored. An
+        # in-place rewrite (shutil.copy2) keeps the inode, and this filesystem
+        # reports an unchanged ctime for it, so that variant asserts timestamp
+        # granularity rather than the memo contract.
+        os.replace(other, cfg)
         os.utime(cfg, ns=(st.st_atime_ns, st.st_mtime_ns))
         assert _tool_defs_cache_key(None, None, False) != before
