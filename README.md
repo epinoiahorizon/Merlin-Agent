@@ -38,17 +38,17 @@ Use any model you want — OpenRouter, OpenAI, your own endpoint, and [many othe
 
 ---
 
-## What makes Merlin Merlin
+## What Epinoia Horizon added
 
-Everything distinctive about the product ships from Epinoia Horizon:
+These components are our own work, on top of the inherited tree:
 
-- **Policy seal** — an optional governance mode that keeps memory and skills dormant unless you invoke them explicitly (`agent/prompt_builder.py`).
-- **`@merlin/ui`** — our own vendored design system behind the desktop app and TUI skins (arcane default).
+- **Policy seal** — optional governance that keeps memory and skills dormant until explicitly invoked (`agent/prompt_builder.py`).
+- **`@merlin/ui`** — our component library and design system behind the desktop app and TUI skins (arcane default), built on Radix primitives (`apps/vendor/merlin-ui`).
 - **Desktop runtime hardening** — backend discovery and exit recovery, host attach and spawn gating, pool limits and reclamation in the Electron app.
 - **Windows-native, end to end** — a PowerShell one-liner installer, PM-managed toolchain, MSIX packaging, and a support path that ends at us.
 - **Merlin PM** — declarative Python environment and dependency management with a 14-day release quarantine.
 
-The full provenance record — origin of every component, what is and is not claimed — is kept in [`NOTICE`](NOTICE); licensing in [`LICENSE`](LICENSE). Merlin is maintained and released by Epinoia Horizon as an independent product, and its roadmap is ours (`INDEPENDENCE-ROADMAP.md`).
+Everything else is inherited from [hermes-agent](https://github.com/NousResearch/hermes-agent) under the MIT License. The full provenance record — the origin of every component and what is or is not claimed — is kept in [`NOTICE`](NOTICE); licensing in [`LICENSE`](LICENSE). Merlin is maintained and released by Epinoia Horizon as an independent product, and its roadmap is ours (`INDEPENDENCE-ROADMAP.md`).
 
 ---
 
