@@ -952,6 +952,37 @@ test/description       # Tests
 refactor/description   # Code restructuring
 ```
 
+### What the repository enforces
+
+`main` is protected by a **branch ruleset**, not by classic branch protection. That distinction
+matters when you inspect the repo: `GET /repos/{owner}/{repo}/branches/main` can report
+`protected: true` alongside an empty `required_status_checks`, because the rules live in the ruleset.
+Read that endpoint instead:
+
+```bash
+gh api repos/epinoiahorizon/Merlin-Agent/rulesets
+gh api repos/epinoiahorizon/Merlin-Agent/rulesets/<id>
+```
+
+| Rule | Effect |
+|---|---|
+| `deletion` | `main` cannot be deleted |
+| `non_fast_forward` | no force-push to `main` |
+| `pull_request` → 1 approval | one approving review; the author cannot self-approve |
+| `required_status_checks` | the five checks below must pass before merge |
+
+```
+Check uv.lock / python -m pm.build_env --source . --check-lock
+Python lints / Windows footguns (blocking)
+Python lints / ruff enforcement (blocking)
+Python tests / Run tests
+Deny unrelated histories / check-common-ancestor
+```
+
+There is no `.pre-commit-config.yaml` and no `CODEOWNERS`: CI is the only gate. Around sixty
+workflows can run on a single PR, most of them guarded by a `concurrency` block that cancels
+superseded runs — a re-push does not queue a second full pass.
+
 ### Before submitting
 
 1. **Run tests**: use `scripts/run_tests.sh` for the same environment and per-file isolation as CI.

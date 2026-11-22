@@ -16,6 +16,12 @@
   <a href="README.es.md"><img src="https://img.shields.io/badge/Lang-Español-orange?style=for-the-badge" alt="Español"></a>
 </p>
 
+> **Provenance.** Merlin Agent is a modified fork of [hermes-agent](https://github.com/NousResearch/hermes-agent)
+> (MIT, © 2025 Nous Research). The agent core, CLI, gateway, desktop application, and supporting
+> tooling originate from that project and remain under the MIT License. [NOTICE](NOTICE) records the
+> full accounting; [LICENSE](LICENSE) reproduces the original copyright and permission notice that MIT
+> requires to accompany every copy.
+
 **Merlin Agent is the self-improving AI agent made and supported by [Epinoia Horizon](https://epinoiahorizon.com)** — not a chat wrapper. It creates skills from experience, improves them during use, searches its own past conversations, and keeps a deepening model of who you are across sessions. One installer, one app window, no terminal required — with a Windows-native support path that ends at us.
 
 Use any model you want — OpenRouter, OpenAI, your own endpoint, and [many others](https://docs.withmerlin.online/docs/integrations/providers). Switch with `merlin model` — no code changes, no lock-in.
