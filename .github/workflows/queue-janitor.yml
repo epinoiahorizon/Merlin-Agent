@@ -106,8 +106,7 @@ jobs:
           from scripts.ci.gh_rest import GitHubError, api, api_all
 
           repo = os.environ["REPO"]
-          CAP = 8 * 1000 ** 3          # trim to 8 GB, leaving headroom under GitHub's 10 GB
-          KEEP_ALWAYS = ("refs/heads/",)
+          CAP = 6 * 1000 ** 3          # artifacts share the 10 GB budget; leave real headroom
 
           def gh(path):
               return api_all(path)
@@ -124,6 +123,17 @@ jobs:
                       return None
               return None
 
+          def family(key: str) -> str:
+              return (key or "").rsplit("-", 1)[0]
+
+          # A branch ref is not a reason to keep a duplicate: two npm caches on
+          # refs/heads/main were 4.19 GB each, and no cap can be met while every
+          # default-branch cache is untouchable. Keep the newest entry in each
+          # family and trim the rest least-recently-used first.
+          newest = {}
+          for c in sorted(caches, key=lambda c: c.get("last_accessed_at") or ""):
+              newest[family(c["key"])] = c["id"]
+
           victims = []
           for c in caches:
               n = pr_number(c["ref"])
@@ -133,11 +143,11 @@ jobs:
           keep = [c for c in caches if c not in victims]
           total = sum(c["size_in_bytes"] for c in keep)
           if total > CAP:
-              # biggest first, never touch the default branch's own caches
-              for c in sorted((c for c in keep if not (c["ref"] or "").startswith(KEEP_ALWAYS)),
-                              key=lambda c: -c["size_in_bytes"]):
+              for c in sorted(keep, key=lambda c: c.get("last_accessed_at") or ""):
                   if total <= CAP:
                       break
+                  if c["id"] in newest.values():
+                      continue
                   victims.append(c)
                   total -= c["size_in_bytes"]
 
