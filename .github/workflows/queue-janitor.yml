@@ -32,10 +32,25 @@ jobs:
   cancel-superseded:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 10
+    environment: trusted-automation
     steps:
+      # The helper lives in the checkout; without this the import only worked
+      # because a previous job had left its workspace behind.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The default GITHUB_TOKEN is 1,000 requests/hour per installation, and
+      # the janitor's burst of deletes exhausted it before the first call of a
+      # later run. The App token gets 5,000/hour, like the other scheduled jobs.
+      - name: Get GitHub App token
+        id: app-token
+        uses: ./.github/actions/get-app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Cancel queued runs whose commit can no longer merge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
@@ -93,7 +108,7 @@ jobs:
 
       - name: Drop caches for closed PRs, trim caches and old artifacts if over the cap
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
