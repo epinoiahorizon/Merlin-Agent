@@ -164,20 +164,26 @@ jobs:
           else:
               print(f"cache clean: {len(caches)} entries, {sum(c['size_in_bytes'] for c in caches)/1e9:.2f} GB")
 
-          # Artifacts share the repository's storage quota with caches. The skills
-          # index upload alone is small, but every scheduled matrix run leaves its
-          # own bundle behind; once the quota is hit, upload-artifact fails the
-          # build job before the docs deploy can reuse the index (#122 follow-up).
-          # Keep the newest 200 and anything younger than two days.
+          # Artifacts share a separate, much smaller quota than caches: the free
+          # plan allows 500 MB, and 0.72 GB of matrix logs made every
+          # upload-artifact fail with "storage quota has been hit" even after
+          # the caches were trimmed. Keep the newest artifacts up to 300 MB and
+          # drop the rest; the one-hour floor protects a run uploading now.
           artifacts = gh(f"/repos/{repo}/actions/artifacts?per_page=100")
 
           def created(a):
               return datetime.fromisoformat(a["created_at"].replace("Z", "+00:00"))
 
-          newest = {a["id"] for a in sorted(artifacts, key=created, reverse=True)[:200]}
-          cutoff = datetime.now(timezone.utc) - timedelta(days=2)
+          ARTIFACT_BUDGET = 300 * 1000 ** 2
+          keep_ids = set()
+          running = 0
+          for a in sorted(artifacts, key=created, reverse=True):
+              if running + a["size_in_bytes"] <= ARTIFACT_BUDGET:
+                  keep_ids.add(a["id"])
+                  running += a["size_in_bytes"]
+          floor = datetime.now(timezone.utc) - timedelta(hours=1)
           stale = sorted(
-              (a for a in artifacts if a["id"] not in newest and created(a) < cutoff),
+              (a for a in artifacts if a["id"] not in keep_ids and created(a) < floor),
               key=created,
           )
           # One DELETE costs about a second and the job times out at ten
