@@ -16,6 +16,8 @@
   <a href="README.ur-pk.md"><img src="https://img.shields.io/badge/Lang-اردو-green?style=for-the-badge" alt="اردو"></a>
 </p>
 
+> **Procedencia.** Merlin Agent es una bifurcación modificada de [hermes-agent](https://github.com/NousResearch/hermes-agent) (MIT, © 2025 Nous Research). El núcleo del agente, la CLI, el gateway, la aplicación de escritorio y las herramientas de soporte provienen de ese proyecto y siguen bajo la licencia MIT. [NOTICE](NOTICE) recoge el registro completo; [LICENSE](LICENSE) reproduce el aviso original de copyright y permiso que la licencia MIT exige acompañar a cada copia.
+
 **Merlin Agent es el agente de IA auto-mejorable creado y soportado por [Epinoia Horizon](https://epinoiahorizon.com)** — no es un envoltorio de chat. Crea habilidades a partir de la experiencia, las mejora durante el uso, busca en sus propias conversaciones pasadas y mantiene un modelo cada vez más profundo de quién eres entre sesiones. Un instalador, una ventana de aplicación, sin terminal obligatorio — con una ruta de soporte nativa para Windows que termina en nosotros.
 
 Usa cualquier modelo que quieras — [OpenRouter](https://openrouter.ai) (más de 200 modelos), [NovitaAI](https://novita.ai), [NVIDIA NIM](https://build.nvidia.com) (Nemotron), [Xiaomi MiMo](https://platform.xiaomimimo.com), [z.ai/GLM](https://z.ai), [Kimi/Moonshot](https://platform.moonshot.ai), [MiniMax](https://www.minimax.io), [Hugging Face](https://huggingface.co), OpenAI, o tu propio endpoint. Cambia con `merlin model` — sin cambios de código, sin dependencias.
