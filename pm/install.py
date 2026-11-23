@@ -242,9 +242,16 @@ def _remove_entry(store: Store, entry_name: str) -> None:
 
 
 def _remove_downloads(store: Store, artifacts: list[dict]) -> None:
-    """Release this package's archives after publication, under its store lock."""
+    """Release this package's archives after publication, under its store lock.
+
+    Cleanup again, so it must not be what reports a finished install as failed: a
+    freshly written archive can still be open (a virus scanner, the search indexer)
+    and Windows then refuses the delete. Only this install's own archives are
+    touched — a paused install keeps its archives to resume without re-downloading,
+    and another package may be mid-download, so no global sweep belongs here.
+    """
     for artifact in artifacts:
-        _remove_entry(store, f"fetch-{artifact['sha256']}")
+        _drop_leftover(store, f"fetch-{artifact['sha256']}")
 
 
 def _entry_verified(package: Package, fact: dict, store: Store, target: str) -> bool:
