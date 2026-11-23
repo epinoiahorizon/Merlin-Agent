@@ -14,7 +14,6 @@
  *
  * Needs GH_TOKEN (issues: write, actions: read) and GITHUB_REPOSITORY.
  */
-import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -75,9 +74,50 @@ export function planTracker(run, jobs, openIssue) {
   return { action: openIssue ? 'update' : 'open', title, body: lines.join('\n') };
 }
 
-/** @param {string[]} args @returns {string} */
-function gh(args) {
-  return execFileSync('gh', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+/**
+ * Talk to the REST API directly. The scheduled matrix runs on the self-hosted
+ * Linux runner, which does not ship the `gh` CLI; shelling out to it made this
+ * tracker die with `spawnSync gh ENOENT` after every scheduled run.
+ */
+const API = 'https://api.github.com';
+
+function headers() {
+  const token = process.env.GH_TOKEN;
+  if (!token) throw new Error('GH_TOKEN is required');
+  return {
+    Accept: 'application/vnd.github+json',
+    Authorization: `Bearer ${token}`,
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
+}
+
+async function api(method, endpoint, body) {
+  const response = await fetch(`${API}${endpoint}`, {
+    method,
+    headers: { ...headers(), ...(body ? { 'Content-Type': 'application/json' } : {}) },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!response.ok) {
+    throw new Error(`${method} ${endpoint} -> HTTP ${response.status}: ${await response.text()}`);
+  }
+  return response.status === 204 ? null : response.json();
+}
+
+async function apiAll(endpoint) {
+  const items = [];
+  let url = `${API}${endpoint}`;
+  while (url) {
+    const response = await fetch(url, { headers: headers() });
+    if (!response.ok) {
+      throw new Error(`GET ${url} -> HTTP ${response.status}: ${await response.text()}`);
+    }
+    const payload = await response.json();
+    const rows = Array.isArray(payload) ? payload : Object.values(payload).find(Array.isArray) ?? [];
+    items.push(...rows);
+    const next = /<([^>]+)>;\s*rel="next"/.exec(response.headers.get('link') || '');
+    url = next ? next[1] : '';
+  }
+  return items;
 }
 
 async function main() {
@@ -85,11 +125,12 @@ async function main() {
   const repo = process.env.GITHUB_REPOSITORY;
   const runId = values['run-id'];
   if (!repo || !runId || !/^\d+$/.test(runId)) throw new Error('need GITHUB_REPOSITORY and a numeric --run-id');
-  const run = JSON.parse(gh(['api', `repos/${repo}/actions/runs/${runId}`]));
-  const jobs = gh(['api', '--paginate', `repos/${repo}/actions/runs/${runId}/jobs?per_page=100`,
-    '--jq', '.jobs[] | {name, conclusion, html_url, steps: [.steps[]? | {name, conclusion}]}'])
-    .split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l));
-  const open = JSON.parse(gh(['api', `repos/${repo}/issues?labels=${LABEL}&state=open&per_page=5`]))
+  const run = await api('GET', `/repos/${repo}/actions/runs/${runId}`);
+  const jobs = (await apiAll(`/repos/${repo}/actions/runs/${runId}/jobs?per_page=100`))
+    .map(({ name, conclusion, html_url, steps }) => ({
+      name, conclusion, html_url, steps: steps ?? [],
+    }));
+  const open = (await api('GET', `/repos/${repo}/issues?labels=${LABEL}&state=open&per_page=5`))
     .filter((/** @type {any} */ i) => !i.pull_request);
   const openIssue = open.length ? { number: open[0].number } : null;
   const plan = planTracker(run, jobs, openIssue);
@@ -98,17 +139,33 @@ async function main() {
     if (plan.body) console.log(`\n--- ${plan.title || 'comment'} ---\n${plan.body}`);
     return;
   }
+  const LABEL_COLOR = 'B60205';
+  const LABEL_DESCRIPTION = 'The scheduled install/update E2E matrix is red (managed by install-e2e-red.yml)';
   if (plan.action === 'open') {
-    gh(['label', 'create', LABEL, '--repo', repo, '--force', '--color', 'B60205',
-      '--description', 'The scheduled install/update E2E matrix is red (managed by install-e2e-red.yml)']);
-    const url = gh(['issue', 'create', '--repo', repo, '--label', LABEL, '--title', String(plan.title), '--body', String(plan.body)]);
-    console.log(`opened ${url.trim()}`);
+    const lookup = await fetch(`${API}/repos/${repo}/labels/${encodeURIComponent(LABEL)}`, { headers: headers() });
+    if (lookup.status === 404) {
+      await api('POST', `/repos/${repo}/labels`, {
+        name: LABEL, color: LABEL_COLOR, description: LABEL_DESCRIPTION,
+      });
+    } else if (!lookup.ok) {
+      throw new Error(`GET /repos/${repo}/labels/${LABEL} -> HTTP ${lookup.status}: ${await lookup.text()}`);
+    } else {
+      await api('PATCH', `/repos/${repo}/labels/${encodeURIComponent(LABEL)}`, {
+        color: LABEL_COLOR, description: LABEL_DESCRIPTION,
+      });
+    }
+    const issue = await api('POST', `/repos/${repo}/issues`, {
+      title: String(plan.title), body: String(plan.body), labels: [LABEL],
+    });
+    console.log(`opened ${issue.html_url}`);
   } else if (plan.action === 'update' && openIssue) {
-    gh(['api', '-X', 'PATCH', `repos/${repo}/issues/${openIssue.number}`, '-f', `title=${plan.title}`, '-f', `body=${plan.body}`]);
+    await api('PATCH', `/repos/${repo}/issues/${openIssue.number}`, {
+      title: String(plan.title), body: String(plan.body),
+    });
     console.log(`updated #${openIssue.number} in place`);
   } else if (plan.action === 'close' && openIssue) {
-    gh(['issue', 'comment', String(openIssue.number), '--repo', repo, '--body', String(plan.body)]);
-    gh(['issue', 'close', String(openIssue.number), '--repo', repo]);
+    await api('POST', `/repos/${repo}/issues/${openIssue.number}/comments`, { body: String(plan.body) });
+    await api('PATCH', `/repos/${repo}/issues/${openIssue.number}`, { state: 'closed' });
     console.log(`closed #${openIssue.number}`);
   }
 }

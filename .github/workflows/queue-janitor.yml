@@ -32,40 +32,39 @@ jobs:
   cancel-superseded:
     runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 10
+    environment: trusted-automation
     steps:
+      # The helper lives in the checkout; without this the import only worked
+      # because a previous job had left its workspace behind.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The default GITHUB_TOKEN is 1,000 requests/hour per installation, and
+      # the janitor's burst of deletes exhausted it before the first call of a
+      # later run. The App token gets 5,000/hour, like the other scheduled jobs.
+      - name: Get GitHub App token
+        id: app-token
+        uses: ./.github/actions/get-app-token
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Cancel queued runs whose commit can no longer merge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json
           import os
-          import subprocess
+          import sys
+
+          sys.path.insert(0, os.getcwd())
+          from scripts.ci.gh_rest import GitHubError, api, api_all
 
           repo = os.environ["REPO"]
 
           def gh(path: str):
-              out = subprocess.run(
-                  ["gh", "api", "--paginate", path],
-                  check=True, capture_output=True, text=True,
-              ).stdout
-              # --paginate concatenates JSON arrays; merge them
-              dec = json.JSONDecoder()
-              items, i = [], 0
-              while i < len(out):
-                  obj, end = dec.raw_decode(out, i)
-                  if isinstance(obj, list):
-                      items.extend(obj)
-                  elif isinstance(obj, dict):
-                      # list endpoints wrap their rows: {"total_count": n, "workflow_runs": [...]}
-                      rows = obj.get("workflow_runs")
-                      items.extend(rows if isinstance(rows, list) else [obj])
-                  i = end
-                  while i < len(out) and out[i] in " \n\r\t":
-                      i += 1
-              return items
+              return api_all(path)
 
           default_branch = gh(f"/repos/{repo}")[0]["default_branch"]
           main_sha = gh(f"/repos/{repo}/commits/{default_branch}")[0]["sha"]
@@ -100,46 +99,32 @@ jobs:
 
           for run_id, name, branch, sha, created in victims:
               print(f"cancel {run_id} {name} [{branch}@{sha}] queued since {created}")
-              subprocess.run(
-                  ["gh", "api", "-X", "POST", f"/repos/{repo}/actions/runs/{run_id}/cancel"],
-                  check=False,
-              )
+              try:
+                  api("POST", f"/repos/{repo}/actions/runs/{run_id}/cancel")
+              except GitHubError as exc:
+                  print(f"  could not cancel: {exc}")
           print(f"cancelled {len(victims)} superseded run(s)")
           PY
 
-      - name: Drop caches for closed PRs, and trim if over the cap
+      - name: Drop caches for closed PRs, trim caches and old artifacts if over the cap
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json
           import os
-          import subprocess
+          import sys
+          from datetime import datetime, timedelta, timezone
+
+          sys.path.insert(0, os.getcwd())
+          from scripts.ci.gh_rest import GitHubError, api, api_all
 
           repo = os.environ["REPO"]
-          CAP = 8 * 1000 ** 3          # trim to 8 GB, leaving headroom under GitHub's 10 GB
-          KEEP_ALWAYS = ("refs/heads/",)
+          CAP = 6 * 1000 ** 3          # artifacts share the 10 GB budget; leave real headroom
 
-          def gh(path, method="GET"):
-              cmd = ["gh", "api", "--paginate", path] if method == "GET" else ["gh", "api", "-X", method, path]
-              out = subprocess.run(cmd, check=True, capture_output=True, text=True).stdout
-              if method != "GET":
-                  return []
-              dec = json.JSONDecoder()
-              items, i = [], 0
-              while i < len(out):
-                  obj, end = dec.raw_decode(out, i)
-                  if isinstance(obj, list):
-                      items.extend(obj)
-                  elif isinstance(obj, dict):
-                      rows = obj.get("actions_caches")
-                      items.extend(rows if isinstance(rows, list) else [obj])
-                  i = end
-                  while i < len(out) and out[i] in " \n\r\t":
-                      i += 1
-              return items
+          def gh(path):
+              return api_all(path)
 
           open_prs = {pr["number"] for pr in gh(f"/repos/{repo}/pulls?state=open&per_page=100")}
           caches = gh(f"/repos/{repo}/actions/caches?per_page=100")
@@ -153,6 +138,17 @@ jobs:
                       return None
               return None
 
+          def family(key: str) -> str:
+              return (key or "").rsplit("-", 1)[0]
+
+          # A branch ref is not a reason to keep a duplicate: two npm caches on
+          # refs/heads/main were 4.19 GB each, and no cap can be met while every
+          # default-branch cache is untouchable. Keep the newest entry in each
+          # family and trim the rest least-recently-used first.
+          newest = {}
+          for c in sorted(caches, key=lambda c: c.get("last_accessed_at") or ""):
+              newest[family(c["key"])] = c["id"]
+
           victims = []
           for c in caches:
               n = pr_number(c["ref"])
@@ -162,24 +158,65 @@ jobs:
           keep = [c for c in caches if c not in victims]
           total = sum(c["size_in_bytes"] for c in keep)
           if total > CAP:
-              # biggest first, never touch the default branch's own caches
-              for c in sorted((c for c in keep if not (c["ref"] or "").startswith(KEEP_ALWAYS)),
-                              key=lambda c: -c["size_in_bytes"]):
+              for c in sorted(keep, key=lambda c: c.get("last_accessed_at") or ""):
                   if total <= CAP:
                       break
+                  if c["id"] in newest.values():
+                      continue
                   victims.append(c)
                   total -= c["size_in_bytes"]
-
-          if not victims:
-              print(f"cache clean: {len(caches)} entries, {sum(c['size_in_bytes'] for c in caches)/1e9:.2f} GB")
-              raise SystemExit(0)
 
           freed = 0
           for c in victims:
               print(f"purge {c['id']} {c['key'][:60]} [{c['ref']}] {c['size_in_bytes']/1e9:.2f} GB")
-              subprocess.run(["gh", "api", "-X", "DELETE", f"/repos/{repo}/actions/caches/{c['id']}"],
-                             check=False, capture_output=True)
-              freed += c["size_in_bytes"]
-          print(f"purged {len(victims)} cache(s), {freed/1e9:.2f} GB freed")
+              try:
+                  api("DELETE", f"/repos/{repo}/actions/caches/{c['id']}")
+                  freed += c["size_in_bytes"]
+              except GitHubError as exc:
+                  print(f"  could not purge: {exc}")
+          if victims:
+              print(f"purged {len(victims)} cache(s), {freed/1e9:.2f} GB freed")
+          else:
+              print(f"cache clean: {len(caches)} entries, {sum(c['size_in_bytes'] for c in caches)/1e9:.2f} GB")
+
+          # Artifacts share a separate, much smaller quota than caches: the free
+          # plan allows 500 MB, and 0.72 GB of matrix logs made every
+          # upload-artifact fail with "storage quota has been hit" even after
+          # the caches were trimmed. Keep the newest artifacts up to 300 MB and
+          # drop the rest; the one-hour floor protects a run uploading now.
+          artifacts = gh(f"/repos/{repo}/actions/artifacts?per_page=100")
+
+          def created(a):
+              return datetime.fromisoformat(a["created_at"].replace("Z", "+00:00"))
+
+          ARTIFACT_BUDGET = 300 * 1000 ** 2
+          keep_ids = set()
+          running = 0
+          for a in sorted(artifacts, key=created, reverse=True):
+              if running + a["size_in_bytes"] <= ARTIFACT_BUDGET:
+                  keep_ids.add(a["id"])
+                  running += a["size_in_bytes"]
+          floor = datetime.now(timezone.utc) - timedelta(hours=1)
+          stale = sorted(
+              (a for a in artifacts if a["id"] not in keep_ids and created(a) < floor),
+              key=created,
+          )
+          # One DELETE costs about a second and the job times out at ten
+          # minutes; the backlog from a full quota takes a few runs, and the
+          # next tick picks up where this one stopped.
+          BATCH = 250
+          remaining = max(0, len(stale) - BATCH)
+          stale = stale[:BATCH]
+          artifact_bytes = 0
+          for a in stale:
+              print(f"drop artifact {a['id']} {a['name'][:60]} {a['size_in_bytes']/1e6:.1f} MB")
+              try:
+                  api("DELETE", f"/repos/{repo}/actions/artifacts/{a['id']}")
+                  artifact_bytes += a["size_in_bytes"]
+              except GitHubError as exc:
+                  print(f"  could not drop: {exc}")
+          print(f"artifacts: {len(artifacts)} listed, {len(stale)} dropped, "
+                f"{artifact_bytes/1e9:.2f} GB freed"
+                + (f"; {remaining} older ones wait for the next run" if remaining else ""))
           PY
 
