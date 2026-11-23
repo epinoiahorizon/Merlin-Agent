@@ -1,0 +1,58 @@
+# Docs publishing only.
+#
+# The full test suite stays on GitHub Actions, where it already runs on a
+# self-hosted runner (`wsl-mb`) and does not touch metered billing. This
+# pipeline exists for one job GitHub currently cannot do: publish the
+# Docusaurus site, because GitHub Pages deploys are blocked by the account's
+# billing lock.
+#
+# Runs on a self-managed runner, so it consumes no GitLab compute minutes.
+
+default:
+  tags: [self-hosted]
+  interruptible: true
+
+stages: [build, deploy]
+
+variables:
+  NODE_ENV: production
+
+build-docs:
+  stage: build
+  before_script:
+    # website/.npmrc sets engine-strict=true and package.json requires npm
+    # >= 11.17.0, so a distro npm (10.x) hard-fails the install. The runner
+    # keeps npm 11 in its own prefix; fall back silently when it is absent.
+    - if [ -d /opt/npm11/bin ]; then export PATH="/opt/npm11/bin:$PATH"; fi
+    - node --version && npm --version
+    # prebuild.mjs runs the skill/plugin extractors, which import ruamel.yaml.
+    - python3 -c "import ruamel.yaml" 2>/dev/null || python3 -m pip install --break-system-packages ruamel.yaml
+    - python3 -c "import ruamel.yaml; print('ruamel ok')"
+  script:
+    - cd website
+    # Docusaurus is configured with baseUrl "/docs/" for the withmerlin.online
+    # deployment. GitLab Pages serves a project site under /<project>/, so the
+    # base URL has to be overridden here or every asset 404s.
+    - npm ci --no-audit --no-fund
+    # GitLab Pages serves this project at the ROOT of its canonical domain
+    # (<project>-<hash>.gitlab.io), not under /<project>/ — that path only
+    # exists on the group domain. A /<project>/ base URL makes every asset 404.
+    - DOCS_BASE_URL="/" npm run build
+  artifacts:
+    paths:
+      - website/build/
+    expire_in: 1 week
+
+pages:
+  stage: deploy
+  needs: [build-docs]
+  script:
+    - mkdir -p public
+    - cp -r website/build/. public/
+    - test -f public/index.html
+  artifacts:
+    paths:
+      - public/
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - when: manual

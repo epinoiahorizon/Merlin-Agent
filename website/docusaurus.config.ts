@@ -9,7 +9,7 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   url: 'https://docs.withmerlin.online',
-  baseUrl: '/docs/',
+  baseUrl: process.env.DOCS_BASE_URL || '/docs/',
 
   organizationName: 'epinoiahorizon',
   projectName: 'merlin-agent',
