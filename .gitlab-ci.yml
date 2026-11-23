@@ -34,7 +34,8 @@ build-docs:
     # deployment. GitLab Pages serves a project site under /<project>/, so the
     # base URL has to be overridden here or every asset 404s.
     - npm ci --no-audit --no-fund
-    - npm run build -- --base-url "/${CI_PROJECT_NAME}/"
+    # Docusaurus has no --base-url flag; the config reads DOCS_BASE_URL.
+    - DOCS_BASE_URL="/${CI_PROJECT_NAME}/" npm run build
   artifacts:
     paths:
       - website/build/
