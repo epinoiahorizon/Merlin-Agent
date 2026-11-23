@@ -128,36 +128,50 @@ jobs:
           STATUS: ${{ steps.probe.outputs.status }}
           DETAIL: ${{ steps.probe.outputs.detail }}
         run: |
+          python3 - <<'PY'
+          import os
+          import sys
+          from datetime import datetime, timezone
+
+          sys.path.insert(0, os.getcwd())
+          from scripts.ci.gh_rest import api, api_all
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          status = os.environ["STATUS"]
+          detail = os.environ["DETAIL"]
+          prefix = "[skills-index-watchdog]"
+
           # Find existing open issue by title prefix so we don't spam — we
           # append a comment instead of opening a new one each tick.
-          TITLE_PREFIX="[skills-index-watchdog]"
-          existing=$(gh issue list \
-            --repo "${{ github.repository }}" \
-            --state open \
-            --search "in:title \"$TITLE_PREFIX\"" \
-            --json number,title \
-            --jq '.[] | select(.title | startswith("'"$TITLE_PREFIX"'")) | .number' \
-            | head -1)
-          BODY="Automated freshness probe failed.
+          issues = api_all(f"/repos/{repo}/issues?state=open&per_page=100")
+          existing = next(
+              (i["number"] for i in issues
+               if not i.get("pull_request") and i.get("title", "").startswith(prefix)),
+              None,
+          )
 
-          **Status:** \`$STATUS\`
-          **Detail:** $DETAIL
+          body = f"""Automated freshness probe failed.
 
-          The Skills Hub at /docs/skills depends on \`/docs/api/skills-index.json\`.
-          The unified index is rebuilt by \`.github/workflows/skills-index.yml\` (cron 6/18 UTC)
-          and \`.github/workflows/deploy-site.yml\` (on every push affecting website/skills).
+          **Status:** `{status}`
+          **Detail:** {detail}
+
+          The Skills Hub at /docs/skills depends on `/docs/api/skills-index.json`.
+          The unified index is rebuilt by `.github/workflows/skills-index.yml` (cron 6/18 UTC)
+          and `.github/workflows/deploy-site.yml` (on every push affecting website/skills).
           If this issue keeps reopening, check the latest runs:
 
-          - https://github.com/${{ github.repository }}/actions/workflows/skills-index.yml
-          - https://github.com/${{ github.repository }}/actions/workflows/deploy-site.yml
+          - https://github.com/{repo}/actions/workflows/skills-index.yml
+          - https://github.com/{repo}/actions/workflows/deploy-site.yml
 
-          This issue was opened by \`.github/workflows/skills-index-freshness.yml\`. Close it once the underlying problem is fixed; the next probe will reopen if it's still broken."
-          if [ -n "$existing" ]; then
-            echo "Appending to existing issue #$existing"
-            gh issue comment "$existing" --repo "${{ github.repository }}" --body "Probe still failing at $(date -u +%FT%TZ): \`$STATUS\` — $DETAIL"
-          else
-            echo "Opening new watchdog issue"
-            gh issue create --repo "${{ github.repository }}" \
-              --title "$TITLE_PREFIX Skills index is stale or degraded ($STATUS)" \
-              --body "$BODY"
-          fi
+          This issue was opened by `.github/workflows/skills-index-freshness.yml`. Close it once the underlying problem is fixed; the next probe will reopen if it's still broken."""
+
+          if existing:
+              print(f"Appending to existing issue #{existing}")
+              now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+              api("POST", f"/repos/{repo}/issues/{existing}/comments",
+                  {"body": f"Probe still failing at {now}: `{status}` — {detail}"})
+          else:
+              print("Opening new watchdog issue")
+              api("POST", f"/repos/{repo}/issues",
+                  {"title": f"{prefix} Skills index is stale or degraded ({status})", "body": body})
+          PY

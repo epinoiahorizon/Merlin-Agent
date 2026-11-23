@@ -105,4 +105,6 @@ jobs:
       - name: Trigger Deploy Site workflow
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: gh workflow run deploy-site.yml --repo ${{ github.repository }} -f skills_index_run_id=${{ github.run_id }}
+        run: |
+          python3 scripts/ci/gh_rest.py dispatch deploy-site.yml \
+            -f skills_index_run_id=${{ github.run_id }}
