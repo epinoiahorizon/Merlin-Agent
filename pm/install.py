@@ -309,7 +309,10 @@ def _restore_previous_entry(store: Store, entry, previous, package: str = "packa
             displaced.rename(entry)
         raise
     if had_entry:
-        _remove_entry(store, displaced.name)
+        # Debris, not state: the restore already succeeded, and a store that hardlinks
+        # entries refuses to delete a directory whose DLL is loaded by the very process
+        # running this update. Failing here would report the cleanup as a failed update.
+        _drop_leftover(store, displaced.name)
 
 
 @contextmanager
@@ -328,7 +331,7 @@ def _publish_entry(package, store, staged, entry, previous_entry, target):
             _restore_previous_entry(store, entry, previous_entry, package.name)
         raise
     if previous_entry.exists():
-        _remove_entry(store, previous_entry.name)
+        _drop_leftover(store, previous_entry.name)
 
 
 def _settle_previous_entry(package, store, entry, previous_entry, previous, target) -> None:
