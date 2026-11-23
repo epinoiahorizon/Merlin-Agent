@@ -253,6 +253,28 @@ class UpdateHolder:
     age_seconds: float
 
 
+def _pid_reused(pid: int, started_at: float) -> bool:
+    """True when the live process on ``pid`` began *after* the marker was written.
+
+    Windows recycles pids quickly, so a live pid proves only that *a* process
+    exists — not that the update that wrote the marker is still the one holding
+    it. The owner records its own start time, so its create time is at (never
+    after) that timestamp; anything created later is a different process wearing
+    a retired pid, and the claim it appears to hold is not real. Left unchecked
+    the only escape is the 20-minute ceiling: every launch and every
+    ``merlin debug share`` refuses until it expires.
+    """
+    try:
+        import psutil
+    except ImportError:
+        return False
+    try:
+        created = psutil.Process(pid).create_time()
+    except Exception:
+        return False
+    return created > started_at + 1.0
+
+
 def read_live_update(*, path: Path | None = None) -> UpdateHolder | None:
     """Return the live update holding the lock, or ``None``.
 
@@ -275,7 +297,7 @@ def read_live_update(*, path: Path | None = None) -> UpdateHolder | None:
         started_at = float("-inf")
 
     age = time.time() - started_at
-    if not _pid_alive(pid) or age > UPDATE_MARKER_MAX_AGE_SECONDS:
+    if not _pid_alive(pid) or age > UPDATE_MARKER_MAX_AGE_SECONDS or _pid_reused(pid, started_at):
         with suppress(OSError):
             marker.unlink()
         return None
