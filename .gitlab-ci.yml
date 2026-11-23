@@ -25,6 +25,9 @@ build-docs:
     # keeps npm 11 in its own prefix; fall back silently when it is absent.
     - if [ -d /opt/npm11/bin ]; then export PATH="/opt/npm11/bin:$PATH"; fi
     - node --version && npm --version
+    # prebuild.mjs runs the skill/plugin extractors, which import ruamel.yaml.
+    - python3 -c "import ruamel.yaml" 2>/dev/null || python3 -m pip install --break-system-packages ruamel.yaml
+    - python3 -c "import ruamel.yaml; print('ruamel ok')"
   script:
     - cd website
     # Docusaurus is configured with baseUrl "/docs/" for the withmerlin.online
