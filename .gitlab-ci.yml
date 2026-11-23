@@ -19,6 +19,12 @@ variables:
 
 build-docs:
   stage: build
+  before_script:
+    # website/.npmrc sets engine-strict=true and package.json requires npm
+    # >= 11.17.0, so a distro npm (10.x) hard-fails the install. The runner
+    # keeps npm 11 in its own prefix; fall back silently when it is absent.
+    - if [ -d /opt/npm11/bin ]; then export PATH="/opt/npm11/bin:$PATH"; fi
+    - node --version && npm --version
   script:
     - cd website
     # Docusaurus is configured with baseUrl "/docs/" for the withmerlin.online
