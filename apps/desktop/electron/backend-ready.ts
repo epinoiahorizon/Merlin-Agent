@@ -98,6 +98,9 @@ function waitForDashboardPort(
     // trailing partial line) makes the listener-attach ordering irrelevant.
     let buf = ''
     let done = false
+    // venv_sync prints the source-completion banners to stderr, so they need
+    // their own line buffer: the stdout scanner below never sees them.
+    let stderrBuf = ''
     // #122206: the child is finishing an owed source-update completion
     // (venv_sync banners) before `merlin serve` starts. While that repair is
     // visibly in progress the 90s deadline is re-armed, up to the total cap,
@@ -136,6 +139,7 @@ function waitForDashboardPort(
       done = true
       clearTimeout(timer)
       child.stdout.off('data', onData)
+      child.stderr?.off('data', onStderrData)
       child.off('exit', onExit)
       child.off('error', onError)
     }
@@ -166,6 +170,26 @@ function waitForDashboardPort(
       }
     }
 
+    function onStderrData(chunk) {
+      // The banners are written with `file=sys.stderr` (merlin_cli/venv_sync.py).
+      // Watching stdout alone left the deadline at the cold-start budget while a
+      // healthy multi-minute repair ran, so the desktop killed the backend and
+      // reported a port-announcement timeout on every boot that owed an update
+      // tail. Only the banner is scanned here; the READY sentinel stays on stdout.
+      stderrBuf += chunk.toString()
+      let nl
+
+      while ((nl = stderrBuf.indexOf('\n')) !== -1) {
+        const line = stderrBuf.slice(0, nl)
+        stderrBuf = stderrBuf.slice(nl + 1)
+
+        if (SOURCE_COMPLETION_BANNER_RE.test(line)) {
+          completionInProgress = true
+          rearmTimer()
+        }
+      }
+    }
+
     function onExit(code, signal) {
       cleanup()
       reject(new Error(`Merlin backend: exited before port announcement (${signal || code})${describeOutputTail()}`))
@@ -178,6 +202,7 @@ function waitForDashboardPort(
 
     rearmTimer()
     child.stdout.on('data', onData)
+    child.stderr?.on('data', onStderrData)
     child.on('exit', onExit)
     child.on('error', onError)
 

@@ -31,6 +31,7 @@ import {
 
 type FakeChildProcess = EventEmitter & {
   stdout: EventEmitter
+  stderr: EventEmitter
 }
 
 // A minimal stand-in for a spawned child process: an EventEmitter with a
@@ -39,6 +40,7 @@ type FakeChildProcess = EventEmitter & {
 function makeFakeChild(): FakeChildProcess {
   const child = new EventEmitter() as FakeChildProcess
   child.stdout = new EventEmitter()
+  child.stderr = new EventEmitter()
 
   return child
 }
@@ -378,3 +380,18 @@ test('a banner already in the spawn-time tail also re-arms', async () => {
   child.stdout.emit('data', 'MERLIN_BACKEND_READY port=4471\n')
   assert.equal(await p, 4471)
 }, 10_000)
+
+test('a completion banner on stderr re-arms the deadline too', async () => {
+  // venv_sync prints its banners to stderr (`file=sys.stderr`), which is the
+  // path the real backend takes. A stdout-only listener never sees them, so
+  // the deadline stays at the cold-start budget and kills a healthy repair
+  // mid-run — the desktop then reports a port-announcement timeout.
+  const child = makeFakeChild()
+  const p = waitForDashboardPort(child, 40)
+
+  child.stderr.emit('data', 'merlin: completing source-update dependencies...\n')
+  // Past the original 40ms deadline: without the stderr grace this rejects.
+  await new Promise(resolve => setTimeout(resolve, 80))
+  child.stdout.emit('data', 'MERLIN_BACKEND_READY port=4466\n')
+  assert.equal(await p, 4466)
+})
