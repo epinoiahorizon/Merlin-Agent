@@ -111,6 +111,7 @@ test-python:
   variables:
     GIT_DEPTH: "50"
   script:
+    - export PATH="$HOME/.local/bin:$PATH"
     - uv sync --all-extras --group dev --group test
     - MERLIN_TEST_WORKERS=24 .venv/bin/python scripts/run_tests_parallel.py -q
   rules:
