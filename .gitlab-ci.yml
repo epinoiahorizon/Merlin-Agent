@@ -93,3 +93,37 @@ secret_detection:
   tags: [saas-linux-small-amd64]
   rules:
     - if: '$GITLAB_FEATURES =~ /security_dashboard/'
+
+# Phase 1 of moving CI off GitHub: the two jobs that actually gate quality.
+# Both run on the self-hosted shell runner (24 cores, WSL) and use the same
+# entry points the GitHub workflows used, so the results are comparable:
+# scripts/run_tests_parallel.py for Python (one pytest per file, isolated
+# interpreter) and .github/scripts/run-workspace-checks.mjs for JS (expands
+# every check:* script instead of the serial npm --ws chain).
+#
+# rules: only the default branch. The self-hosted runner accepts protected refs
+# only, so a merge-request pipeline would sit queued forever anyway; the MR gate
+# is the pipeline that runs before merge.
+test-python:
+  stage: test
+  tags: [self-hosted]
+  timeout: 60m
+  variables:
+    GIT_DEPTH: "50"
+  script:
+    - uv sync --all-extras --group dev --group test
+    - MERLIN_TEST_WORKERS=24 .venv/bin/python scripts/run_tests_parallel.py -q
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+test-js:
+  stage: test
+  tags: [self-hosted]
+  timeout: 60m
+  variables:
+    GIT_DEPTH: "50"
+  script:
+    - npm ci
+    - node .github/scripts/run-workspace-checks.mjs
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
