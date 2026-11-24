@@ -224,7 +224,7 @@ jobs:
           # Only evidence, never the isolated profile or installed application.
           path: ${{ env.SMOKE_ROOT }}/out
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 3
 
   windows:
     name: Windows install and chat

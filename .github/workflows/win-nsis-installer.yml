@@ -101,4 +101,4 @@ jobs:
             apps/desktop/release/Merlin-Setup-0.1.5-x64.exe.sha256
             apps/desktop/release/BUILD-INFO.txt
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 3

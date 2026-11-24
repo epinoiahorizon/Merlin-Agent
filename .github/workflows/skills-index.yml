@@ -77,7 +77,8 @@ jobs:
           path: |
             website/static/api/skills-index.json
             website/static/api/plugin-stars.json
-          retention-days: 7
+          retention-days: 2
+          compression-level: 9
 
   # Re-trigger the docs deploy so the refreshed index lands on the live site.
   # The deploy itself is owned by deploy-site.yml (which crawls and deploys

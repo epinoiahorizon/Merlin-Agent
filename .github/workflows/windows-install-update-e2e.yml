@@ -78,7 +78,7 @@ jobs:
           name: windows-install-update-e2e-${{ github.run_attempt }}
           path: ${{ runner.temp }}/win-update-e2e
           if-no-files-found: ignore
-          retention-days: 14
+          retention-days: 3
 
       - name: No leftover Python / Merlin processes
         # Backstop for each journey's teardown: nothing a machine started may outlive it.

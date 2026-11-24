@@ -111,4 +111,4 @@ jobs:
             apps/desktop/release/*.dmg
             apps/desktop/release/*.zip
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 3
