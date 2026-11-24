@@ -24,7 +24,7 @@ workflow:
       when: never
     - if: '$CI_COMMIT_BRANCH'
 
-stages: [build, deploy]
+stages: [build, test, deploy]
 
 variables:
   NODE_ENV: production
@@ -69,23 +69,24 @@ pages:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - when: manual
 
-# Ultimate-only security scanners, run as a child pipeline.
+# Ultimate-only scanners. Their template jobs are Docker-image analyzers, so they
+# must NOT run on the self-hosted shell executor: `default: tags` here applies to
+# included jobs too, hence the explicit hosted-runner tag below. `test` was added
+# to `stages` because SAST and Secret Detection both use it.
 #
-# $GITLAB_FEATURES lists the licensed features; `security_dashboard` is present
-# only while the licence provides it. Guarding on it means the trial gives us a
-# real audit now, and the job disappears cleanly when the licence lapses instead
-# of turning every pipeline red.
-# security-scan bridge disabled while the child-pipeline creation failure is
-# being isolated; re-enabled once GITLAB_FEATURES is known.
+# The guard reads $GITLAB_FEATURES: when the licence stops providing
+# security_dashboard the rules exclude the jobs, so a downgrade leaves no
+# permanent red instead of jobs failing on "feature not available".
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
 
-# Temporary diagnostic: prints the licensed feature list so the guard regex can
-# be checked against reality instead of guessed. Branch-scoped, removed before
-# merge.
-debug-features:
-  stage: build
+sast:
+  tags: [saas-linux-small-amd64]
   rules:
-    # MR pipelines have no CI_COMMIT_BRANCH, so the branch check alone would
-    # hide this job exactly when it is needed.
-    - if: '$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == "ci/security-scan-trial" || $CI_COMMIT_BRANCH == "ci/security-scan-trial"'
-  script:
-    - echo "features:"; echo "$GITLAB_FEATURES" | tr ',' '\n' | sed 's/^/  - /'
+    - if: '$GITLAB_FEATURES =~ /security_dashboard/'
+
+secret_detection:
+  tags: [saas-linux-small-amd64]
+  rules:
+    - if: '$GITLAB_FEATURES =~ /security_dashboard/'
