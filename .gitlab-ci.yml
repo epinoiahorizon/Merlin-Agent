@@ -81,7 +81,10 @@ include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
 
-sast:
+# `sast` in the template is a configuration-only stub whose script exits 1 on
+# purpose; overriding its rules resurrects it and fails the pipeline. The
+# override belongs on the real analyzer, semgrep-sast.
+semgrep-sast:
   tags: [saas-linux-small-amd64]
   rules:
     - if: '$GITLAB_FEATURES =~ /security_dashboard/'
