@@ -12,6 +12,11 @@ Hermetic-test invariants enforced here (see AGENTS.md for rationale):
 3. **Deterministic runtime.** TZ=UTC, LANG=C.UTF-8, PYTHONHASHSEED=0.
 4. **No MERLIN_SESSION_* inheritance** — the agent's current gateway
    session must not leak into tests.
+5. **No supervision-context leak.** INVOCATION_ID (and friends) tell the
+   code it is running as a managed systemd unit. A test run inherits the
+   RUNNER's service environment, not the system-under-test's, so those
+   variables are unset: tests exercise plain-process semantics, and
+   systemd-scope behavior is covered by tests that set them explicitly.
 
 These invariants make the local test run match CI closely. Gaps that
 remain (CPU count, worker count) are addressed by the canonical
@@ -56,6 +61,22 @@ if str(PROJECT_ROOT) not in sys.path:
 # the REAL Merlin root — capture it BEFORE the sandbox rewires MERLIN_HOME,
 # otherwise the deny-list would point at the throwaway tempdir and the guard
 # would silently stop protecting the operator's actual ~/.merlin (#69385).
+# ── Unset supervision-context variables BEFORE any test/module import ───────
+# The test process inherits the environment it was launched from: on a
+# gitlab-runner service (Type=simple systemd unit) or under `systemd-run`,
+# INVOCATION_ID/NOTIFY_SOCKET/JOURNAL_STREAM are SET. Production code reads
+# those to decide "am I a managed systemd unit?" - inheriting them made
+# test runs take the systemd codepaths (restart-safe scope spawns that need
+# a user D-Bus session, JOURNAL logging targets), which fail on runners
+# without a user bus (WSL, containers). Tests of scope behavior set these
+# explicitly (tests/cron/test_restart_safe_worker.py).
+for _supervision_var in (
+    "INVOCATION_ID", "NOTIFY_SOCKET", "WATCHDOG_USEC", "WATCHDOG_PID",
+    "JOURNAL_STREAM", "LISTEN_PID", "LISTEN_FDS", "LISTEN_FDNAMES",
+    "MAINPID", "MANAGERPID", "SYSTEMD_EXEC_PID", "MEMORY_PRESSURE_WATCH",
+):
+    os.environ.pop(_supervision_var, None)
+
 _PRE_SANDBOX_KANBAN_OVERRIDE = os.environ.get("MERLIN_KANBAN_HOME", "").strip()
 _PRE_SANDBOX_MERLIN_HOME = os.environ.get("MERLIN_HOME", "")
 
