@@ -38,7 +38,6 @@ build-docs:
   rules:
     - if: '$SAAS_DOCS == "on" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $SAAS_DOCS == "on"'
-    - when: manual
   variables:
     NODE_ENV: production
   before_script:
