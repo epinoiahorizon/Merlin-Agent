@@ -3124,7 +3124,7 @@ wheels = [
 
 [[package]]
 name = "merlin-agent"
-version = "0.1.7"
+version = "0.1.8"
 source = { editable = "." }
 default-groups = []
 dependencies = [
