@@ -68,7 +68,9 @@ pages:
   stage: deploy
   image: alpine:3
   tags: [saas-linux-small-amd64]
-  needs: [build-docs]
+  needs:
+    - job: build-docs
+      optional: true
   allow_failure: true
   script:
     - mkdir -p public
