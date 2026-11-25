@@ -1,24 +1,15 @@
 # Merlin Agent CI on GitLab.
 #
 # Quality gates: test-python (scripts/run_tests_parallel.py) and test-js
-# (scripts/ci/run-workspace-checks.mjs) run on the self-hosted runner.
-# Docs build + GitLab Pages deploy run here because GitHub Pages is blocked by
-# the account billing lock. Security scanners (SAST, Secret Detection,
-# Dependency Scanning) run on GitLab.com hosted runners while the Ultimate
-# trial is active, guarded by $GITLAB_FEATURES so they vanish on downgrade.
-#
-# test-python and test-js are allow_failure for now: individual tests fail on
-# the WSL runner (cold-cache subprocess timeouts), not product bugs.
+# (scripts/ci/run-workspace-checks.mjs) run on GitLab SaaS runners. Docs build
+# + GitLab Pages deploy and the Ultimate-only scanners also run on hosted
+# runners, guarded by $GITLAB_FEATURES where the licence applies.
 #
 default:
-  tags: [self-hosted]
   interruptible: true
 
-# Without workflow rules GitLab creates BOTH a branch pipeline and a
-# merge-request pipeline for the same commit. The duplicate pair shows up as an
-# instant "failed" pipeline with zero jobs, which reads like a config error but
-# is just two pipelines racing. Keep the MR pipeline while a merge request is
-# open, and the branch pipeline otherwise.
+# Keep the MR pipeline while a merge request is open, the branch pipeline
+# otherwise — otherwise GitLab creates BOTH pipelines for the same commit.
 workflow:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -30,26 +21,19 @@ stages: [build, test, deploy]
 
 build-docs:
   stage: build
+  image: node:24
+  tags: [saas-linux-small-amd64]
   variables:
     NODE_ENV: production
   before_script:
-    # website/.npmrc sets engine-strict=true and package.json requires npm
-    # >= 11.17.0, so a distro npm (10.x) hard-fails the install. The runner
-    # keeps npm 11 in its own prefix; fall back silently when it is absent.
-    - if [ -d /opt/npm11/bin ]; then export PATH="/opt/npm11/bin:$PATH"; fi
-    - node --version && npm --version
     # prebuild.mjs runs the skill/plugin extractors, which import ruamel.yaml.
-    - python3 -c "import ruamel.yaml" 2>/dev/null || python3 -m pip install --break-system-packages ruamel.yaml
-    - python3 -c "import ruamel.yaml; print('ruamel ok')"
+    - apt-get update -qq && apt-get install -y -qq python3-pip >/dev/null
+    - python3 -m pip install --break-system-packages -q ruamel.yaml
   script:
     - cd website
-    # Docusaurus is configured with baseUrl "/docs/" for the withmerlin.online
-    # deployment. GitLab Pages serves a project site under /<project>/, so the
-    # base URL has to be overridden here or every asset 404s.
+    # GitLab Pages serves this project at the ROOT of its canonical domain, so
+    # the Docusaurus /docs/ base URL has to be overridden or every asset 404s.
     - npm ci --no-audit --no-fund
-    # GitLab Pages serves this project at the ROOT of its canonical domain
-    # (<project>-<hash>.gitlab.io), not under /<project>/ — that path only
-    # exists on the group domain. A /<project>/ base URL makes every asset 404.
     - DOCS_BASE_URL="/" npm run build
   artifacts:
     paths:
@@ -58,6 +42,8 @@ build-docs:
 
 pages:
   stage: deploy
+  image: alpine:3
+  tags: [saas-linux-small-amd64]
   needs: [build-docs]
   script:
     - mkdir -p public
@@ -70,22 +56,18 @@ pages:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - when: manual
 
-# Ultimate-only scanners. Their template jobs are Docker-image analyzers, so they
-# must NOT run on the self-hosted shell executor: `default: tags` here applies to
-# included jobs too, hence the explicit hosted-runner tag below. `test` was added
-# to `stages` because SAST and Secret Detection both use it.
-#
-# The guard reads $GITLAB_FEATURES: when the licence stops providing
-# security_dashboard the rules exclude the jobs, so a downgrade leaves no
-# permanent red instead of jobs failing on "feature not available".
+# Ultimate-only scanners. All of them are Docker-image analyzers, so every one
+# is pinned to the hosted runner. Their rules read $GITLAB_FEATURES: when the
+# licence stops providing security_dashboard the jobs vanish, leaving no
+# permanent red instead of failing on "feature not available".
 include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
   - template: Security/Dependency-Scanning.gitlab-ci.yml
 
-# `sast` in the template is a configuration-only stub whose script exits 1 on
-# purpose; overriding its rules resurrects it and fails the pipeline. The
-# override belongs on the real analyzer, semgrep-sast.
+# The `sast` stub job in the template is a configuration-only stub whose script
+# exits 1 on purpose; overriding its rules resurrects it and fails the
+# pipeline. The override belongs on the real analyzer, semgrep-sast.
 semgrep-sast:
   tags: [saas-linux-small-amd64]
   needs: []
@@ -98,36 +80,40 @@ secret_detection:
   rules:
     - if: '$GITLAB_FEATURES =~ /security_dashboard/'
 
-# Phase 1 of moving CI off GitHub: the two jobs that actually gate quality.
-# Both run on the self-hosted shell runner (24 cores, WSL) and use the same
-# entry points the GitHub workflows used, so the results are comparable:
+# Phase 2 of moving CI off self-hosted machines entirely: the two quality gates
+# now run as container jobs on the free SaaS runners (the repo is public, so
+# minutes are unlimited), with no per-machine PATH or WSL quirks. Entry points
+# are unchanged from the GitHub workflows, so results stay comparable:
 # scripts/run_tests_parallel.py for Python (one pytest per file, isolated
-# interpreter) and scripts/ci/run-workspace-checks.mjs for JS (expands
-# every check:* script instead of the serial npm --ws chain).
+# interpreter) and scripts/ci/run-workspace-checks.mjs for JS (expands every
+# check:* script instead of the serial npm --ws chain).
 #
-# rules: only the default branch. The self-hosted runner accepts protected refs
-# only, so a merge-request pipeline would sit queued forever anyway; the MR gate
-# is the pipeline that runs before merge.
+# allow_failure stays for one iteration to compare the SaaS results against the
+# known WSL baseline; flip it off once both gates are green here.
 test-python:
   stage: test
-  tags: [self-hosted]
+  image: python:3.12-slim
+  tags: [saas-linux-small-amd64]
   needs: []
-  allow_failure: true   # sementara: test merah di WSL (timeout), bukan bug produksi
-  timeout: 60m
+  allow_failure: true
+  timeout: 90m
   variables:
     GIT_DEPTH: "50"
   script:
-    - export PATH="/home/nxelleai/.local/bin:$PATH"
+    - apt-get update -qq && apt-get install -y -qq curl ca-certificates git xz-utils >/dev/null
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - export PATH="$HOME/.local/bin:$PATH"
     - uv sync --locked --all-extras --group dev --group test
-    - MERLIN_TEST_WORKERS=24 .venv/bin/python scripts/run_tests_parallel.py -q
+    - MERLIN_TEST_WORKERS=4 .venv/bin/python scripts/run_tests_parallel.py -q
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 test-js:
   stage: test
-  tags: [self-hosted]
+  image: node:24
+  tags: [saas-linux-small-amd64]
   needs: []
-  allow_failure: true   # sementara: 3 dari 10 check gagal di WSL
+  allow_failure: true
   timeout: 60m
   variables:
     GIT_DEPTH: "50"
@@ -138,9 +124,8 @@ test-js:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 # Gemnasium analyzers are the real Dependency Scanning jobs (the
-# `dependency_scanning` key is only a config stub). They inherit the default
-# `self-hosted` tag, which is a shell executor and cannot run Docker images.
-# Pin them to the hosted runner like the other scanners.
+# `dependency_scanning` key is only a config stub); they run as Docker images,
+# so they must never inherit a shell-runner default tag.
 gemnasium-python-dependency_scanning:
   tags: [saas-linux-small-amd64]
   needs: []
