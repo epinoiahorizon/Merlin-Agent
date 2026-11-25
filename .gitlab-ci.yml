@@ -132,3 +132,15 @@ test-js:
     - node .github/scripts/run-workspace-checks.mjs
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+# Gemnasium analyzers are the real Dependency Scanning jobs (the
+# `dependency_scanning` key is only a config stub). They inherit the default
+# `self-hosted` tag, which is a shell executor and cannot run Docker images.
+# Pin them to the hosted runner like the other scanners.
+gemnasium-python-dependency_scanning:
+  tags: [saas-linux-small-amd64]
+  needs: []
+
+gemnasium-dependency_scanning:
+  tags: [saas-linux-small-amd64]
+  needs: []
