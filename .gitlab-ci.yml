@@ -31,6 +31,14 @@ build-docs:
   stage: build
   image: node:24
   tags: [saas-linux-small-amd64]
+  # hosted-runner job: auto-skip when the compute quota is exhausted (the
+  # namespace stays at 400 min/month on the trial). Run via SAAS_DOCS=on or
+  # manually from the pipeline page; Pages publishes on the default branch.
+  allow_failure: true
+  rules:
+    - if: '$SAAS_DOCS == "on" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $SAAS_DOCS == "on"'
+    - when: manual
   variables:
     NODE_ENV: production
   before_script:
@@ -62,6 +70,7 @@ pages:
   image: alpine:3
   tags: [saas-linux-small-amd64]
   needs: [build-docs]
+  allow_failure: true
   script:
     - mkdir -p public
     - cp -r website/build/. public/
