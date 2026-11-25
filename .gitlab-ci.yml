@@ -27,7 +27,7 @@ workflow:
 stages: [build, test, deploy]
 
 variables:
-  NODE_ENV: production
+  # NODE_ENV: production dipindah ke build-docs saja (global bikin npm ci skip devDependencies)
 
 build-docs:
   stage: build
@@ -86,11 +86,13 @@ include:
 # override belongs on the real analyzer, semgrep-sast.
 semgrep-sast:
   tags: [saas-linux-small-amd64]
+  needs: []
   rules:
     - if: '$GITLAB_FEATURES =~ /security_dashboard/'
 
 secret_detection:
   tags: [saas-linux-small-amd64]
+  needs: []
   rules:
     - if: '$GITLAB_FEATURES =~ /security_dashboard/'
 
@@ -107,12 +109,13 @@ secret_detection:
 test-python:
   stage: test
   tags: [self-hosted]
+  needs: []
   timeout: 60m
   variables:
     GIT_DEPTH: "50"
   script:
-    - export PATH="$HOME/.local/bin:$PATH"
-    - uv sync --all-extras --group dev --group test
+    - export PATH="/home/nxelleai/.local/bin:$PATH"
+    - uv sync --locked --all-extras --group dev --group test
     - MERLIN_TEST_WORKERS=24 .venv/bin/python scripts/run_tests_parallel.py -q
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
@@ -120,6 +123,7 @@ test-python:
 test-js:
   stage: test
   tags: [self-hosted]
+  needs: []
   timeout: 60m
   variables:
     GIT_DEPTH: "50"
