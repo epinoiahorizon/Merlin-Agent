@@ -13,7 +13,7 @@
 // group that collapses. Children that write to one stdout together interleave
 // their lines, and a failure is then hard to read.
 //
-// This also runs on a laptop: `node .github/scripts/run-workspace-checks.mjs`.
+// This also runs on a laptop: `node scripts/ci/run-workspace-checks.mjs`.
 // `--concurrency N` sets the limit. `--list` prints the units and exits.
 
 import { execFileSync, spawn } from 'node:child_process'

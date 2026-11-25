@@ -1,13 +1,15 @@
-# Docs publishing only.
+# Merlin Agent CI on GitLab.
 #
-# The full test suite stays on GitHub Actions, where it already runs on a
-# self-hosted runner (`wsl-mb`) and does not touch metered billing. This
-# pipeline exists for one job GitHub currently cannot do: publish the
-# Docusaurus site, because GitHub Pages deploys are blocked by the account's
-# billing lock.
+# Quality gates: test-python (scripts/run_tests_parallel.py) and test-js
+# (scripts/ci/run-workspace-checks.mjs) run on the self-hosted runner.
+# Docs build + GitLab Pages deploy run here because GitHub Pages is blocked by
+# the account billing lock. Security scanners (SAST, Secret Detection,
+# Dependency Scanning) run on GitLab.com hosted runners while the Ultimate
+# trial is active, guarded by $GITLAB_FEATURES so they vanish on downgrade.
 #
-# Runs on a self-managed runner, so it consumes no GitLab compute minutes.
-
+# test-python and test-js are allow_failure for now: individual tests fail on
+# the WSL runner (cold-cache subprocess timeouts), not product bugs.
+#
 default:
   tags: [self-hosted]
   interruptible: true
@@ -100,7 +102,7 @@ secret_detection:
 # Both run on the self-hosted shell runner (24 cores, WSL) and use the same
 # entry points the GitHub workflows used, so the results are comparable:
 # scripts/run_tests_parallel.py for Python (one pytest per file, isolated
-# interpreter) and .github/scripts/run-workspace-checks.mjs for JS (expands
+# interpreter) and scripts/ci/run-workspace-checks.mjs for JS (expands
 # every check:* script instead of the serial npm --ws chain).
 #
 # rules: only the default branch. The self-hosted runner accepts protected refs
@@ -131,7 +133,7 @@ test-js:
     GIT_DEPTH: "50"
   script:
     - npm ci
-    - node .github/scripts/run-workspace-checks.mjs
+    - node scripts/ci/run-workspace-checks.mjs
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
