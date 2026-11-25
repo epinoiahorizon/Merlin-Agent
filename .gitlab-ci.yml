@@ -26,11 +26,10 @@ workflow:
 
 stages: [build, test, deploy]
 
-variables:
-  # NODE_ENV: production dipindah ke build-docs saja (global bikin npm ci skip devDependencies)
-
 build-docs:
   stage: build
+  variables:
+    NODE_ENV: production
   before_script:
     # website/.npmrc sets engine-strict=true and package.json requires npm
     # >= 11.17.0, so a distro npm (10.x) hard-fails the install. The runner
