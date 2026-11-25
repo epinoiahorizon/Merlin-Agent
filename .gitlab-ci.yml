@@ -80,6 +80,7 @@ pages:
 include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
 
 # `sast` in the template is a configuration-only stub whose script exits 1 on
 # purpose; overriding its rules resurrects it and fails the pipeline. The
@@ -132,3 +133,11 @@ test-js:
     - node .github/scripts/run-workspace-checks.mjs
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+# Dependency Scanning: manifest siap (uv.lock, package-lock.json). Analyzer
+# berbasis Docker, jadi hosted runner + guard yang sama dengan scanner lain.
+dependency_scanning:
+  tags: [saas-linux-small-amd64]
+  needs: []
+  rules:
+    - if: '$GITLAB_FEATURES =~ /security_dashboard/'
