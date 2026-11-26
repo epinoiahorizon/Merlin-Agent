@@ -62,3 +62,36 @@ it('does not show a backfilled final row beside its live stream when completion 
   expect(chatMessageText(assistants[0])).toBe(ANSWER)
   expect(assistants[0].parts.filter(part => part.type === 'text')).toHaveLength(1)
 })
+
+it('keeps a different stored assistant segment even when it shares the receipt row id', () => {
+  const stream = renderMessageStream(SID)
+  const send = (type: GatewayEventName, payload: Record<string, unknown> = {}) =>
+    act(() => stream.handleEvent({ type, payload, session_id: SID }))
+  const user = toChatMessages([{ id: 3993, role: 'user', content: 'Question' }])[0]
+  stream.states.set(SID, { ...stream.state(), messages: [user], storedSessionId: 'stored-backfill-race' })
+
+  send('message.start')
+  const liveId = 'assistant-stream-live'
+  stream.states.set(SID, {
+    ...stream.state(),
+    messages: [user, { id: liveId, role: 'assistant', parts: [textPart(ANSWER)], pending: true }],
+    streamId: liveId,
+    sawAssistantPayload: true
+  })
+
+  const distinctText = 'A different assistant segment.'
+  const page = toChatMessages([
+    { id: 3993, role: 'user', content: 'Question' },
+    { id: 3994, role: 'assistant', content: distinctText }
+  ])
+  const before = stream.state()
+  stream.states.set(SID, { ...before, messages: mergeOlderTranscriptPage(before.messages, page) })
+  send('message.complete', {
+    text: ANSWER,
+    persisted_turn: { row_ids: [3993, 3994], user_row_id: 3993, final_assistant_row_id: 3994, complete: true }
+  })
+
+  const texts = stream.state().messages.filter(m => m.role === 'assistant' && !m.hidden).map(chatMessageText)
+  expect(texts).toContain(distinctText)
+  expect(texts).toContain(ANSWER)
+})
