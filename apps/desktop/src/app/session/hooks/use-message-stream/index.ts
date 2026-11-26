@@ -988,6 +988,37 @@ export function useMessageStream({
           }
         }
 
+        // A backfill page can finish after SQLite commits the final row but
+        // before this completion frame arrives. Its offset-drift merge then
+        // inserts the durable answer beside the still-live stream bubble.
+        // Settling only streamId leaves two identical visible answers until
+        // reload. The receipt identifies the exact row that the live bubble
+        // now owns; discard only a text-only copy from this user occurrence,
+        // never a distinct structured segment or a previous turn's reply.
+        const finalRowId = persistedTurn?.final_assistant_row_id
+        const settledStreamId = collapsed?.keptId ?? streamId
+
+        if (
+          streamIndex >= 0 &&
+          settledStreamId &&
+          typeof finalRowId === 'number' &&
+          Number.isSafeInteger(finalRowId) &&
+          finalRowId > 0 &&
+          nextMessages.some(message => message.id === settledStreamId && message.rowId === finalRowId)
+        ) {
+          nextMessages = nextMessages.filter(
+            (message, index) =>
+              index <= lastUserIndex ||
+              message.id === settledStreamId ||
+              message.role !== 'assistant' ||
+              message.rowId !== finalRowId ||
+              Boolean(message.error) ||
+              message.parts.length === 0 ||
+              !message.parts.every(part => part.type === 'text') ||
+              chatMessageText(message).trim() !== finalText
+          )
+        }
+
         // Turn-settle reconciliation: a `tool.complete` event lost to a
         // degraded websocket leaves its tool row spinning forever. The turn is
         // provably done here — nothing can still be running — so seal any
