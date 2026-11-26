@@ -94,16 +94,25 @@ class TestFindFreeDebugPort:
         assert port > DEFAULT_BROWSER_CDP_PORT
 
     def test_skips_occupied_successor(self):
-        """When preferred+1 is held on IPv4, the next candidate is chosen."""
+        """find_free_debug_port requires BOTH loopbacks bindable: hold preferred+1 on
+        IPv4 and IPv6, else the IPv6-only-bindable port is a legitimate candidate."""
         preferred = _free_port()
-        blocker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        blockers: list[socket.socket] = []
         try:
-            blocker.bind(("127.0.0.1", preferred + 1))
-            blocker.listen(1)
+            for sock_addr, family in ((("127.0.0.1", preferred + 1), socket.AF_INET),
+                                      (("::1", preferred + 1), socket.AF_INET6)):
+                sock = socket.socket(family, socket.SOCK_STREAM)
+                sock.bind(sock_addr)
+                sock.listen(1)
+                blockers.append(sock)
             port = find_free_debug_port(preferred)
             assert port != preferred + 1
             assert port > preferred
         except OSError:
             pytest.skip("successor port unavailable to bind in this environment")
         finally:
-            blocker.close()
+            for sock in blockers:
+                try:
+                    sock.close()
+                except OSError:
+                    pass
