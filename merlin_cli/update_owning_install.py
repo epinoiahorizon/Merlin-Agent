@@ -64,6 +64,14 @@ def _pm_environment_owner(venv: Path) -> Path | None:
 
 def retarget_to_owning_install(project_root: Path) -> None:
     """Re-run this command with the owning install's code; returns only when nothing is redirected."""
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        # A redirect re-runs OUR CLI with the caller's argv; under pytest that argv is
+        # the runner's (test files, -q), so the child argparse-fails with SystemExit(2)
+        # and masks what the test actually exercises. On a dev box the in-place venv
+        # makes owning_install_root return None anyway; on CI (a PM-managed venv) the
+        # owner resolves elsewhere. Tests exercise this function explicitly elsewhere;
+        # never redirect under a test run.
+        return
     owner = owning_install_root(project_root)
     if owner is None:
         return
