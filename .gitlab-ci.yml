@@ -125,7 +125,7 @@ test-python:
   stage: test
   tags: [self-hosted]
   needs: []
-  allow_failure: true   # sementara: test merah di WSL (timeout), bukan bug produksi
+  allow_failure: true   # temporary: tests are red on the WSL runner (timeouts), not production bugs
   timeout: 60m
   variables:
     GIT_DEPTH: "50"
@@ -140,7 +140,7 @@ test-js:
   stage: test
   tags: [self-hosted]
   needs: []
-  allow_failure: true   # sementara: 3 dari 10 check gagal di WSL
+  allow_failure: true   # temporary: 3 of 10 checks fail on the WSL runner
   timeout: 60m
   variables:
     GIT_DEPTH: "50"
