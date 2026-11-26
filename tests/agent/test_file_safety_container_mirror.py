@@ -11,6 +11,13 @@ from __future__ import annotations
 
 import pytest
 
+# These tests exercise container-path semantics through string literals like
+# /root/.merlin/... — on a CI runner whose pytest runs as root, Path.home() is
+# /root, so resolving those literals walks the runner's REAL merlin home and
+# the home-I/O guard refuses them. No filesystem state is touched on purpose:
+# mark the module out, exactly like tests/merlin_cli/test_kanban_write_guard.py.
+pytestmark = pytest.mark.allow_real_home_io
+
 
 class TestClassifyContainerMirrorTarget:
 
