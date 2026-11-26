@@ -123,6 +123,7 @@ secret_detection:
 # is the pipeline that runs before merge.
 test-python:
   stage: test
+  image: python:3.12-slim
   tags: [self-hosted, docker]
   needs: []
   allow_failure: true   # temporary: tests are red on the WSL runner (timeouts), not production bugs
@@ -146,6 +147,7 @@ test-python:
 
 test-js:
   stage: test
+  image: node:24
   tags: [self-hosted, docker]
   needs: []
   allow_failure: true   # temporary: 3 of 10 checks fail on the WSL runner
