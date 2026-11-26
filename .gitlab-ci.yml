@@ -123,27 +123,39 @@ secret_detection:
 # is the pipeline that runs before merge.
 test-python:
   stage: test
-  tags: [self-hosted]
+  tags: [self-hosted, docker]
   needs: []
   allow_failure: true   # temporary: tests are red on the WSL runner (timeouts), not production bugs
-  timeout: 60m
+  timeout: 90m
   variables:
-    GIT_DEPTH: "50"
+    GIT_DEPTH: "1"
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+    UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
+  cache:
+    paths:
+      - .cache/pip
+      - .cache/uv
   script:
-    - export PATH="/home/nxelleai/.local/bin:$PATH"
+    - apt-get update -qq && apt-get install -y -qq curl ca-certificates git build-essential >/dev/null
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - export PATH="$HOME/.local/bin:$PATH"
     - uv sync --locked --all-extras --group dev --group test
-    - MERLIN_TEST_WORKERS=24 .venv/bin/python scripts/run_tests_parallel.py -q
+    - MERLIN_TEST_WORKERS=2 .venv/bin/python scripts/run_tests_parallel.py -q
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 test-js:
   stage: test
-  tags: [self-hosted]
+  tags: [self-hosted, docker]
   needs: []
   allow_failure: true   # temporary: 3 of 10 checks fail on the WSL runner
   timeout: 60m
   variables:
-    GIT_DEPTH: "50"
+    GIT_DEPTH: "1"
+    NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.cache/npm"
+  cache:
+    paths:
+      - .cache/npm
   script:
     - npm ci
     - node scripts/ci/run-workspace-checks.mjs
